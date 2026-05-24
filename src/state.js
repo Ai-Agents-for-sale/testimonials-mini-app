@@ -1,10 +1,11 @@
 const state = {
   brand: null,
   templateId: null,
+  format: 'feed',
   currentImage: null,
   excludeIds: [],
   generatedContent: null,
-  captionDraft: '',
+  editableValues: {},
   scheduleAt: null
 };
 
@@ -20,6 +21,10 @@ export function setTemplate(id) {
   state.templateId = id;
 }
 
+export function setFormat(format) {
+  state.format = format;
+}
+
 export function setCurrentImage(img) {
   state.currentImage = img;
   if (img && img.id && !state.excludeIds.includes(img.id)) {
@@ -28,12 +33,15 @@ export function setCurrentImage(img) {
 }
 
 export function setGeneratedContent(content) {
-  state.generatedContent = content;
-  state.captionDraft = (content && content.caption) || '';
+  state.generatedContent = content || {};
+  state.editableValues = { ...state.generatedContent };
+  if (Array.isArray(state.editableValues.captionLines)) {
+    state.editableValues.captionLines = state.editableValues.captionLines.join('\n');
+  }
 }
 
-export function setCaptionDraft(text) {
-  state.captionDraft = text;
+export function setEditableValue(key, value) {
+  state.editableValues = { ...state.editableValues, [key]: value };
 }
 
 export function setScheduleAt(iso) {
@@ -42,9 +50,10 @@ export function setScheduleAt(iso) {
 
 export function resetFlow() {
   state.templateId = null;
+  state.format = 'feed';
   state.currentImage = null;
   state.excludeIds = [];
   state.generatedContent = null;
-  state.captionDraft = '';
+  state.editableValues = {};
   state.scheduleAt = null;
 }

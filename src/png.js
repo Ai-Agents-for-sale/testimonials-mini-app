@@ -1,11 +1,11 @@
 import { toPng } from 'html-to-image';
 
-export async function renderCanvasToPng(canvasEl) {
+export async function renderCanvasToPng(canvasEl, dims = { w: 1080, h: 1350 }) {
   return toPng(canvasEl, {
     cacheBust: true,
     pixelRatio: 1,
-    width: 1080,
-    height: 1350,
+    width: dims.w,
+    height: dims.h,
     backgroundColor: null
   });
 }

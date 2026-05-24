@@ -36,12 +36,13 @@ export async function generateCaption({ imageId, imageUrl, templateId, templateT
   });
 }
 
-export async function submitFinal({ imageBase64, caption, headline, templateId, sourceImageId, scheduleAt }) {
+export async function submitFinal({ imageBase64, caption, headline, templateId, format, sourceImageId, scheduleAt }) {
   return call('publish', {
     imageBase64,
     caption,
     headline,
     templateId,
+    format: format || 'feed',
     sourceImageId,
     scheduleAt: scheduleAt || null
   });

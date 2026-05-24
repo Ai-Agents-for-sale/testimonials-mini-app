@@ -1,4 +1,5 @@
 import { el } from '../dom.js';
+import { brandLogo } from '../components/brandLogo.js';
 
 export const meta = {
   id: 'funnel-over-photo',
@@ -32,7 +33,6 @@ export function render({ content, brand, format }) {
   const bg = content.backgroundUrl || brand.defaultBackgroundUrl;
   const primary = brand.primaryColor || '#1F6FB2';
   const accent  = brand.accentColor || '#F2C94C';
-  const brandName = brand.nameHe || brand.name || 'THE BRAND';
   const headline = content.headline || '';
   const subHeadline = content.subHeadline || '';
   const imageUrl = content.sourceImageUrl;
@@ -46,12 +46,8 @@ export function render({ content, brand, format }) {
   }, [
     el('div', { class: 'fn-overlay' }),
 
-    // Top brand watermark
     el('div', { class: 'fn-brandtop' }, [
-      brand.logoUrl
-        ? el('img', { class: 'fn-brandtop-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-        : el('div', { class: 'fn-brandtop-dot', style: { background: accent } }),
-      el('div', { class: 'fn-brandtop-name' }, brandName)
+      brandLogo({ brand, className: 'fn-brandtop-logo', textClass: 'fn-brandtop-name', dotClass: 'fn-brandtop-dot', accent })
     ]),
 
     el('div', { class: 'fn-headline-wrap' }, [
@@ -59,18 +55,19 @@ export function render({ content, brand, format }) {
       subHeadline ? el('div', { class: 'fn-subheadline' }, subHeadline) : null
     ]),
 
-    imageUrl
-      ? el('div', { class: 'fn-card' }, [
-          el('img', { class: 'fn-card-img', src: imageUrl, crossorigin: 'anonymous' })
-        ])
-      : null,
+    el('div', { class: 'img-card-wrap fn-img-wrap' }, [
+      imageUrl
+        ? el('div', { class: 'img-card img-card-bright' }, [
+            el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
+          ])
+        : null
+    ]),
 
     el('div', { class: 'fn-lines' }, lines.map((line) => el('div', { class: 'fn-line' }, line))),
 
-    // Bottom brand signature
     el('div', { class: 'fn-brand-sig' }, [
       el('div', { class: 'fn-brand-line', style: { background: accent } }),
-      el('div', { class: 'fn-brand-name' }, brandName)
+      brandLogo({ brand, className: 'fn-brand-name', textClass: 'fn-brand-name-text', dotClass: 'fn-brandtop-dot', accent })
     ])
   ]);
 }

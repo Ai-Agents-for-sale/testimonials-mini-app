@@ -1,4 +1,5 @@
 import { el } from '../dom.js';
+import { brandLogo } from '../components/brandLogo.js';
 
 export const meta = {
   id: 'bold-quote',
@@ -25,7 +26,6 @@ export function thumbnail() {
 export function render({ content, brand, format }) {
   const primary = brand.primaryColor || '#0d1b4b';
   const accent  = brand.accentColor || '#F2C94C';
-  const brandName = brand.nameHe || brand.name || 'THE BRAND';
   const quote = content.quote || content.caption || 'המלצה';
   const authorName = content.authorName || '';
   const authorRole = content.authorRole || '';
@@ -34,18 +34,13 @@ export function render({ content, brand, format }) {
     class: 'tpl-canvas format-' + format + ' tpl-quote',
     style: { background: primary }
   }, [
-    // Top brand strip
     el('div', { class: 'bq-brandtop' }, [
-      brand.logoUrl
-        ? el('img', { class: 'bq-brandtop-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-        : el('div', { class: 'bq-brandtop-dot', style: { background: accent } }),
-      el('div', { class: 'bq-brandtop-name', style: { color: accent } }, brandName)
+      brandLogo({ brand, className: 'bq-brandtop-logo', textClass: 'bq-brandtop-name', dotClass: 'bq-brandtop-dot', accent })
     ]),
 
     el('div', { class: 'bq-mark', style: { color: accent } }, '"'),
     el('div', { class: 'bq-quote' }, quote),
 
-    // Stars
     el('div', { class: 'bq-stars', style: { color: accent } }, '★ ★ ★ ★ ★'),
     el('div', { class: 'bq-divider', style: { background: accent } }),
 
@@ -56,11 +51,8 @@ export function render({ content, brand, format }) {
         ])
       : null,
 
-    // Bottom brand band
     el('div', { class: 'bq-brand-bottom', style: { borderColor: accent } }, [
-      brand.logoUrl
-        ? el('img', { class: 'bq-brand-bottom-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-        : el('div', { class: 'bq-brand-bottom-text' }, brandName)
+      brandLogo({ brand, className: 'bq-brand-bottom-logo', textClass: 'bq-brand-bottom-text', dotClass: 'bq-brandtop-dot', accent })
     ])
   ]);
 }

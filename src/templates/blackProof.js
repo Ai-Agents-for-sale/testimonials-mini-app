@@ -1,4 +1,5 @@
 import { el } from '../dom.js';
+import { brandLogo } from '../components/brandLogo.js';
 
 export const meta = {
   id: 'black-proof',
@@ -24,43 +25,34 @@ export function thumbnail() {
 
 export function render({ content, brand, format }) {
   const accent  = brand.accentColor || '#F2C94C';
-  const primary = brand.primaryColor || '#1F6FB2';
-  const brandName = brand.nameHe || brand.name || 'THE BRAND';
   const headline = content.headline || 'הנה ההוכחה.';
   const subline  = content.subline  || 'בלי פילטרים, בלי טריקים.';
   const caption  = content.caption  || '';
   const imageUrl = content.sourceImageUrl;
 
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-blackproof' }, [
-    // Top brand strip
     el('div', { class: 'bp-brandstrip' }, [
-      brand.logoUrl
-        ? el('img', { class: 'bp-brandstrip-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-        : el('div', { class: 'bp-brandstrip-dot', style: { background: accent } }),
-      el('div', { class: 'bp-brandstrip-name' }, brandName)
+      brandLogo({ brand, className: 'bp-brandstrip-logo', textClass: 'bp-brandstrip-name', dotClass: 'bp-brandstrip-dot', accent })
     ]),
     el('div', { class: 'bp-accent-line', style: { background: accent } }),
 
-    // Headline
     el('div', { class: 'bp-headline' }, [
       el('div', { class: 'bp-line1', style: { color: accent } }, headline),
       el('div', { class: 'bp-line2', style: { color: accent } }, subline)
     ]),
 
-    // Stars
     el('div', { class: 'bp-stars', style: { color: accent } }, '★ ★ ★ ★ ★'),
 
-    // Screenshot card
-    el('div', { class: 'bp-card' }, [
-      imageUrl
-        ? el('img', { class: 'bp-card-img', src: imageUrl, crossorigin: 'anonymous' })
-        : el('div', { class: 'bp-card-placeholder' }, 'תמונה')
+    el('div', { class: 'img-card-wrap' }, [
+      el('div', { class: 'img-card img-card-bright' }, [
+        imageUrl
+          ? el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
+          : el('div', { class: 'img-card-placeholder' }, 'תמונה')
+      ])
     ]),
 
-    // Editable caption below the card
     caption ? el('div', { class: 'bp-caption' }, caption) : null,
 
-    // Bottom badge
     el('div', { class: 'bp-bottom' }, [
       el('div', { class: 'bp-accent-line bp-accent-line-bottom', style: { background: accent } }),
       el('div', { class: 'bp-badge', style: { color: accent, borderColor: accent } }, 'VERIFIED  ✦  REVIEW')

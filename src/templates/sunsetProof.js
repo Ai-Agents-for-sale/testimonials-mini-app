@@ -1,4 +1,5 @@
 import { el } from '../dom.js';
+import { brandLogo } from '../components/brandLogo.js';
 
 export const meta = {
   id: 'sunset-proof',
@@ -25,7 +26,6 @@ export function render({ content, brand, format }) {
   const bg = content.backgroundUrl || brand.defaultBackgroundUrl;
   const primary = brand.primaryColor || '#1F6FB2';
   const accent  = brand.accentColor || '#F2C94C';
-  const brandName = brand.nameHe || brand.name || 'THE BRAND';
   const headline = content.headline || '';
   const statLine = content.statLine || content.caption || '';
   const imageUrl = content.sourceImageUrl;
@@ -36,25 +36,21 @@ export function render({ content, brand, format }) {
   }, [
     el('div', { class: 'sp-overlay' }),
 
-    // Top brand pill
     el('div', { class: 'sp-brandtop' }, [
-      brand.logoUrl
-        ? el('img', { class: 'sp-brandtop-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-        : el('div', { class: 'sp-brandtop-dot', style: { background: accent } }),
-      el('div', { class: 'sp-brandtop-name' }, brandName)
+      brandLogo({ brand, className: 'sp-brandtop-logo', textClass: 'sp-brandtop-name', dotClass: 'sp-brandtop-dot', accent })
     ]),
 
     headline
-      ? el('div', { class: 'sp-headline-wrap' }, [
-          el('div', { class: 'sp-headline' }, headline)
-        ])
+      ? el('div', { class: 'sp-headline-wrap' }, [el('div', { class: 'sp-headline' }, headline)])
       : null,
 
-    imageUrl
-      ? el('div', { class: 'sp-card' }, [
-          el('img', { class: 'sp-card-img', src: imageUrl, crossorigin: 'anonymous' })
-        ])
-      : null,
+    el('div', { class: 'img-card-wrap sp-img-wrap' }, [
+      imageUrl
+        ? el('div', { class: 'img-card img-card-bright' }, [
+            el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
+          ])
+        : null
+    ]),
 
     statLine
       ? el('div', { class: 'sp-stat-wrap' }, [
@@ -62,11 +58,10 @@ export function render({ content, brand, format }) {
         ])
       : null,
 
-    // Bottom brand strip
     el('div', { class: 'sp-brand-bottom' }, [
       el('div', { class: 'sp-brand-line', style: { background: accent } }),
       el('div', { class: 'sp-brand-row' }, [
-        el('div', { class: 'sp-brand-name' }, brandName),
+        brandLogo({ brand, className: 'sp-brand-name-logo', textClass: 'sp-brand-name', dotClass: 'sp-brandtop-dot', accent }),
         el('div', { class: 'sp-brand-stars', style: { color: accent } }, '★ ★ ★ ★ ★')
       ])
     ])

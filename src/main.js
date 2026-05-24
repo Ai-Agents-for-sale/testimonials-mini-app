@@ -1,7 +1,6 @@
 import './styles.css';
 import { initTelegram } from './telegram.js';
 import { templatesScreen } from './screens/templates.js';
-import { composeScreen } from './screens/compose.js';
 import { reviewScreen } from './screens/review.js';
 
 initTelegram();
@@ -11,7 +10,6 @@ const stack = ['templates'];
 
 const SCREENS = {
   templates: () => templatesScreen({ navigate, goBack }),
-  compose:   () => composeScreen({ navigate, goBack }),
   review:    () => reviewScreen({ goBack, onPublished: () => navigate('templates', true) })
 };
 
@@ -30,12 +28,8 @@ function navigate(name, replace = false) {
 }
 
 function goBack() {
-  if (stack.length > 1) {
-    stack.pop();
-  } else {
-    stack.length = 0;
-    stack.push('templates');
-  }
+  if (stack.length > 1) stack.pop();
+  else { stack.length = 0; stack.push('templates'); }
   render();
 }
 

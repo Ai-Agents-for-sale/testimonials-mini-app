@@ -75,6 +75,45 @@ html, body {
   word-break: break-word;
 }
 
+/* ---- Full-screen states (loading / empty / error) ---- */
+.screen-state {
+  padding: 60px 20px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px; text-align: center;
+  min-height: 70vh;
+}
+.state-emoji { font-size: 76px; line-height: 1; }
+.state-emoji.pulse { animation: state-pulse 1.4s ease-in-out infinite; }
+@keyframes state-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.08); opacity: 0.75; }
+}
+.state-title { font-size: 20px; font-weight: 900; color: var(--text); }
+.state-sub {
+  font-size: 14px; color: var(--hint);
+  line-height: 1.5; max-width: 320px; margin-bottom: 8px;
+}
+.state-action { width: 100%; max-width: 320px; padding: 14px; font-size: 15px; }
+
+/* Loading progress bar */
+.state-bar {
+  width: 220px; height: 4px;
+  background: var(--surface2);
+  border-radius: 999px; overflow: hidden;
+  margin-top: 10px;
+}
+.state-bar-fill {
+  width: 30%; height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  animation: state-bar-slide 1.6s ease-in-out infinite;
+}
+@keyframes state-bar-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(440%); }
+}
+
 /* ---- Done screen ---- */
 .done-screen {
   padding: 60px 20px;

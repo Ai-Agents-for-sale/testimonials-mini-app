@@ -26,57 +26,219 @@ export function reviewScreen({ goBack, onPublished }) {
     return el('div', {}, 'אין תבנית נבחרת');
   }
 
-  const editableFields = (template.meta && template.meta.editableFields) || [];
+  const root = el('div', { class: 'screen' });
 
-  const root = el('div', { class: 'screen' }, [
-    el('div', { class: 'header' }, [
-      el('button', { class: 'back-btn', onClick: () => { haptic('light'); goBack(); } }, '› חזרה'),
-      el('span', { class: 'header-title right' }, template.meta.nameHe)
-    ])
-  ]);
+  // ============================================================
+  // View renderers — swap into `root` based on async state
+  // ============================================================
 
-  // -------- Format toggle --------
-  const formatBtns = {};
-  function setFormatAndRender(f) {
-    setFormat(f);
-    Object.keys(formatBtns).forEach((k) => {
-      formatBtns[k].classList.toggle('active', k === f);
-    });
-    applyStageFormat();
-    renderCanvas();
+  function renderLoading() {
+    root.replaceChildren(
+      el('div', { class: 'screen-state screen-state-loading' }, [
+        el('div', { class: 'state-emoji pulse' }, '🎨'),
+        el('div', { class: 'state-title' }, 'מכין לך את הפוסט…'),
+        el('div', { class: 'state-sub' }, 'שולף תמונה מהתיקייה ויוצר טקסט שיווקי'),
+        el('div', { class: 'state-bar' }, [el('div', { class: 'state-bar-fill' })])
+      ])
+    );
   }
-  const formatBar = el('div', { class: 'rv-format-bar' }, [
-    el('div', { class: 'rv-format-label' }, 'פורמט:'),
-    el('button', { class: 'rv-format-btn' + (state.format === 'feed' ? ' active' : ''),
-                   onClick: () => { haptic('light'); setFormatAndRender('feed'); } }, '📱 פיד 4:5'),
-    el('button', { class: 'rv-format-btn' + (state.format === 'story' ? ' active' : ''),
-                   onClick: () => { haptic('light'); setFormatAndRender('story'); } }, '📰 סטורי 9:16')
-  ]);
-  formatBtns.feed  = formatBar.children[1];
-  formatBtns.story = formatBar.children[2];
-  root.appendChild(formatBar);
 
-  // -------- Preview stage --------
-  const stage = el('div', { class: 'rv-stage' });
-  const canvasWrap = el('div', { class: 'rv-canvas-scale' });
-  stage.appendChild(canvasWrap);
-  root.appendChild(stage);
+  function renderEmptyFolder() {
+    root.replaceChildren(
+      el('div', { class: 'screen-state screen-state-empty' }, [
+        el('div', { class: 'state-emoji' }, '📭'),
+        el('div', { class: 'state-title' }, 'אין תמונות בתיקייה הזו'),
+        el('div', { class: 'state-sub' }, 'התיקייה ' + (state.selectedFolderName || '') + ' לא מכילה צילומים. בחר תיקייה אחרת.'),
+        el('button', {
+          class: 'btn btn-primary state-action',
+          onClick: () => { haptic('light'); goBack(); }
+        }, '← חזרה לתבניות'),
+        el('button', {
+          class: 'btn btn-secondary state-action',
+          onClick: () => { haptic('light'); goBack(); setTimeout(goBack, 50); }
+        }, '🗂️ בחר תיקייה אחרת')
+      ])
+    );
+  }
+
+  function renderError(message) {
+    root.replaceChildren(
+      el('div', { class: 'screen-state screen-state-error' }, [
+        el('div', { class: 'state-emoji' }, '⚠️'),
+        el('div', { class: 'state-title' }, 'שגיאה'),
+        el('div', { class: 'state-sub' }, message || 'משהו השתבש'),
+        el('button', {
+          class: 'btn btn-primary state-action',
+          onClick: () => { haptic('light'); renderLoading(); loadInitial(); }
+        }, '🔁 נסה שוב'),
+        el('button', {
+          class: 'btn btn-secondary state-action',
+          onClick: () => { haptic('light'); goBack(); }
+        }, '← חזרה')
+      ])
+    );
+  }
+
+  function renderReview() {
+    root.replaceChildren(buildReviewView());
+  }
+
+  // ============================================================
+  // The actual review UI (built once we have image + content)
+  // ============================================================
+
+  let canvasEl = null;
+  let stage = null;
+  let canvasWrap = null;
+  let captionsBlockEl = null;
+  let statusEl = null;
+  let regenBtn = null;
+  let publishBtn = null;
+  let scheduleBtn = null;
+  let confirmScheduleBtn = null;
+
+  function buildReviewView() {
+    const wrap = el('div', {}, [
+      el('div', { class: 'header' }, [
+        el('button', { class: 'back-btn', onClick: () => { haptic('light'); goBack(); } }, '› חזרה'),
+        el('span', { class: 'header-title right' }, template.meta.nameHe)
+      ])
+    ]);
+
+    // --- Format toggle ---
+    const formatBtns = {};
+    function setFormatAndRender(f) {
+      setFormat(f);
+      Object.keys(formatBtns).forEach((k) => formatBtns[k].classList.toggle('active', k === f));
+      applyStageFormat();
+      renderCanvas();
+    }
+    const formatBar = el('div', { class: 'rv-format-bar' }, [
+      el('div', { class: 'rv-format-label' }, 'פורמט:'),
+      el('button', {
+        class: 'rv-format-btn' + (state.format === 'feed' ? ' active' : ''),
+        onClick: () => { haptic('light'); setFormatAndRender('feed'); }
+      }, '📱 פיד 4:5'),
+      el('button', {
+        class: 'rv-format-btn' + (state.format === 'story' ? ' active' : ''),
+        onClick: () => { haptic('light'); setFormatAndRender('story'); }
+      }, '📰 סטורי 9:16')
+    ]);
+    formatBtns.feed = formatBar.children[1];
+    formatBtns.story = formatBar.children[2];
+    wrap.appendChild(formatBar);
+
+    // --- Stage ---
+    stage = el('div', { class: 'rv-stage' });
+    canvasWrap = el('div', { class: 'rv-canvas-scale' });
+    stage.appendChild(canvasWrap);
+    wrap.appendChild(stage);
+
+    // --- Image actions ---
+    const imgStatus = el('div', { class: 'rv-img-status' });
+    const fileInput = el('input', { type: 'file', accept: 'image/*', class: 'hidden' });
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      setCurrentImage({ id: 'local-' + Date.now(), imageUrl: url, mimeType: file.type, local: true });
+      renderCanvas();
+      regenerateCaptionInline(imgStatus);
+    });
+    wrap.appendChild(el('div', { class: 'rv-img-actions' }, [
+      el('button', {
+        class: 'btn btn-secondary',
+        onClick: () => { haptic('light'); rerollInline(imgStatus); }
+      }, '🎲 תמונה אחרת מהתיקייה'),
+      el('button', {
+        class: 'btn btn-secondary',
+        onClick: () => { haptic('light'); fileInput.click(); }
+      }, '📁 העלה מהמכשיר')
+    ]));
+    wrap.appendChild(fileInput);
+    wrap.appendChild(imgStatus);
+
+    // --- Editable fields ---
+    captionsBlockEl = el('div', { class: 'rv-fields' });
+    renderFieldInputs();
+    wrap.appendChild(captionsBlockEl);
+
+    // --- Regenerate ---
+    regenBtn = el('button', { class: 'btn btn-secondary rv-regen' }, '🔄 צור טקסט חדש');
+    regenBtn.addEventListener('click', () => { haptic('light'); regenerateCaptionInline(null, true); });
+    wrap.appendChild(regenBtn);
+
+    // --- Action buttons ---
+    statusEl = el('div', { class: 'rv-status' });
+    publishBtn  = el('button', { class: 'btn btn-primary rv-action' }, '🚀 פרסם עכשיו');
+    scheduleBtn = el('button', { class: 'btn btn-secondary rv-action' }, '📅 תזמן לפרסום');
+    const actionRow = el('div', { class: 'rv-action-row' }, [publishBtn, scheduleBtn]);
+
+    const scheduleBlock = el('div', { class: 'rv-schedule-block hidden' });
+    const scheduleInput = el('input', { type: 'datetime-local', class: 'rv-datetime' });
+    scheduleBlock.appendChild(el('div', { class: 'rv-schedule-hint' }, 'בחר תאריך ושעה לפרסום אוטומטי'));
+    scheduleBlock.appendChild(scheduleInput);
+
+    const confirmRow = el('div', { class: 'rv-action-row hidden' });
+    const cancelBtn = el('button', { class: 'btn btn-secondary rv-action' }, '← ביטול');
+    confirmScheduleBtn = el('button', { class: 'btn btn-primary rv-action' }, '✅ אשר תזמון');
+    confirmRow.appendChild(cancelBtn);
+    confirmRow.appendChild(confirmScheduleBtn);
+
+    publishBtn.addEventListener('click', () => { haptic('medium'); doSubmit(null); });
+    scheduleBtn.addEventListener('click', () => {
+      haptic('light');
+      scheduleBlock.classList.remove('hidden');
+      actionRow.classList.add('hidden');
+      confirmRow.classList.remove('hidden');
+    });
+    cancelBtn.addEventListener('click', () => {
+      scheduleBlock.classList.add('hidden');
+      actionRow.classList.remove('hidden');
+      confirmRow.classList.add('hidden');
+      setScheduleAt(null);
+      scheduleInput.value = '';
+    });
+    confirmScheduleBtn.addEventListener('click', () => {
+      haptic('medium');
+      const v = scheduleInput.value;
+      if (!v) { statusEl.textContent = 'בחר תאריך ושעה'; return; }
+      const iso = new Date(v).toISOString();
+      if (new Date(iso).getTime() < Date.now()) { statusEl.textContent = 'בחר תאריך עתידי'; return; }
+      setScheduleAt(iso);
+      doSubmit(iso);
+    });
+
+    wrap.appendChild(actionRow);
+    wrap.appendChild(scheduleBlock);
+    wrap.appendChild(confirmRow);
+    wrap.appendChild(statusEl);
+
+    // Sync stage to format after DOM insert
+    setTimeout(() => { applyStageFormat(); syncScale(); renderCanvas(); }, 0);
+    window.addEventListener('resize', syncScale);
+
+    return wrap;
+  }
+
+  // ============================================================
+  // Canvas + fields helpers (run after buildReviewView)
+  // ============================================================
 
   function applyStageFormat() {
+    if (!stage) return;
     const dims = FORMAT_DIMS[state.format] || FORMAT_DIMS.feed;
     stage.style.aspectRatio = dims.w + ' / ' + dims.h;
-    canvasWrap.style.height = dims.h + 'px';
+    if (canvasWrap) canvasWrap.style.height = dims.h + 'px';
     syncScale();
   }
+
   function syncScale() {
+    if (!stage) return;
     const w = stage.clientWidth;
     if (!w) return;
     stage.style.setProperty('--canvas-scale', String(w / 1080));
   }
-  setTimeout(() => { applyStageFormat(); syncScale(); }, 0);
-  window.addEventListener('resize', syncScale);
-
-  let canvasEl = null;
 
   function buildContent() {
     const img = state.currentImage;
@@ -97,6 +259,7 @@ export function reviewScreen({ goBack, onPublished }) {
   }
 
   function renderCanvas() {
+    if (!canvasWrap) return;
     canvasWrap.replaceChildren();
     canvasEl = template.render({
       content: buildContent(),
@@ -105,35 +268,12 @@ export function reviewScreen({ goBack, onPublished }) {
     });
     canvasWrap.appendChild(canvasEl);
   }
-  renderCanvas();
 
-  // -------- Image action row (re-roll + upload) --------
-  const imgStatus = el('div', { class: 'rv-img-status' });
-  const fileInput = el('input', { type: 'file', accept: 'image/*', class: 'hidden' });
-  fileInput.addEventListener('change', () => {
-    const file = fileInput.files && fileInput.files[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    setCurrentImage({ id: 'local-' + Date.now(), imageUrl: url, mimeType: file.type, local: true });
-    renderCanvas();
-    regenerateCaption();
-  });
-
-  const imgActions = el('div', { class: 'rv-img-actions' }, [
-    el('button', { class: 'btn btn-secondary',
-                   onClick: () => { haptic('light'); pickAnotherFromDrive(); } }, '🎲 תמונה אחרת מהתיקייה'),
-    el('button', { class: 'btn btn-secondary',
-                   onClick: () => { haptic('light'); fileInput.click(); } }, '📁 העלה מהמכשיר')
-  ]);
-  root.appendChild(imgActions);
-  root.appendChild(fileInput);
-  root.appendChild(imgStatus);
-
-  // -------- Editable fields --------
-  const fieldsBlock = el('div', { class: 'rv-fields' });
   function renderFieldInputs() {
-    fieldsBlock.replaceChildren();
-    editableFields.forEach((f) => {
+    if (!captionsBlockEl) return;
+    captionsBlockEl.replaceChildren();
+    const fields = (template.meta && template.meta.editableFields) || [];
+    fields.forEach((f) => {
       const val = state.editableValues[f.key] || '';
       const input = f.multiline
         ? el('textarea', {
@@ -144,94 +284,37 @@ export function reviewScreen({ goBack, onPublished }) {
             type: 'text', class: 'rv-field-input rv-field-input-single', dir: 'rtl', value: val,
             onInput: (e) => { setEditableValue(f.key, e.target.value); renderCanvas(); }
           });
-      fieldsBlock.appendChild(el('div', { class: 'rv-field' }, [
+      captionsBlockEl.appendChild(el('div', { class: 'rv-field' }, [
         el('div', { class: 'rv-field-label' }, f.labelHe),
         input
       ]));
     });
   }
-  renderFieldInputs();
-  root.appendChild(fieldsBlock);
 
-  // -------- Regenerate caption --------
-  const regenBtn = el('button', { class: 'btn btn-secondary rv-regen' }, '🔄 צור טקסט חדש');
-  regenBtn.addEventListener('click', () => { haptic('light'); regenerateCaption(true); });
-  root.appendChild(regenBtn);
+  // ============================================================
+  // Behaviors
+  // ============================================================
 
-  // -------- Schedule + publish (button-style, no checkbox) --------
-  const scheduleBlock = el('div', { class: 'rv-schedule-block hidden' });
-  const scheduleInput = el('input', { type: 'datetime-local', class: 'rv-datetime' });
-  const scheduleHint = el('div', { class: 'rv-schedule-hint' }, 'בחר תאריך ושעה לפרסום אוטומטי');
-  scheduleBlock.appendChild(scheduleHint);
-  scheduleBlock.appendChild(scheduleInput);
-
-  const statusEl = el('div', { class: 'rv-status' });
-
-  const publishBtn  = el('button', { class: 'btn btn-primary rv-action' }, '🚀 פרסם עכשיו');
-  const scheduleBtn = el('button', { class: 'btn btn-secondary rv-action' }, '📅 תזמן לפרסום');
-  const actionRow = el('div', { class: 'rv-action-row' }, [publishBtn, scheduleBtn]);
-
-  const confirmRow = el('div', { class: 'rv-action-row hidden' });
-  const cancelScheduleBtn  = el('button', { class: 'btn btn-secondary rv-action' }, '← ביטול');
-  const confirmScheduleBtn = el('button', { class: 'btn btn-primary rv-action' }, '✅ אשר תזמון');
-  confirmRow.appendChild(cancelScheduleBtn);
-  confirmRow.appendChild(confirmScheduleBtn);
-
-  publishBtn.addEventListener('click', () => { haptic('medium'); doSubmit(null); });
-  scheduleBtn.addEventListener('click', () => {
-    haptic('light');
-    scheduleBlock.classList.remove('hidden');
-    actionRow.classList.add('hidden');
-    confirmRow.classList.remove('hidden');
-  });
-  cancelScheduleBtn.addEventListener('click', () => {
-    scheduleBlock.classList.add('hidden');
-    actionRow.classList.remove('hidden');
-    confirmRow.classList.add('hidden');
-    setScheduleAt(null);
-    scheduleInput.value = '';
-  });
-  confirmScheduleBtn.addEventListener('click', () => {
-    haptic('medium');
-    const v = scheduleInput.value;
-    if (!v) { statusEl.textContent = 'בחר תאריך ושעה'; return; }
-    const iso = new Date(v).toISOString();
-    if (new Date(iso).getTime() < Date.now()) {
-      statusEl.textContent = 'בחר תאריך עתידי';
-      return;
-    }
-    setScheduleAt(iso);
-    doSubmit(iso);
-  });
-
-  root.appendChild(actionRow);
-  root.appendChild(scheduleBlock);
-  root.appendChild(confirmRow);
-  root.appendChild(statusEl);
-
-  // -------- Behaviors --------
-  function pickAnotherFromDrive() {
-    if (!state.selectedFolderId) {
-      imgStatus.textContent = 'לא נבחרה תיקייה';
-      return;
-    }
-    imgStatus.textContent = 'טוען תמונה חדשה…';
+  function rerollInline(statusNode) {
+    if (!state.selectedFolderId) { if (statusNode) statusNode.textContent = 'לא נבחרה תיקייה'; return; }
+    if (statusNode) statusNode.textContent = 'טוען תמונה חדשה…';
     pickRandomImage(state.selectedFolderId, state.excludeIds)
       .then((res) => {
+        if (res && res.empty) { if (statusNode) statusNode.textContent = 'אין עוד תמונות חדשות בתיקייה'; return; }
         if (!res || !res.imageUrl) throw new Error('לא הוחזרה תמונה');
         setCurrentImage({ id: res.id, imageUrl: res.imageUrl, mimeType: res.mimeType });
-        imgStatus.textContent = '';
+        if (statusNode) statusNode.textContent = '';
         renderCanvas();
-        regenerateCaption();
+        regenerateCaptionInline(statusNode);
       })
-      .catch((err) => { imgStatus.textContent = 'שגיאה: ' + err.message; });
+      .catch((err) => { if (statusNode) statusNode.textContent = 'שגיאה: ' + err.message; });
   }
 
-  function regenerateCaption(userInitiated = false) {
+  function regenerateCaptionInline(statusNode, userInitiated = false) {
     const img = state.currentImage;
-    if (!img) return;
-    if (userInitiated) { regenBtn.disabled = true; regenBtn.textContent = 'מנסח…'; }
-    else statusEl.textContent = 'מנסח טקסט מותאם…';
+    if (!img) return Promise.resolve();
+    if (userInitiated && regenBtn) { regenBtn.disabled = true; regenBtn.textContent = 'מנסח…'; }
+    else if (statusNode) statusNode.textContent = 'מנסח טקסט מותאם…';
     return generateCaption({
       imageId: img.id,
       imageUrl: img.imageUrl,
@@ -243,17 +326,18 @@ export function reviewScreen({ goBack, onPublished }) {
         setGeneratedContent(res || {});
         renderFieldInputs();
         renderCanvas();
-        if (!userInitiated) statusEl.textContent = '';
+        if (statusNode) statusNode.textContent = '';
       })
       .catch((err) => {
-        statusEl.textContent = 'שגיאה: ' + err.message;
+        if (statusEl) statusEl.textContent = 'שגיאה: ' + err.message;
       })
       .finally(() => {
-        if (userInitiated) { regenBtn.disabled = false; regenBtn.textContent = '🔄 צור טקסט חדש'; }
+        if (userInitiated && regenBtn) { regenBtn.disabled = false; regenBtn.textContent = '🔄 צור טקסט חדש'; }
       });
   }
 
   async function doSubmit(scheduleAt) {
+    if (!publishBtn || !scheduleBtn || !confirmScheduleBtn || !statusEl) return;
     publishBtn.disabled = true;
     scheduleBtn.disabled = true;
     confirmScheduleBtn.disabled = true;
@@ -273,7 +357,7 @@ export function reviewScreen({ goBack, onPublished }) {
         scheduleAt
       });
       statusEl.textContent = scheduleAt ? '✅ תוזמן בהצלחה' : '✅ נשלח לפרסום';
-      if (onPublished) setTimeout(onPublished, 1200);
+      if (onPublished) setTimeout(onPublished, 1000);
     } catch (err) {
       statusEl.textContent = 'שגיאה: ' + err.message;
       publishBtn.disabled = false;
@@ -282,12 +366,45 @@ export function reviewScreen({ goBack, onPublished }) {
     }
   }
 
-  // -------- Bootstrap on mount: pick image + generate caption --------
-  if (!state.currentImage) {
-    pickAnotherFromDrive();
-  } else if (!state.generatedContent) {
-    regenerateCaption();
+  // ============================================================
+  // Initial load — sequential: image first, then caption
+  // ============================================================
+
+  async function loadInitial() {
+    try {
+      if (!state.selectedFolderId) {
+        renderError('לא נבחרה תיקייה');
+        return;
+      }
+      const img = await pickRandomImage(state.selectedFolderId, []);
+      if (img && img.empty) {
+        renderEmptyFolder();
+        return;
+      }
+      if (!img || !img.imageUrl) {
+        renderError('לא הוחזרה תמונה מהתיקייה');
+        return;
+      }
+      setCurrentImage({ id: img.id, imageUrl: img.imageUrl, mimeType: img.mimeType });
+
+      const content = await generateCaption({
+        imageId: img.id,
+        imageUrl: img.imageUrl,
+        templateId: template.meta.id,
+        templateType: template.meta.type,
+        regenerate: false
+      });
+      setGeneratedContent(content || {});
+
+      renderReview();
+    } catch (err) {
+      renderError(err.message || String(err));
+    }
   }
+
+  // Boot
+  renderLoading();
+  loadInitial();
 
   return root;
 }

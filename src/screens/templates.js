@@ -1,15 +1,19 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { fetchBootstrap } from '../api.js';
 import { TEMPLATES } from '../templates/index.js';
-import { getState, setBrand, setTemplate, resetFlow } from '../state.js';
+import { getState, setTemplate, resetPostFlow } from '../state.js';
 
-export function templatesScreen({ navigate }) {
-  resetFlow();
+export function templatesScreen({ navigate, goBack }) {
+  // Don't blow away brand or folder selection — only per-post state.
+  resetPostFlow();
+
+  const state = getState();
+  const folderHint = state.selectedFolderName ? ' • ' + state.selectedFolderName : '';
 
   const root = el('div', { class: 'screen' }, [
-    el('div', { class: 'topbar' }, [
-      el('div', { class: 'topbar-title' }, '⭐ הוכחות לקוחות')
+    el('div', { class: 'header' }, [
+      el('button', { class: 'back-btn', onClick: () => { haptic('light'); goBack(); } }, '› חזרה'),
+      el('span', { class: 'header-title right' }, 'בחר תבנית' + folderHint)
     ]),
     el('div', { class: 'intro' }, [
       el('div', { class: 'intro-title' }, 'בחר תבנית'),
@@ -20,9 +24,6 @@ export function templatesScreen({ navigate }) {
   const grid = el('div', { class: 'tpl-grid' });
   root.appendChild(grid);
 
-  const loading = el('div', { class: 'loading' }, 'טוען מותג…');
-  root.appendChild(loading);
-
   TEMPLATES.forEach((tpl) => {
     const card = el('div', { class: 'tpl-card' }, [
       el('div', { class: 'tpl-card-thumb' }, [tpl.thumbnail()]),
@@ -32,23 +33,12 @@ export function templatesScreen({ navigate }) {
       ])
     ]);
     card.addEventListener('click', () => {
-      if (!getState().brand) return;
       haptic('light');
       setTemplate(tpl.meta.id);
       navigate('review');
     });
     grid.appendChild(card);
   });
-
-  fetchBootstrap()
-    .then((res) => {
-      setBrand(res && res.brand ? res.brand : {});
-      loading.classList.add('hidden');
-    })
-    .catch((err) => {
-      loading.textContent = 'שגיאה בטעינת המותג: ' + err.message;
-      loading.classList.add('error');
-    });
 
   return root;
 }

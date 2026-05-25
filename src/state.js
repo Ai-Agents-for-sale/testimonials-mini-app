@@ -1,5 +1,8 @@
 const state = {
   brand: null,
+  folders: [],
+  selectedFolderId: null,
+  selectedFolderName: '',
   templateId: null,
   format: 'feed',
   currentImage: null,
@@ -15,6 +18,16 @@ export function getState() {
 
 export function setBrand(brand) {
   state.brand = brand;
+}
+
+export function setFolders(folders) {
+  state.folders = Array.isArray(folders) ? folders : [];
+}
+
+export function setSelectedFolder(id, name) {
+  state.selectedFolderId = id;
+  state.selectedFolderName = name || '';
+  state.excludeIds = [];
 }
 
 export function setTemplate(id) {
@@ -48,7 +61,9 @@ export function setScheduleAt(iso) {
   state.scheduleAt = iso;
 }
 
-export function resetFlow() {
+// Reset just the per-post flow (keep brand, folders, selectedFolder).
+// Used when looping back to pick another template within the same folder.
+export function resetPostFlow() {
   state.templateId = null;
   state.format = 'feed';
   state.currentImage = null;
@@ -56,4 +71,12 @@ export function resetFlow() {
   state.generatedContent = null;
   state.editableValues = {};
   state.scheduleAt = null;
+}
+
+// Full reset back to "open the app" state. Used to switch folder.
+export function resetAll() {
+  resetPostFlow();
+  state.folders = [];
+  state.selectedFolderId = null;
+  state.selectedFolderName = '';
 }

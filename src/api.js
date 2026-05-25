@@ -1,7 +1,6 @@
 import { getClientInfo } from './telegram.js';
 
-// Single n8n webhook — handles all 4 actions (bootstrap | pick-image | caption | publish)
-// via Switch node on body.action.
+// Single n8n webhook — handles all actions via Switch node on body.action.
 const WEBHOOK_URL = 'https://aiagentsforsale.app.n8n.cloud/webhook/testimonials';
 
 async function call(action, body = {}) {
@@ -22,8 +21,12 @@ export async function fetchBootstrap() {
   return call('bootstrap');
 }
 
-export async function pickRandomImage(excludeIds = []) {
-  return call('pick-image', { excludeIds });
+export async function listFolders() {
+  return call('list-folders');
+}
+
+export async function pickRandomImage(folderId, excludeIds = []) {
+  return call('pick-image', { folderId, excludeIds });
 }
 
 export async function generateCaption({ imageId, imageUrl, templateId, templateType, regenerate }) {

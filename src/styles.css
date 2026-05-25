@@ -51,6 +51,42 @@ html, body {
 .loading { text-align: center; font-size: 13px; color: var(--hint); padding: 14px 0; }
 .loading.error { color: var(--error); }
 
+/* ---- Folder picker grid (first screen) ---- */
+.folder-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  padding: 12px 0 20px;
+}
+.folder-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.2s, opacity 0.15s;
+  min-height: 140px;
+  text-align: center;
+}
+.folder-card:active { transform: scale(0.985); opacity: 0.92; border-color: var(--accent); }
+.folder-emoji { font-size: 42px; line-height: 1; }
+.folder-name {
+  font-size: 14px; font-weight: 800; color: var(--text);
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+/* ---- Done screen ---- */
+.done-screen {
+  padding: 60px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+  text-align: center;
+}
+.done-emoji { font-size: 80px; line-height: 1; }
+.done-title { font-size: 22px; font-weight: 900; color: var(--text); }
+.done-sub { font-size: 14px; color: var(--hint); margin-bottom: 14px; }
+.done-actions { width: 100%; display: flex; flex-direction: column; gap: 10px; max-width: 360px; }
+.done-btn { width: 100%; padding: 14px; font-size: 15px; }
+
 /* ---- Template picker grid ---- */
 .tpl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 8px 0 20px; }
 .tpl-card {

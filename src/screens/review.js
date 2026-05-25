@@ -211,8 +211,12 @@ export function reviewScreen({ goBack, onPublished }) {
 
   // -------- Behaviors --------
   function pickAnotherFromDrive() {
+    if (!state.selectedFolderId) {
+      imgStatus.textContent = 'לא נבחרה תיקייה';
+      return;
+    }
     imgStatus.textContent = 'טוען תמונה חדשה…';
-    pickRandomImage(state.excludeIds)
+    pickRandomImage(state.selectedFolderId, state.excludeIds)
       .then((res) => {
         if (!res || !res.imageUrl) throw new Error('לא הוחזרה תמונה');
         setCurrentImage({ id: res.id, imageUrl: res.imageUrl, mimeType: res.mimeType });

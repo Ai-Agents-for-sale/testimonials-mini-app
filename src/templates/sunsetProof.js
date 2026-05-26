@@ -32,12 +32,20 @@ export function render({ content, brand, format }) {
   const statLine = content.statLine || content.caption || '';
   const imageUrl = content.sourceImageUrl;
 
+  // Brand-driven background. If a custom photo bg is provided, use it;
+  // otherwise build a gradient from the brand colors: primary (dark) →
+  // accent (warm middle) → primary (dark). The overlay underneath stays
+  // brand-neutral (just adds a soft vignette + halftone for atmosphere).
   return el('div', {
     class: 'tpl-canvas format-' + format + ' tpl-sunset',
-    style: { background: bg ? 'url("' + bg + '") center/cover no-repeat' : 'linear-gradient(180deg, #3a2a1a 0%, #d4a070 55%, #6a4a3a 100%)' }
+    style: {
+      background: bg
+        ? 'url("' + bg + '") center/cover no-repeat'
+        : 'linear-gradient(180deg, ' + primary + ' 0%, ' + accent + ' 55%, ' + primary + ' 100%)'
+    }
   }, [
-    // Warm peach gradient overlay
-    el('div', { class: 'sp-bg-warm' }),
+    // Soft vignette overlay (brand-neutral — just darkens edges slightly)
+    el('div', { class: 'sp-bg-vignette' }),
     // Halftone dot pattern overlay
     el('div', { class: 'sp-bg-halftone' }),
 

@@ -195,33 +195,32 @@ html, body {
   position: relative; overflow: hidden;
 }
 
-/* #1 Black Proof — radial dark + accent bar + stamp + Suez headline */
+/* #1 Black Proof — minimalist: plain black + 2 white pills + image */
 .tpl-thumb-blackproof {
-  background: radial-gradient(ellipse at 50% 40%, #1a1a1a 0%, #050505 80%);
+  background: #000;
+  justify-content: center;
+  gap: 6px; padding: 12px 14px;
 }
-.tpl-thumb-blackproof-bar {
-  position: absolute; top: 0; right: 0; bottom: 0; width: 3px;
-  background: #F2C94C;
-}
-.tpl-thumb-blackproof-stamp {
-  position: absolute; top: 8px; left: 10px;
-  width: 18px; height: 18px;
-  border: 1.5px solid #F2C94C; border-radius: 3px;
-  display: flex; align-items: center; justify-content: center;
-  color: #F2C94C; font-size: 10px;
-}
-.tpl-thumb-blackproof-headline {
-  font-family: 'Suez One', serif;
-  color: #F2C94C; font-size: 22px;
-  line-height: 0.95; margin-top: 20px;
+.tpl-thumb-blackproof-pill-top {
+  width: 90%;
+  background: #fff; color: #000;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-family: 'Heebo', sans-serif; font-weight: 900;
+  font-size: 11px; text-align: center;
 }
 .tpl-thumb-blackproof-card {
-  width: 65%; height: 30%; background: rgba(255,255,255,0.92); border-radius: 4px;
+  width: 80%; height: 36%;
+  background: rgba(255,255,255,0.95);
+  border-radius: 4px;
 }
-.tpl-thumb-blackproof-foot {
-  font-family: 'Frank Ruhl Libre', serif;
-  color: #F2C94C; font-size: 8px;
-  letter-spacing: 2px;
+.tpl-thumb-blackproof-pill-bot {
+  width: 90%;
+  background: #fff; color: #000;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-family: 'Heebo', sans-serif; font-weight: 500;
+  font-size: 9px; text-align: center;
 }
 
 /* #2 Funnel Over Photo — photo bg + diagonal ribbon + big stat */
@@ -255,13 +254,13 @@ html, body {
   margin-bottom: 8px;
 }
 
-/* #3 Sunset Proof — warm gradient + halftone + centered frame */
-.tpl-thumb-sunset { background: #2a1a10; }
+/* #3 Sunset Proof — brand-color gradient + halftone + centered frame */
+.tpl-thumb-sunset { background: #1F6FB2; }
 .tpl-thumb-sunset-bg {
   position: absolute; inset: 0;
   background:
     radial-gradient(rgba(255,255,255,0.15) 1px, transparent 1px) 0 0 / 6px 6px,
-    linear-gradient(180deg, #d4a070 0%, #6a4a3a 100%);
+    linear-gradient(180deg, #1F6FB2 0%, #F2C94C 55%, #1F6FB2 100%);
 }
 .tpl-thumb-sunset-frame {
   position: relative; z-index: 2;
@@ -554,121 +553,41 @@ html, body {
 .img-card-placeholder { color: rgba(255,255,255,0.5); font-size: 40px; padding: 40px 80px; }
 
 /* =========================================================================
-   #1 BLACK PROOF — editorial magazine. Black + radial vignette + noise.
-   Stamp top-right. Vertical accent bar left. Suez display headline.
+   #1 BLACK PROOF — minimalist. Plain black canvas, two white text pills
+   wrapping Hebrew text, and the screenshot raw between them.
    ========================================================================= */
 .tpl-blackproof {
-  background: #050505;
-  padding: 0;
+  background: #000;
+  padding: 60px 70px;
   display: flex; flex-direction: column; align-items: stretch;
+  justify-content: center;
+  gap: 28px;
 }
-.bp-bg-vignette {
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse at 50% 40%, #1a1a1a 0%, #050505 70%);
-  z-index: 0;
-}
-.bp-bg-noise {
-  position: absolute; inset: 0;
-  opacity: 0.08;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' /></filter><rect width='240' height='240' filter='url(%23n)' opacity='0.6'/></svg>");
-  z-index: 0;
-}
-.bp-edge-bar {
-  position: absolute;
-  top: 0; right: 0; bottom: 0;
-  width: 6px;
-  z-index: 3;
-}
-.bp-stamp {
-  position: absolute;
-  top: 60px; left: 60px;
-  width: 110px; height: 110px;
-  border: 3px solid #F2C94C;
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 3;
-  background: rgba(0,0,0,0.4);
-}
-.bp-stamp-logo { max-width: 70%; max-height: 70%; object-fit: contain; }
-.bp-stamp-initial {
-  font-family: 'Suez One', serif;
-  font-size: 56px;
-  line-height: 1;
-}
-.bp-est-tag {
-  position: absolute;
-  top: 180px; left: 60px;
-  font-family: 'Frank Ruhl Libre', serif;
-  font-size: 14px;
-  letter-spacing: 4px;
-  color: rgba(255,255,255,0.6);
-  z-index: 3;
-}
-
-.bp-headline-block {
-  position: relative; z-index: 2;
-  padding: 220px 90px 32px;
-  text-align: right;
-}
-.bp-headline {
-  font-family: 'Suez One', serif;
-  font-size: 132px;
-  line-height: 0.95;
-  letter-spacing: -3px;
-  margin-bottom: 16px;
-}
-.bp-subline {
-  font-family: 'Heebo', sans-serif;
-  font-weight: 300;
-  font-size: 30px;
-  color: rgba(255,255,255,0.85);
-  letter-spacing: 1px;
-}
-
-.bp-img-wrap { padding: 30px 90px; }
-
-.bp-caption {
-  position: relative; z-index: 2;
-  font-family: 'Frank Ruhl Libre', serif;
-  font-style: italic;
-  font-weight: 400;
-  font-size: 32px;
-  line-height: 1.5;
-  color: rgba(255,255,255,0.92);
-  text-align: center;
-  padding: 30px 110px 24px;
-}
-
-.bp-foot {
-  position: relative; z-index: 2;
-  margin-top: auto;
-  padding: 30px 90px 60px;
-  display: flex; flex-direction: column; align-items: center; gap: 18px;
-}
-.bp-verified {
-  display: flex; align-items: center; gap: 12px;
-  font-family: 'Heebo', sans-serif;
-  font-weight: 800;
-  font-size: 20px;
-  letter-spacing: 4px;
-}
-.bp-check {
-  width: 28px; height: 28px; border-radius: 50%;
+.bp-pill {
+  background: #fff;
   color: #000;
-  display: inline-flex; align-items: center; justify-content: center;
-  font-size: 16px; font-weight: 900;
+  border-radius: 20px;
+  padding: 28px 36px;
+  text-align: center;
 }
-.bp-foot-rule { width: 100px; height: 2px; }
-.bp-foot-name {
-  font-family: 'Frank Ruhl Libre', serif;
+.bp-pill-top {
+  font-family: 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 60px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+.bp-pill-bottom {
+  font-family: 'Heebo', sans-serif;
   font-weight: 500;
   font-size: 36px;
-  letter-spacing: 8px;
+  line-height: 1.45;
 }
+.bp-img-wrap { padding: 0; }
 
-.tpl-blackproof.format-story .bp-headline-block { padding-top: 280px; }
-.tpl-blackproof.format-story .bp-headline { font-size: 148px; }
-.tpl-blackproof.format-story .bp-caption { padding: 50px 110px 36px; }
+.tpl-blackproof.format-story { padding: 100px 70px; gap: 36px; }
+.tpl-blackproof.format-story .bp-pill-top    { font-size: 72px; padding: 36px 44px; }
+.tpl-blackproof.format-story .bp-pill-bottom { font-size: 40px; padding: 32px 40px; }
 
 /* =========================================================================
    #2 FUNNEL OVER PHOTO — diagonal ribbon top-left, mixed pills, big stat.
@@ -792,10 +711,12 @@ html, body {
   padding: 0;
   display: flex; flex-direction: column; align-items: stretch;
 }
-.sp-bg-warm {
+/* Brand-neutral vignette overlay — darkens top + bottom edges so brand
+   colors in the underlying gradient read well behind text + image. */
+.sp-bg-vignette {
   position: absolute; inset: 0;
   background:
-    linear-gradient(180deg, rgba(255,180,120,0.25) 0%, rgba(255,120,80,0.15) 50%, rgba(20,15,30,0.7) 100%);
+    linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.0) 35%, rgba(0,0,0,0.0) 65%, rgba(0,0,0,0.55) 100%);
   z-index: 1;
 }
 .sp-bg-halftone {

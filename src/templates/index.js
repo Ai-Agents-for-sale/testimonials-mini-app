@@ -1,3 +1,4 @@
+import * as phoneMockup     from './phoneMockup.js';
 import * as whatsapp        from './whatsapp.js';
 import * as googleReview    from './googleReview.js';
 import * as blackProof      from './blackProof.js';
@@ -6,6 +7,7 @@ import * as sunsetProof     from './sunsetProof.js';
 import * as boldQuote       from './boldQuote.js';
 
 export const TEMPLATES = [
+  phoneMockup,
   whatsapp,
   googleReview,
   blackProof,

@@ -45,12 +45,12 @@ export function render({ content, brand, format }) {
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-google' }, [
     // Soft grid pattern background
     el('div', { class: 'gr-bg-grid' }),
-    // 4-corner Google color dots
-    el('div', { class: 'gr-corner-dots' }, [
-      el('span', { class: 'gr-dot gr-dot-tl', style: { background: '#4285F4' } }),
-      el('span', { class: 'gr-dot gr-dot-tr', style: { background: '#EA4335' } }),
-      el('span', { class: 'gr-dot gr-dot-bl', style: { background: '#FBBC05' } }),
-      el('span', { class: 'gr-dot gr-dot-br', style: { background: '#34A853' } })
+    // Big blurred Google color orbs — replace the tiny corner dots
+    el('div', { class: 'gr-bg-orbs' }, [
+      el('span', { class: 'gr-orb gr-orb-blue',   style: { background: '#4285F4' } }),
+      el('span', { class: 'gr-orb gr-orb-red',    style: { background: '#EA4335' } }),
+      el('span', { class: 'gr-orb gr-orb-yellow', style: { background: '#FBBC05' } }),
+      el('span', { class: 'gr-orb gr-orb-green',  style: { background: '#34A853' } })
     ]),
 
     // Top row: Google wordmark LEFT, brand stamp RIGHT
@@ -71,10 +71,9 @@ export function render({ content, brand, format }) {
       ])
     ]),
 
-    // Massive rating block — "5.0" + stars
+    // Massive rating block — "5.0" only, stars moved to the bottom
     el('div', { class: 'gr-rating-block' }, [
       el('div', { class: 'gr-rating-num' }, '5.0'),
-      el('div', { class: 'gr-rating-stars' }, '★ ★ ★ ★ ★'),
       el('div', { class: 'gr-rating-out' }, 'out of 5')
     ]),
 
@@ -104,8 +103,9 @@ export function render({ content, brand, format }) {
       ])
     ]) : null,
 
-    // Bottom: "Verified" badge + "Reviewed for BRAND" serif signature
+    // Bottom: small stars row + "Verified" badge + "Reviewed for BRAND" sig
     el('div', { class: 'gr-bottom' }, [
+      el('div', { class: 'gr-bottom-stars', style: { color: '#FBBC05' } }, '★ ★ ★ ★ ★'),
       el('div', { class: 'gr-verified' }, [
         el('span', { class: 'gr-check', style: { background: '#34A853' } }, '✓'),
         el('span', { style: { color: '#5f6368' } }, 'Verified Review')

@@ -360,6 +360,52 @@ html, body {
   text-align: center;
 }
 
+/* #7 Phone Mockup — gradient + orbs + phone outline + headline + arrow */
+.tpl-thumb-mockup {
+  background: linear-gradient(155deg, #1F6FB2 0%, #0a0e1a 100%);
+  align-items: stretch; padding: 8px;
+  position: relative; overflow: hidden;
+}
+.tpl-thumb-mockup-orb-a {
+  position: absolute; top: -20px; right: -20px;
+  width: 80px; height: 80px; border-radius: 50%;
+  background: #F2C94C; filter: blur(20px); opacity: 0.7;
+}
+.tpl-thumb-mockup-orb-b {
+  position: absolute; bottom: -20px; left: -20px;
+  width: 70px; height: 70px; border-radius: 50%;
+  background: #1F6FB2; filter: blur(18px); opacity: 0.6;
+}
+.tpl-thumb-mockup-headline {
+  position: relative; z-index: 2;
+  font-family: 'Suez One', serif; color: #fff;
+  font-size: 14px; text-align: center; margin-top: 4px;
+}
+.tpl-thumb-mockup-phone {
+  position: relative; z-index: 2;
+  width: 40%; aspect-ratio: 9 / 19;
+  margin: 6px auto 0;
+  background: #0a0a0a; border-radius: 10px;
+  padding: 2px;
+  display: flex;
+}
+.tpl-thumb-mockup-screen {
+  flex: 1;
+  background: linear-gradient(180deg, #DCF8C6, #fff);
+  border-radius: 8px;
+}
+.tpl-thumb-mockup-arrow {
+  position: absolute; z-index: 3;
+  top: 38%; left: 8px;
+  color: #F2C94C; font-size: 18px; font-weight: 900;
+}
+.tpl-thumb-mockup-foot {
+  position: relative; z-index: 2;
+  font-family: 'Frank Ruhl Libre', serif; color: #fff;
+  font-size: 8px; letter-spacing: 2px; text-align: center;
+  margin-top: 4px;
+}
+
 /* #6 Google Review — grid bg + Google word + giant rating */
 .tpl-thumb-google {
   background:
@@ -1085,16 +1131,17 @@ html, body {
   background-size: 40px 40px;
   z-index: 0;
 }
-.gr-corner-dots { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
-.gr-dot {
+.gr-bg-orbs { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+.gr-orb {
   position: absolute;
-  width: 18px; height: 18px;
   border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
 }
-.gr-dot-tl { top: 40px; left: 40px; }
-.gr-dot-tr { top: 40px; right: 40px; }
-.gr-dot-bl { bottom: 40px; left: 40px; }
-.gr-dot-br { bottom: 40px; right: 40px; }
+.gr-orb-blue   { width: 480px; height: 480px; top: -120px;  right: -140px; }
+.gr-orb-red    { width: 380px; height: 380px; top: 40%;     left: -160px;  }
+.gr-orb-yellow { width: 440px; height: 440px; bottom: -120px; right: -100px; }
+.gr-orb-green  { width: 320px; height: 320px; bottom: 30%;  left: -100px;  }
 
 .gr-top-row {
   position: relative; z-index: 2;
@@ -1135,22 +1182,15 @@ html, body {
 }
 .gr-rating-num {
   font-family: 'Suez One', serif;
-  font-size: 180px;
+  font-size: 200px;
   line-height: 0.9;
   color: #1f1f1f;
   letter-spacing: -6px;
 }
-.gr-rating-stars {
-  font-size: 76px;
-  letter-spacing: 14px;
-  color: #FBBC05;
-  line-height: 1;
-  margin-top: 8px;
-}
 .gr-rating-out {
   font-family: 'Heebo', sans-serif; font-weight: 300;
   font-size: 22px; letter-spacing: 6px;
-  color: #5f6368; margin-top: 8px;
+  color: #5f6368; margin-top: 12px;
 }
 
 .gr-headline {
@@ -1215,6 +1255,11 @@ html, body {
   padding: 24px 90px 60px;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
 }
+.gr-bottom-stars {
+  font-size: 32px;
+  letter-spacing: 8px;
+  line-height: 1;
+}
 .gr-verified {
   display: flex; align-items: center; gap: 10px;
   font-family: 'Heebo', sans-serif; font-weight: 700;
@@ -1239,5 +1284,207 @@ html, body {
   font-size: 26px; letter-spacing: 4px;
 }
 
-.tpl-google.format-story .gr-rating-num { font-size: 220px; }
+.tpl-google.format-story .gr-rating-num { font-size: 240px; }
 .tpl-google.format-story .gr-quote { font-size: 50px; }
+
+/* =========================================================================
+   #7 PHONE MOCKUP — iPhone frame holding the screenshot, curvy SVG
+   arrows pointing in, floating annotation stickers, gradient bg + orbs.
+   ========================================================================= */
+.tpl-mockup {
+  padding: 0;
+  display: flex; flex-direction: column; align-items: stretch;
+  color: #fff;
+}
+
+/* Background decoration */
+.pm-bg-orbs { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.pm-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+.pm-orb-accent  { width: 480px; height: 480px; top: -150px; right: -150px; opacity: 0.65; }
+.pm-orb-primary { width: 520px; height: 520px; bottom: -180px; left: -120px; opacity: 0.55; }
+.pm-orb-soft    { width: 240px; height: 240px; top: 35%; left: 20%; opacity: 0.18; }
+
+.pm-bg-stripes {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255,255,255,0.025) 0 12px,
+    transparent 12px 36px
+  );
+  pointer-events: none;
+}
+
+/* Top brand pill */
+.pm-top {
+  position: relative; z-index: 3;
+  padding: 50px 70px 0;
+  display: flex; justify-content: flex-end;
+}
+.pm-brand-pill {
+  display: inline-flex; align-items: center; gap: 12px;
+  padding: 10px 20px;
+  border: 2px solid;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.25);
+  backdrop-filter: blur(6px);
+}
+.pm-brand-pill-logo { max-height: 36px; max-width: 160px; object-fit: contain; }
+.pm-brand-pill-dot { width: 16px; height: 16px; border-radius: 50%; }
+.pm-brand-pill-name {
+  font-family: 'Frank Ruhl Libre', serif; font-weight: 700;
+  font-size: 22px; letter-spacing: 4px; color: #fff;
+}
+
+/* Headline block */
+.pm-headline-block {
+  position: relative; z-index: 3;
+  padding: 30px 70px 24px;
+  text-align: center;
+}
+.pm-headline {
+  font-family: 'Suez One', serif;
+  font-size: 92px;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  color: #fff;
+  margin-bottom: 14px;
+  text-shadow: 0 4px 18px rgba(0,0,0,0.45);
+}
+.pm-subhead {
+  font-family: 'Frank Ruhl Libre', serif;
+  font-style: italic;
+  font-size: 32px;
+  font-weight: 500;
+}
+
+/* Stage — phone in the middle, arrows + annotations around it */
+.pm-stage {
+  position: relative; z-index: 3;
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px 30px;
+}
+
+/* Curvy SVG arrows */
+.pm-arrow {
+  position: absolute;
+  width: 280px; height: 220px;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));
+}
+.pm-arrow-right { top: 0; right: 0; }
+.pm-arrow-left  { top: 0; left: 0; transform: scaleX(-1); }
+
+/* iPhone-ish mockup frame */
+.pm-phone {
+  position: relative;
+  width: 480px;
+  aspect-ratio: 9 / 19;
+  background: #0a0a0a;
+  border-radius: 64px;
+  padding: 14px;
+  box-shadow:
+    inset 0 0 0 2px #2a2a2a,
+    0 30px 80px rgba(0,0,0,0.55),
+    0 0 0 4px #1a1a1a;
+  z-index: 3;
+}
+.pm-phone-notch {
+  position: absolute;
+  top: 14px; left: 50%;
+  transform: translateX(-50%);
+  width: 160px; height: 32px;
+  background: #0a0a0a;
+  border-radius: 0 0 20px 20px;
+  z-index: 4;
+}
+.pm-phone-screen {
+  width: 100%; height: 100%;
+  background: #1a1a1a;
+  border-radius: 50px;
+  overflow: hidden;
+  position: relative;
+}
+.pm-phone-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.pm-phone-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  color: #555; font-size: 28px;
+}
+
+/* Side buttons — small dark pills on the phone edges */
+.pm-phone-button {
+  position: absolute;
+  background: #1a1a1a;
+  border-radius: 3px;
+  z-index: 3;
+}
+.pm-phone-mute     { top:  120px; left: -4px; width: 6px; height: 30px; }
+.pm-phone-vol-up   { top:  170px; left: -4px; width: 6px; height: 56px; }
+.pm-phone-vol-down { top:  240px; left: -4px; width: 6px; height: 56px; }
+.pm-phone-power    { top:  180px; right: -4px; width: 6px; height: 80px; }
+
+/* Floating annotation stickers around the phone */
+.pm-annotation {
+  position: absolute;
+  font-family: 'Heebo', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 1px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  color: #1a1a1a;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  z-index: 4;
+  transform: rotate(-6deg);
+}
+.pm-annotation-right { top: 22%; right: 50px; }
+.pm-annotation-left {
+  top: 70%; left: 50px;
+  background: #fff;
+  transform: rotate(8deg);
+}
+
+/* Bottom signature row */
+.pm-bottom {
+  position: relative; z-index: 3;
+  margin-top: auto;
+  padding: 30px 70px 60px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+}
+.pm-bottom-rule { width: 140px; height: 3px; }
+.pm-bottom-row {
+  display: flex; align-items: center; gap: 12px;
+  font-family: 'Heebo', sans-serif;
+}
+.pm-bottom-initial {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  color: #1a1a1a;
+  font-family: 'Suez One', serif;
+  font-size: 20px;
+  line-height: 1;
+}
+.pm-bottom-name {
+  font-family: 'Frank Ruhl Libre', serif; font-weight: 700;
+  font-size: 26px; color: #fff;
+}
+.pm-bottom-dot { opacity: 0.55; }
+.pm-bottom-tag {
+  font-weight: 700; font-size: 14px;
+  letter-spacing: 4px; color: rgba(255,255,255,0.75);
+}
+
+/* Story format tweaks */
+.tpl-mockup.format-story .pm-headline { font-size: 108px; }
+.tpl-mockup.format-story .pm-phone { width: 540px; }

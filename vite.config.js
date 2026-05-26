@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
   base: './',
@@ -10,6 +11,12 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     sourcemap: false,
-    target: 'es2018'
+    target: 'es2018',
+    rollupOptions: {
+      input: {
+        main:    resolve(__dirname, 'index.html'),
+        preview: resolve(__dirname, 'preview.html')
+      }
+    }
   }
 });

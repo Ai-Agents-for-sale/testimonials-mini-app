@@ -1,0 +1,119 @@
+/* =========================================================================
+   Templates Preview gallery — accessed at /preview.html
+   Dark background, side-by-side feed + story per template, RTL Hebrew.
+   ========================================================================= */
+
+body {
+  background: #0f1320;
+  color: #e6e9f2;
+  font-family: 'Heebo', system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* ---- Header ---- */
+.pv-header { margin-bottom: 24px; }
+.pv-title { font-size: 32px; font-weight: 900; margin-bottom: 6px; }
+.pv-sub   { font-size: 14px; color: #8a93b0; }
+
+/* ---- Brand legend ---- */
+.pv-legend {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  background: #1a2030;
+  border: 1px solid #2a334a;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 36px;
+  font-size: 13px;
+}
+.pv-legend-row { display: flex; align-items: center; gap: 8px; }
+.pv-swatch {
+  width: 22px; height: 22px; border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.15);
+  display: inline-block;
+}
+.pv-swatch-text {
+  background: #2a334a; color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 12px;
+}
+
+/* ---- Section per template ---- */
+.pv-section {
+  background: #1a2030;
+  border: 1px solid #2a334a;
+  border-radius: 16px;
+  padding: 22px 22px 26px;
+  margin-bottom: 28px;
+}
+.pv-section-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 18px; margin-bottom: 12px;
+}
+.pv-section-num {
+  font-size: 11px; font-weight: 800;
+  color: #8a93b0; letter-spacing: 2px;
+}
+.pv-section-name { font-size: 22px; font-weight: 900; margin-top: 2px; }
+.pv-section-id {
+  font-size: 11px; color: #6a738a;
+  font-family: 'Menlo', monospace; margin-top: 4px;
+}
+.pv-section-desc {
+  max-width: 540px; text-align: left;
+  color: #8a93b0; font-size: 13px; line-height: 1.55;
+}
+
+/* ---- Editable-fields tags ---- */
+.pv-fields {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 18px;
+}
+.pv-field-tag {
+  background: #232b40; color: #b8c0d8;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 700;
+  border: 1px solid #2e3854;
+}
+
+/* ---- Canvas previews (feed + story side by side) ---- */
+.pv-canvases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+@media (max-width: 720px) {
+  .pv-canvases { grid-template-columns: 1fr; }
+}
+
+.pv-canvas-wrap {
+  background: #0b0f1a;
+  border-radius: 10px;
+  padding: 12px;
+  border: 1px solid #232b40;
+}
+.pv-canvas-label {
+  font-size: 12px; color: #8a93b0;
+  margin-bottom: 8px; font-weight: 700;
+}
+
+.pv-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  width: 100%;
+  background: #000;
+}
+.pv-scale {
+  position: absolute;
+  top: 0; left: 0;
+  width: 1080px;
+  transform-origin: top left;
+  transform: scale(var(--pv-scale, 0.3));
+}

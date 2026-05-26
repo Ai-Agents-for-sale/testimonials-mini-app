@@ -6,9 +6,9 @@ export const meta = {
   type: 'phone-mockup',
   description: 'הסקרינשוט יושב בתוך מסגרת אייפון, חיצים ושכבות קישוט מסביב, רקע גראדיאנט עם עיגולים גדולים בצבעי המותג.',
   editableFields: [
-    { key: 'headline',    labelHe: 'כותרת ראשית' },
-    { key: 'subHeadline', labelHe: 'תת-כותרת' },
-    { key: 'caption',     labelHe: 'אנוטציה צד (קצרה)', multiline: false }
+    { key: 'headline',    labelHe: 'כותרת ראשית', default: 'תראו מה כתבו לנו.' },
+    { key: 'subHeadline', labelHe: 'תת-כותרת', default: 'הודעה אמיתית. צילום אמיתי.' },
+    { key: 'caption',     labelHe: 'אנוטציה צד (קצרה)', multiline: false, default: '★ אמיתי' }
   ]
 };
 

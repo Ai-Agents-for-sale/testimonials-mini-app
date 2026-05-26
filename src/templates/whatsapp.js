@@ -6,8 +6,8 @@ export const meta = {
   type: 'whatsapp',
   description: 'אותנטי. רקע קרם בדוגמת וואטסאפ, כותרת מגזין מעל, צ׳אט בסגנון אפליקציה עם הלוגו של המותג כתמונת פרופיל, ושורת חתימה למטה.',
   editableFields: [
-    { key: 'headline', labelHe: 'כותרת מגזין מעל הצ׳אט' },
-    { key: 'caption',  labelHe: 'תגובת בעל העסק (בועה ירוקה למטה)', multiline: true }
+    { key: 'headline', labelHe: 'כותרת מגזין מעל הצ׳אט', default: 'הלקוחות שלנו מספרים.' },
+    { key: 'caption',  labelHe: 'תגובת בעל העסק (בועה ירוקה למטה)', multiline: true, default: 'תודה רבה! כיף לנו לקבל את ההודעה הזו.' }
   ]
 };
 

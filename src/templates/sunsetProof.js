@@ -6,8 +6,8 @@ export const meta = {
   type: 'frame-stat',
   description: 'אווירה חמה. גראדיינט אפרסק על תמונה, רקע נקודות הלפטון, מסגרת מותג מרכזית למעלה, כותרת בסריף איטליק, ומונוגרם עדין בתחתית.',
   editableFields: [
-    { key: 'headline', labelHe: 'כותרת איטליק (Frank Ruhl)' },
-    { key: 'statLine', labelHe: 'שורת תוצאה תחתונה', multiline: true }
+    { key: 'headline', labelHe: 'כותרת איטליק (Frank Ruhl)', default: 'כוחו של הסיפור.' },
+    { key: 'statLine', labelHe: 'שורת תוצאה תחתונה', multiline: true, default: 'הכניס מעל 100,000 ₪ בחודש הראשון.' }
   ]
 };
 

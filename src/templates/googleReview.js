@@ -6,10 +6,10 @@ export const meta = {
   type: 'google-review',
   description: 'בסגנון מטריאל. רקע גריד עדין, וורדמארק Google שמאל-עליון, סטמפ מותג ימין-עליון, ציון 5.0 ענק ב-Suez, ביקורת בסריף איטליק, וחתימת "Reviewed for".',
   editableFields: [
-    { key: 'headline',   labelHe: 'כותרת קצרה מעל הציטוט' },
-    { key: 'quote',      labelHe: 'תוכן הביקורת (סריף איטליק)', multiline: true },
-    { key: 'authorName', labelHe: 'שם הממליץ' },
-    { key: 'authorRole', labelHe: 'תיאור (אופציונלי)' }
+    { key: 'headline',   labelHe: 'כותרת קצרה מעל הציטוט', default: 'ביקורת ⭐ מגוגל' },
+    { key: 'quote',      labelHe: 'תוכן הביקורת (סריף איטליק)', multiline: true, default: 'השירות הכי טוב שקיבלתי. צוות מקצועי, זמין ומהיר. ממליצה בחום!' },
+    { key: 'authorName', labelHe: 'שם הממליץ', default: 'שיר כהן' },
+    { key: 'authorRole', labelHe: 'תיאור (אופציונלי)', default: 'לקוחה' }
   ]
 };
 

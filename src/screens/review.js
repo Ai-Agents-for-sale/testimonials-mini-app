@@ -17,7 +17,7 @@ const FORMAT_DIMS = {
   story: { w: 1080, h: 1920 }
 };
 
-export function reviewScreen({ goBack, onPublished }) {
+export function reviewScreen({ navigate, goBack, onPublished }) {
   const state = getState();
   const template = getTemplate(state.templateId);
 
@@ -165,8 +165,8 @@ export function reviewScreen({ goBack, onPublished }) {
     wrap.appendChild(el('div', { class: 'rv-img-actions' }, [
       el('button', {
         class: 'btn btn-secondary',
-        onClick: () => { haptic('light'); rerollInline(imgStatus); }
-      }, '🎲 תמונה אחרת מהתיקייה'),
+        onClick: () => { haptic('light'); if (navigate) navigate('gallery'); }
+      }, '🖼️ בחר תמונה אחרת'),
       el('button', {
         class: 'btn btn-secondary',
         onClick: () => { haptic('light'); fileInput.click(); }
@@ -393,6 +393,24 @@ export function reviewScreen({ goBack, onPublished }) {
         renderError('לא נבחרה תיקייה');
         return;
       }
+
+      // If we already have a current image (entered review from gallery
+      // picker or after a local upload), regenerate the caption for THAT
+      // image instead of picking a fresh random one.
+      if (state.currentImage && state.currentImage.imageUrl) {
+        const content = await generateCaption({
+          imageId: state.currentImage.id,
+          imageUrl: state.currentImage.imageUrl,
+          templateId: template.meta.id,
+          templateType: template.meta.type,
+          regenerate: false
+        });
+        setGeneratedContent(content || {});
+        renderReview();
+        return;
+      }
+
+      // First entry from templates: pick a random image to start with.
       const img = await pickRandomImage(state.selectedFolderId, []);
       if (img && img.empty) {
         renderEmptyFolder();

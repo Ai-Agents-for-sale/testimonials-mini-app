@@ -6,9 +6,9 @@ export const meta = {
   type: 'frame-multi',
   description: 'מגזין נועז על רקע תמונה. סרט אלכסוני בפינה שמאל-עליונה, כותרת ענקית, חלוקה אלכסונית, ושורות הסבר במשקלים מעורבים.',
   editableFields: [
-    { key: 'headline',     labelHe: 'מספר/סטטיסטיקה ענקית (Suez One)' },
-    { key: 'subHeadline',  labelHe: 'תת-כותרת תיאורית' },
-    { key: 'captionLines', labelHe: 'שורות הסבר (שורה לכל שורה)', multiline: true, linesField: true }
+    { key: 'headline',     labelHe: 'מספר/סטטיסטיקה ענקית (Suez One)', default: '100K ₪' },
+    { key: 'subHeadline',  labelHe: 'תת-כותרת תיאורית', default: 'בחודש הראשון' },
+    { key: 'captionLines', labelHe: 'שורות הסבר (שורה לכל שורה)', multiline: true, linesField: true, default: 'הלקוחות התחילו לפנות\nהמוצר הציע פתרון אמיתי\nהמכירה סגרה את עצמה' }
   ]
 };
 

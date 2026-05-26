@@ -6,8 +6,8 @@ export const meta = {
   type: 'frame',
   description: 'מינימליסטי. רקע שחור נקי בלי קישוטים. כותרת בעברית על רקע לבן למעלה, תמונה באמצע, ומשפט קצר על רקע לבן למטה.',
   editableFields: [
-    { key: 'headline', labelHe: 'טקסט עליון (על רקע לבן)' },
-    { key: 'caption',  labelHe: 'משפט תחתון (על רקע לבן)', multiline: true }
+    { key: 'headline', labelHe: 'טקסט עליון (על רקע לבן)', default: 'הנה ההוכחה.' },
+    { key: 'caption',  labelHe: 'משפט תחתון (על רקע לבן)', multiline: true, default: 'הלקוחות שלנו אומרים את הכל בעצמם.' }
   ]
 };
 

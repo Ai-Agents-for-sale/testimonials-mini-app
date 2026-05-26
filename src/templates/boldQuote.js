@@ -6,9 +6,9 @@ export const meta = {
   type: 'extract',
   description: 'מינימליסטי. רקע צבע מותג אחיד (התבנית היחידה עם רקע נקי). ציטוט סריף ענקי, מונוגרם בפינה שמאלית-עליונה, חתימת מותג בסריף בפינה ימנית-תחתונה.',
   editableFields: [
-    { key: 'quote',      labelHe: 'הציטוט (Suez One איטליק)', multiline: true },
-    { key: 'authorName', labelHe: 'שם הממליץ' },
-    { key: 'authorRole', labelHe: 'תפקיד/תיאור (אופציונלי)' }
+    { key: 'quote',      labelHe: 'הציטוט (Suez One איטליק)', multiline: true, default: 'השירות הכי טוב שקיבלתי. ממליצה בחום!' },
+    { key: 'authorName', labelHe: 'שם הממליץ', default: 'שיר כהן' },
+    { key: 'authorRole', labelHe: 'תפקיד/תיאור (אופציונלי)', default: 'לקוחה' }
   ]
 };
 

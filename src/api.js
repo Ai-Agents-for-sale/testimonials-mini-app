@@ -29,6 +29,10 @@ export async function pickRandomImage(folderId, excludeIds = []) {
   return call('pick-image', { folderId, excludeIds });
 }
 
+export async function listImages(folderId) {
+  return call('list-images', { folderId });
+}
+
 export async function generateCaption({ imageId, imageUrl, templateId, templateType, regenerate }) {
   return call('caption', {
     imageId,

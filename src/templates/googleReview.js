@@ -1,14 +1,13 @@
 import { el } from '../dom.js';
-import { brandLogo } from '../components/brandLogo.js';
 
 export const meta = {
   id: 'google-review',
   nameHe: 'ביקורת גוגל',
   type: 'google-review',
-  description: 'מותאם לצילומי ביקורת מגוגל — צבעי גוגל, חמישה כוכבי זהב, תג מאומת ושם המותג.',
+  description: 'בסגנון מטריאל. רקע גריד עדין, וורדמארק Google שמאל-עליון, סטמפ מותג ימין-עליון, ציון 5.0 ענק ב-Suez, ביקורת בסריף איטליק, וחתימת "Reviewed for".',
   editableFields: [
-    { key: 'headline',   labelHe: 'כותרת ראשית' },
-    { key: 'quote',      labelHe: 'תוכן הביקורת', multiline: true },
+    { key: 'headline',   labelHe: 'כותרת קצרה מעל הציטוט' },
+    { key: 'quote',      labelHe: 'תוכן הביקורת (סריף איטליק)', multiline: true },
     { key: 'authorName', labelHe: 'שם הממליץ' },
     { key: 'authorRole', labelHe: 'תיאור (אופציונלי)' }
   ]
@@ -24,72 +23,97 @@ export function thumbnail() {
       el('span', { style: { color: '#34A853' } }, 'l'),
       el('span', { style: { color: '#EA4335' } }, 'e')
     ]),
+    el('div', { class: 'tpl-thumb-google-stamp' }, 'B'),
+    el('div', { class: 'tpl-thumb-google-rating' }, '5.0'),
     el('div', { class: 'tpl-thumb-google-stars' }, '★★★★★'),
     el('div', { class: 'tpl-thumb-google-card' }),
-    el('div', { class: 'tpl-thumb-google-brand' }, 'BRAND')
+    el('div', { class: 'tpl-thumb-google-sig' }, 'Reviewed for BRAND')
   ]);
 }
 
 export function render({ content, brand, format }) {
   const primary = brand.primaryColor || '#1a73e8';
   const accent  = brand.accentColor || '#F2C94C';
-  const headline = content.headline || 'ביקורת ⭐ מגוגל';
+  const brandName = brand.nameHe || brand.name || 'BRAND';
+  const initial = (brandName || '?').slice(0, 1);
+  const headline = content.headline || '';
   const quote = content.quote || content.caption || '';
   const authorName = content.authorName || '';
   const authorRole = content.authorRole || '';
   const imageUrl = content.sourceImageUrl;
 
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-google' }, [
-    // Top: Google wordmark
-    el('div', { class: 'gr-top' }, [
+    // Soft grid pattern background
+    el('div', { class: 'gr-bg-grid' }),
+    // 4-corner Google color dots
+    el('div', { class: 'gr-corner-dots' }, [
+      el('span', { class: 'gr-dot gr-dot-tl', style: { background: '#4285F4' } }),
+      el('span', { class: 'gr-dot gr-dot-tr', style: { background: '#EA4335' } }),
+      el('span', { class: 'gr-dot gr-dot-bl', style: { background: '#FBBC05' } }),
+      el('span', { class: 'gr-dot gr-dot-br', style: { background: '#34A853' } })
+    ]),
+
+    // Top row: Google wordmark LEFT, brand stamp RIGHT
+    el('div', { class: 'gr-top-row' }, [
       el('div', { class: 'gr-google-word' }, [
         el('span', { style: { color: '#4285F4' } }, 'G'),
         el('span', { style: { color: '#EA4335' } }, 'o'),
         el('span', { style: { color: '#FBBC05' } }, 'o'),
         el('span', { style: { color: '#4285F4' } }, 'g'),
         el('span', { style: { color: '#34A853' } }, 'l'),
-        el('span', { style: { color: '#EA4335' } }, 'e')
+        el('span', { style: { color: '#EA4335' } }, 'e'),
+        el('span', { class: 'gr-reviews', style: { color: '#5f6368' } }, ' Reviews')
       ]),
-      el('div', { class: 'gr-reviews-label' }, 'REVIEWS')
+      el('div', { class: 'gr-brand-stamp', style: { borderColor: primary } }, [
+        brand.logoUrl
+          ? el('img', { class: 'gr-brand-stamp-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
+          : el('div', { class: 'gr-brand-stamp-initial', style: { color: primary } }, initial)
+      ])
     ]),
 
-    // 5-star header
-    el('div', { class: 'gr-stars-row' }, [
-      el('div', { class: 'gr-stars' }, '★ ★ ★ ★ ★'),
-      el('div', { class: 'gr-rating' }, '5.0  •  Verified')
+    // Massive rating block — "5.0" + stars
+    el('div', { class: 'gr-rating-block' }, [
+      el('div', { class: 'gr-rating-num' }, '5.0'),
+      el('div', { class: 'gr-rating-stars' }, '★ ★ ★ ★ ★'),
+      el('div', { class: 'gr-rating-out' }, 'out of 5')
     ]),
 
-    // Headline
+    // Optional small headline
     headline ? el('div', { class: 'gr-headline' }, headline) : null,
 
-    // Image card (if present)
-    imageUrl
-      ? el('div', { class: 'img-card-wrap gr-img-wrap' }, [
-          el('div', { class: 'img-card img-card-bright gr-img-card' }, [
-            el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
-          ])
-        ])
-      : null,
+    // Quote — serif italic
+    quote ? el('div', { class: 'gr-quote-wrap' }, [
+      el('div', { class: 'gr-quote-mark-l', style: { color: primary } }, '"'),
+      el('div', { class: 'gr-quote' }, quote),
+      el('div', { class: 'gr-quote-mark-r', style: { color: primary } }, '"')
+    ]) : null,
 
-    // Quote
-    quote ? el('div', { class: 'gr-quote' }, '"' + quote + '"') : null,
+    // Optional image (if a real Google review screenshot is provided)
+    imageUrl ? el('div', { class: 'img-card-wrap gr-img-wrap' }, [
+      el('div', { class: 'img-card img-card-bright gr-img-card' }, [
+        el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
+      ])
+    ]) : null,
 
-    // Author
-    (authorName || authorRole)
-      ? el('div', { class: 'gr-author' }, [
-          el('div', { class: 'gr-avatar', style: { background: primary } }, (authorName || '?').slice(0, 1)),
-          el('div', { class: 'gr-author-meta' }, [
-            authorName ? el('div', { class: 'gr-author-name' }, authorName) : null,
-            authorRole ? el('div', { class: 'gr-author-role' }, authorRole) : null
-          ])
-        ])
-      : null,
+    // Author — avatar circle + name + role
+    (authorName || authorRole) ? el('div', { class: 'gr-author' }, [
+      el('div', { class: 'gr-author-avatar', style: { background: primary } }, (authorName || '?').slice(0, 1)),
+      el('div', { class: 'gr-author-meta' }, [
+        authorName ? el('div', { class: 'gr-author-name' }, authorName) : null,
+        el('div', { class: 'gr-author-stars', style: { color: '#FBBC05' } }, '★ ★ ★ ★ ★')
+      ])
+    ]) : null,
 
-    // Bottom brand strip
+    // Bottom: "Verified" badge + "Reviewed for BRAND" serif signature
     el('div', { class: 'gr-bottom' }, [
-      el('div', { class: 'gr-bottom-line' }),
-      el('div', { class: 'gr-bottom-row' }, [
-        brandLogo({ brand, className: 'gr-bottom-logo', textClass: 'gr-bottom-name', dotClass: 'gr-bottom-dot', accent: primary })
+      el('div', { class: 'gr-verified' }, [
+        el('span', { class: 'gr-check', style: { background: '#34A853' } }, '✓'),
+        el('span', { style: { color: '#5f6368' } }, 'Verified Review')
+      ]),
+      el('div', { class: 'gr-sig-rule' }),
+      el('div', { class: 'gr-sig' }, [
+        el('span', { class: 'gr-sig-prefix' }, 'Reviewed for'),
+        el('span', { class: 'gr-sig-brand', style: { color: primary } }, brandName)
       ])
     ])
   ]);

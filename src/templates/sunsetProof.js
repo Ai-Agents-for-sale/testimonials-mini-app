@@ -1,24 +1,24 @@
 import { el } from '../dom.js';
-import { brandLogo } from '../components/brandLogo.js';
 
 export const meta = {
   id: 'sunset-proof',
   nameHe: 'הוכחה אווירתית',
   type: 'frame-stat',
-  description: 'רקע אווירה, באדג׳ שחור עם כותרת, סקרינשוט באמצע, באדג׳ צבעוני עם תוצאה מספרית, חתימת מותג למטה.',
+  description: 'אווירה חמה. גראדיינט אפרסק על תמונה, רקע נקודות הלפטון, מסגרת מותג מרכזית למעלה, כותרת בסריף איטליק, ומונוגרם עדין בתחתית.',
   editableFields: [
-    { key: 'headline', labelHe: 'כותרת ראשית' },
+    { key: 'headline', labelHe: 'כותרת איטליק (Frank Ruhl)' },
     { key: 'statLine', labelHe: 'שורת תוצאה תחתונה', multiline: true }
   ]
 };
 
 export function thumbnail() {
   return el('div', { class: 'tpl-thumb tpl-thumb-sunset' }, [
-    el('div', { class: 'tpl-thumb-photo sunset-bg' }),
-    el('div', { class: 'tpl-thumb-brandtop' }, 'BRAND'),
-    el('div', { class: 'tpl-thumb-badge dark' }, 'כוחו של...'),
-    el('div', { class: 'tpl-thumb-card-mini' }),
-    el('div', { class: 'tpl-thumb-stat' }, '100K+')
+    el('div', { class: 'tpl-thumb-sunset-bg' }),
+    el('div', { class: 'tpl-thumb-sunset-frame' }, 'BRAND'),
+    el('div', { class: 'tpl-thumb-sunset-headline' }, '...כוחו של'),
+    el('div', { class: 'tpl-thumb-sunset-card' }),
+    el('div', { class: 'tpl-thumb-sunset-stat' }, '100K+'),
+    el('div', { class: 'tpl-thumb-sunset-mono' })
   ]);
 }
 
@@ -26,24 +26,39 @@ export function render({ content, brand, format }) {
   const bg = content.backgroundUrl || brand.defaultBackgroundUrl;
   const primary = brand.primaryColor || '#1F6FB2';
   const accent  = brand.accentColor || '#F2C94C';
-  const headline = content.headline || '';
+  const brandName = brand.nameHe || brand.name || 'BRAND';
+  const initial = (brandName || '?').slice(0, 1);
+  const headline = content.headline || 'כוחו של הסיפור.';
   const statLine = content.statLine || content.caption || '';
   const imageUrl = content.sourceImageUrl;
 
   return el('div', {
     class: 'tpl-canvas format-' + format + ' tpl-sunset',
-    style: { background: bg ? 'url("' + bg + '") center/cover no-repeat' : '#2a2a2a' }
+    style: { background: bg ? 'url("' + bg + '") center/cover no-repeat' : 'linear-gradient(180deg, #3a2a1a 0%, #d4a070 55%, #6a4a3a 100%)' }
   }, [
-    el('div', { class: 'sp-overlay' }),
+    // Warm peach gradient overlay
+    el('div', { class: 'sp-bg-warm' }),
+    // Halftone dot pattern overlay
+    el('div', { class: 'sp-bg-halftone' }),
 
-    el('div', { class: 'sp-brandtop' }, [
-      brandLogo({ brand, className: 'sp-brandtop-logo', textClass: 'sp-brandtop-name', dotClass: 'sp-brandtop-dot', accent })
+    // Centered top brand frame
+    el('div', { class: 'sp-top-frame' }, [
+      el('div', { class: 'sp-top-rule', style: { background: accent } }),
+      el('div', { class: 'sp-top-brand' }, [
+        brand.logoUrl
+          ? el('img', { class: 'sp-top-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
+          : el('div', { class: 'sp-top-dot', style: { background: accent } }),
+        el('div', { class: 'sp-top-name' }, brandName)
+      ]),
+      el('div', { class: 'sp-top-rule', style: { background: accent } })
     ]),
 
-    headline
-      ? el('div', { class: 'sp-headline-wrap' }, [el('div', { class: 'sp-headline' }, headline)])
-      : null,
+    // Serif italic centered headline (more poetic)
+    el('div', { class: 'sp-headline-block' }, [
+      el('div', { class: 'sp-headline' }, headline)
+    ]),
 
+    // Image — raw, centered
     el('div', { class: 'img-card-wrap sp-img-wrap' }, [
       imageUrl
         ? el('div', { class: 'img-card img-card-bright' }, [
@@ -52,18 +67,14 @@ export function render({ content, brand, format }) {
         : null
     ]),
 
-    statLine
-      ? el('div', { class: 'sp-stat-wrap' }, [
-          el('div', { class: 'sp-stat', style: { background: primary } }, statLine)
-        ])
-      : null,
+    // Stat block — Suez display number above + serif description
+    statLine ? el('div', { class: 'sp-stat-block' }, [
+      el('div', { class: 'sp-stat-text' }, statLine)
+    ]) : null,
 
-    el('div', { class: 'sp-brand-bottom' }, [
-      el('div', { class: 'sp-brand-line', style: { background: accent } }),
-      el('div', { class: 'sp-brand-row' }, [
-        brandLogo({ brand, className: 'sp-brand-name-logo', textClass: 'sp-brand-name', dotClass: 'sp-brandtop-dot', accent }),
-        el('div', { class: 'sp-brand-stars', style: { color: accent } }, '★ ★ ★ ★ ★')
-      ])
+    // Bottom minimalist monogram circle (just the initial)
+    el('div', { class: 'sp-mono-wrap' }, [
+      el('div', { class: 'sp-mono', style: { borderColor: accent, color: accent } }, initial)
     ])
   ]);
 }

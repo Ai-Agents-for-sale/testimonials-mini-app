@@ -372,8 +372,9 @@ html, body {
 .tpl-canvas.format-story { height: 1920px; }
 
 /* ---- Shared dynamic image card ---- */
-/* The card hugs the image's natural aspect ratio: no padding-as-empty-space.
-   Wide images → wide card; tall images → tall card. */
+/* Image renders raw — no card, no padding, no background, no rounded
+   corners. The wrapper just sizes/centers; the image keeps its natural
+   aspect ratio. */
 .img-card-wrap {
   flex: 1;
   width: 100%;
@@ -384,23 +385,23 @@ html, body {
 }
 .img-card {
   display: inline-flex;
-  padding: 18px;
-  border-radius: 22px;
   max-width: 100%;
   max-height: 100%;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
-.img-card-bright { background: #fff; }
+.img-card-bright { background: transparent; }
 .img-card-img {
   display: block;
   max-width: 100%;
   max-height: 100%;
   width: auto;
   height: auto;
-  border-radius: 10px;
   object-fit: contain;
 }
-.img-card-placeholder { color: #aaa; font-size: 40px; padding: 40px 80px; }
+.img-card-placeholder { color: rgba(255,255,255,0.5); font-size: 40px; padding: 40px 80px; }
 
 /* ---- Shared brand-text element ---- */
 .bp-brandstrip-name, .fn-brandtop-name, .sp-brandtop-name, .bq-brandtop-name,
@@ -726,7 +727,7 @@ html, body {
 }
 
 .gr-img-wrap { padding: 0 90px; }
-.gr-img-card { background: #f5f5f5; box-shadow: 0 4px 18px rgba(0,0,0,0.08); }
+.gr-img-card { background: transparent; box-shadow: none; }
 
 .gr-quote {
   text-align: center;

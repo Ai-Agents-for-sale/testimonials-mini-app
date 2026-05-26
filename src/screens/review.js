@@ -44,20 +44,37 @@ export function reviewScreen({ goBack, onPublished }) {
   }
 
   function renderEmptyFolder() {
-    root.replaceChildren(
-      el('div', { class: 'screen-state screen-state-empty' }, [
-        el('div', { class: 'state-emoji' }, '📭'),
-        el('div', { class: 'state-title' }, 'אין תמונות בתיקייה הזו'),
-        el('div', { class: 'state-sub' }, 'התיקייה ' + (state.selectedFolderName || '') + ' לא מכילה צילומים. בחר תיקייה אחרת.'),
+    // Popup-style modal: dim backdrop + centered card with two actions.
+    // Tapping the backdrop closes the popup and pops back to folders.
+    const backdrop = el('div', { class: 'popup-backdrop' });
+    const card = el('div', { class: 'popup-card' }, [
+      el('div', { class: 'popup-emoji' }, '📭'),
+      el('div', { class: 'popup-title' }, 'אין תמונות בתיקייה הזו'),
+      el('div', { class: 'popup-sub' },
+        'התיקייה "' + (state.selectedFolderName || '') + '" לא מכילה צילומים. בחר תיקייה אחרת כדי להמשיך.'),
+      el('div', { class: 'popup-actions' }, [
         el('button', {
-          class: 'btn btn-primary state-action',
+          class: 'btn btn-primary popup-btn',
+          onClick: () => { haptic('light'); goBack(); setTimeout(goBack, 30); }
+        }, '🗂️ בחר תיקייה אחרת'),
+        el('button', {
+          class: 'btn btn-secondary popup-btn',
           onClick: () => { haptic('light'); goBack(); }
-        }, '← חזרה לתבניות'),
-        el('button', {
-          class: 'btn btn-secondary state-action',
-          onClick: () => { haptic('light'); goBack(); setTimeout(goBack, 50); }
-        }, '🗂️ בחר תיקייה אחרת')
+        }, '← חזרה לתבניות')
       ])
+    ]);
+    backdrop.addEventListener('click', (e) => {
+      if (e.target === backdrop) { haptic('light'); goBack(); setTimeout(goBack, 30); }
+    });
+    backdrop.appendChild(card);
+
+    // Keep the loading view dimmed underneath so the popup truly feels overlaid.
+    root.replaceChildren(
+      el('div', { class: 'screen-state screen-state-loading dimmed' }, [
+        el('div', { class: 'state-emoji' }, '🎨'),
+        el('div', { class: 'state-title' }, 'מכין לך את הפוסט…')
+      ]),
+      backdrop
     );
   }
 

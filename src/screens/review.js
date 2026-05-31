@@ -11,6 +11,7 @@ import {
   setScheduleAt
 } from '../state.js';
 import { renderCanvasToPng, dataUrlToBase64 } from '../png.js';
+import { autofitCanvas } from '../autofit.js';
 
 const FORMAT_DIMS = {
   feed:  { w: 1080, h: 1350 },
@@ -284,6 +285,9 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       format: state.format
     });
     canvasWrap.appendChild(canvasEl);
+    // Shrink-to-fit any text marked with data-fit-max so long content
+    // doesn't push the image off the canvas.
+    autofitCanvas(canvasEl);
   }
 
   function renderFieldInputs() {
@@ -361,6 +365,8 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     statusEl.textContent = 'מרנדר תמונה…';
     try {
       const dims = FORMAT_DIMS[state.format] || FORMAT_DIMS.feed;
+      // Make sure any pending autofit RAFs have settled before snapshotting.
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       const dataUrl = await renderCanvasToPng(canvasEl, dims);
       const base64 = dataUrlToBase64(dataUrl);
       statusEl.textContent = 'שולח ל-n8n…';

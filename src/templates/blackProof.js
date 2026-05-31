@@ -26,7 +26,10 @@ export function render({ content, format }) {
 
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-blackproof' }, [
     // Top text pill (white background, black text, Hebrew)
-    el('div', { class: 'bp-pill bp-pill-top' }, headline),
+    el('div', {
+      class: 'bp-pill bp-pill-top',
+      'data-fit-max': '60', 'data-fit-min': '28'
+    }, headline),
 
     // Middle: raw image (no card, no padding)
     el('div', { class: 'img-card-wrap bp-img-wrap' }, [
@@ -38,6 +41,9 @@ export function render({ content, format }) {
     ]),
 
     // Bottom text pill (white background, regular Hebrew sentence)
-    el('div', { class: 'bp-pill bp-pill-bottom' }, caption)
+    el('div', {
+      class: 'bp-pill bp-pill-bottom',
+      'data-fit-max': '36', 'data-fit-min': '18'
+    }, caption)
   ]);
 }

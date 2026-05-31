@@ -63,7 +63,10 @@ export function render({ content, brand, format }) {
 
     // Serif italic centered headline (more poetic)
     el('div', { class: 'sp-headline-block' }, [
-      el('div', { class: 'sp-headline' }, headline)
+      el('div', {
+        class: 'sp-headline',
+        'data-fit-max': '84', 'data-fit-min': '34'
+      }, headline)
     ]),
 
     // Image — raw, centered
@@ -77,7 +80,10 @@ export function render({ content, brand, format }) {
 
     // Stat block — Suez display number above + serif description
     statLine ? el('div', { class: 'sp-stat-block' }, [
-      el('div', { class: 'sp-stat-text' }, statLine)
+      el('div', {
+        class: 'sp-stat-text',
+        'data-fit-max': '56', 'data-fit-min': '24'
+      }, statLine)
     ]) : null,
 
     // Bottom minimalist monogram circle (just the initial)

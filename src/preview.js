@@ -2,6 +2,7 @@ import './styles.css';
 import './preview.css';
 import { el } from './dom.js';
 import { TEMPLATES } from './templates/index.js';
+import { autofitCanvas } from './autofit.js';
 
 // -----------------------------------------------------------------------------
 // Mock brand + content. The brand has NO logoUrl so the brandLogo helper falls
@@ -128,13 +129,16 @@ TEMPLATES.forEach((tpl, idx) => {
 
     const scale = el('div', { class: 'pv-scale' });
     scale.style.height = fmt.h + 'px';
-    scale.appendChild(tpl.render({
+    const canvasEl = tpl.render({
       content: MOCK_CONTENT,
       brand: MOCK_BRAND,
       format: fmt.id
-    }));
+    });
+    scale.appendChild(canvasEl);
 
     stage.appendChild(scale);
+    // After the canvas is in the DOM, shrink long text to fit the canvas.
+    autofitCanvas(canvasEl);
 
     canvases.appendChild(el('div', { class: 'pv-canvas-wrap' }, [
       el('div', { class: 'pv-canvas-label' }, fmt.labelHe + ' · ' + fmt.w + '×' + fmt.h),

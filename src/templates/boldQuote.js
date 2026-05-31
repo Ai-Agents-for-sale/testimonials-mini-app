@@ -42,13 +42,22 @@ export function render({ content, brand, format }) {
     el('div', { class: 'bq-mark', style: { color: accent } }, '"'),
 
     // The quote in Suez serif italic
-    el('div', { class: 'bq-quote' }, quote),
+    el('div', {
+      class: 'bq-quote',
+      'data-fit-max': '84', 'data-fit-min': '32'
+    }, quote),
 
     // Thin accent rule + author
     (authorName || authorRole) ? el('div', { class: 'bq-author-block' }, [
       el('div', { class: 'bq-author-rule', style: { background: accent } }),
-      authorName ? el('div', { class: 'bq-author-name' }, '— ' + authorName) : null,
-      authorRole ? el('div', { class: 'bq-author-role' }, authorRole) : null
+      authorName ? el('div', {
+        class: 'bq-author-name',
+        'data-fit-max': '40', 'data-fit-min': '22'
+      }, '— ' + authorName) : null,
+      authorRole ? el('div', {
+        class: 'bq-author-role',
+        'data-fit-max': '24', 'data-fit-min': '16'
+      }, authorRole) : null
     ]) : null,
 
     // Bottom-RIGHT serif signature

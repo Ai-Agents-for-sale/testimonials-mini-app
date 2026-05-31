@@ -78,12 +78,18 @@ export function render({ content, brand, format }) {
     ]),
 
     // Optional small headline
-    headline ? el('div', { class: 'gr-headline' }, headline) : null,
+    headline ? el('div', {
+      class: 'gr-headline',
+      'data-fit-max': '44', 'data-fit-min': '24'
+    }, headline) : null,
 
     // Quote — serif italic
     quote ? el('div', { class: 'gr-quote-wrap' }, [
       el('div', { class: 'gr-quote-mark-l', style: { color: primary } }, '"'),
-      el('div', { class: 'gr-quote' }, quote),
+      el('div', {
+        class: 'gr-quote',
+        'data-fit-max': '42', 'data-fit-min': '20'
+      }, quote),
       el('div', { class: 'gr-quote-mark-r', style: { color: primary } }, '"')
     ]) : null,
 
@@ -98,7 +104,10 @@ export function render({ content, brand, format }) {
     (authorName || authorRole) ? el('div', { class: 'gr-author' }, [
       el('div', { class: 'gr-author-avatar', style: { background: primary } }, (authorName || '?').slice(0, 1)),
       el('div', { class: 'gr-author-meta' }, [
-        authorName ? el('div', { class: 'gr-author-name' }, authorName) : null,
+        authorName ? el('div', {
+          class: 'gr-author-name',
+          'data-fit-max': '26', 'data-fit-min': '18'
+        }, authorName) : null,
         el('div', { class: 'gr-author-stars', style: { color: '#FBBC05' } }, '★ ★ ★ ★ ★')
       ])
     ]) : null,

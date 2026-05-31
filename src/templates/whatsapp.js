@@ -38,7 +38,10 @@ export function render({ content, brand, format }) {
     // Top: editorial-style magazine headline
     el('div', { class: 'wa-top' }, [
       el('div', { class: 'wa-top-eyebrow' }, 'TESTIMONIAL · עדות אמיתית'),
-      el('div', { class: 'wa-top-headline' }, headline),
+      el('div', {
+        class: 'wa-top-headline',
+        'data-fit-max': '76', 'data-fit-min': '32'
+      }, headline),
       el('div', { class: 'wa-top-rule', style: { background: primary } })
     ]),
 
@@ -72,7 +75,10 @@ export function render({ content, brand, format }) {
       el('div', { class: 'wa-reply-bubble', style: { background: accent } }, [
         el('div', { class: 'wa-reply-tail', style: { background: accent } }),
         el('div', { class: 'wa-reply-label' }, 'התגובה שלנו'),
-        el('div', { class: 'wa-reply-text' }, caption)
+        el('div', {
+          class: 'wa-reply-text',
+          'data-fit-max': '26', 'data-fit-min': '16'
+        }, caption)
       ])
     ]) : null,
 

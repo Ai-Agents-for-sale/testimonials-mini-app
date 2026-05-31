@@ -56,8 +56,14 @@ export function render({ content, brand, format }) {
 
     // Headline block — massive Suez display stat + serif italic subline
     el('div', { class: 'fn-headline-block' }, [
-      headline ? el('div', { class: 'fn-headline-num' }, headline) : null,
-      subHeadline ? el('div', { class: 'fn-headline-sub' }, subHeadline) : null,
+      headline ? el('div', {
+        class: 'fn-headline-num',
+        'data-fit-max': '170', 'data-fit-min': '60'
+      }, headline) : null,
+      subHeadline ? el('div', {
+        class: 'fn-headline-sub',
+        'data-fit-max': '36', 'data-fit-min': '20'
+      }, subHeadline) : null,
       // Decorative diagonal line under headline
       el('div', { class: 'fn-headline-rule', style: { background: accent } })
     ]),
@@ -74,7 +80,8 @@ export function render({ content, brand, format }) {
     // Mixed-weight pill stack
     el('div', { class: 'fn-pills' },
       lines.map((line, i) => el('div', {
-        class: 'fn-pill ' + (i % 2 === 0 ? 'fn-pill-light' : 'fn-pill-bold')
+        class: 'fn-pill ' + (i % 2 === 0 ? 'fn-pill-light' : 'fn-pill-bold'),
+        'data-fit-max': (i % 2 === 0 ? '28' : '32'), 'data-fit-min': '16'
       }, line))
     ),
 

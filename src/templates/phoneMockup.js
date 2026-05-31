@@ -90,8 +90,15 @@ export function render({ content, brand, format }) {
 
     // Headline block (Suez display + serif italic sub)
     el('div', { class: 'pm-headline-block' }, [
-      el('div', { class: 'pm-headline' }, headline),
-      el('div', { class: 'pm-subhead', style: { color: accent } }, subHeadline)
+      el('div', {
+        class: 'pm-headline',
+        'data-fit-max': '92', 'data-fit-min': '40'
+      }, headline),
+      el('div', {
+        class: 'pm-subhead',
+        style: { color: accent },
+        'data-fit-max': '32', 'data-fit-min': '20'
+      }, subHeadline)
     ]),
 
     // Phone mockup with the screenshot inside it, flanked by curvy arrows
@@ -114,7 +121,11 @@ export function render({ content, brand, format }) {
       curvyArrow({ variant: 'left', accent }),
 
       // Floating annotation badge (right side)
-      el('div', { class: 'pm-annotation pm-annotation-right', style: { background: accent } }, caption),
+      el('div', {
+        class: 'pm-annotation pm-annotation-right',
+        style: { background: accent },
+        'data-fit-max': '22', 'data-fit-min': '14'
+      }, caption),
       // Floating sticker on left side
       el('div', { class: 'pm-annotation pm-annotation-left' }, '✓ מאומת')
     ]),

@@ -35,6 +35,15 @@ export async function pickRandomImage(folderId, excludeIds = []) {
   return call('pick-image', { folderId, excludeIds });
 }
 
+// Single-execution variant: picks the first random image AND generates the
+// caption for it in one n8n run. Used on initial review-screen entry so we
+// spend one webhook call instead of two. Response shape:
+//   { image: {id, imageUrl, mimeType}, content: {...AI fields} }
+//   OR { empty: true } if the folder has no images.
+export async function fetchReviewStart({ folderId, templateId, templateType }) {
+  return call('review-start', { folderId, templateId, templateType });
+}
+
 export async function listImages(folderId) {
   return call('list-images', { folderId });
 }

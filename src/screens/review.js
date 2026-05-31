@@ -1,6 +1,6 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { pickRandomImage, generateCaption, submitFinal } from '../api.js';
+import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart } from '../api.js';
 import { getTemplate } from '../templates/index.js';
 import {
   getState,
@@ -410,26 +410,25 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         return;
       }
 
-      // First entry from templates: pick a random image to start with.
-      const img = await pickRandomImage(state.selectedFolderId, []);
-      if (img && img.empty) {
+      // First entry from templates: single 'review-start' call picks a
+      // random image AND generates the caption in one n8n execution,
+      // saving one round-trip vs. the legacy pick-image + caption pair.
+      const res = await fetchReviewStart({
+        folderId: state.selectedFolderId,
+        templateId: template.meta.id,
+        templateType: template.meta.type
+      });
+      if (res && res.empty) {
         renderEmptyFolder();
         return;
       }
+      const img = res && res.image;
       if (!img || !img.imageUrl) {
         renderError('לא הוחזרה תמונה מהתיקייה');
         return;
       }
       setCurrentImage({ id: img.id, imageUrl: img.imageUrl, mimeType: img.mimeType });
-
-      const content = await generateCaption({
-        imageId: img.id,
-        imageUrl: img.imageUrl,
-        templateId: template.meta.id,
-        templateType: template.meta.type,
-        regenerate: false
-      });
-      setGeneratedContent(content || {});
+      setGeneratedContent((res && res.content) || {});
 
       renderReview();
     } catch (err) {

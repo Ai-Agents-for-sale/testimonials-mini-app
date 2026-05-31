@@ -1,6 +1,6 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { fetchBootstrap, listFolders } from '../api.js';
+import { fetchInit } from '../api.js';
 import { getState, setBrand, setFolders, setSelectedFolder, resetAll } from '../state.js';
 
 const FOLDER_EMOJI = ['📁', '📂', '🗂️', '📒', '📕', '📗', '📘', '📙'];
@@ -41,11 +41,12 @@ export function folderPickerScreen({ navigate }) {
     });
   }
 
-  // Run bootstrap + list-folders in parallel; both go to the same DB chain.
-  Promise.all([fetchBootstrap(), listFolders()])
-    .then(([bootRes, foldersRes]) => {
-      setBrand((bootRes && bootRes.brand) || {});
-      setFolders((foldersRes && foldersRes.folders) || []);
+  // Single 'init' call returns { brand, folders } together — saves one n8n
+  // execution per session start vs. the legacy bootstrap + list-folders pair.
+  fetchInit()
+    .then((res) => {
+      setBrand((res && res.brand) || {});
+      setFolders((res && res.folders) || []);
       loading.classList.add('hidden');
       if (!getState().folders.length) {
         loading.classList.remove('hidden');

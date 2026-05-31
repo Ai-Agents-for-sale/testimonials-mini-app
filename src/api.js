@@ -25,6 +25,12 @@ export async function listFolders() {
   return call('list-folders');
 }
 
+// Single-execution variant: returns { brand, folders } in one round-trip
+// so the folder-picker screen needs ONE webhook call instead of two.
+export async function fetchInit() {
+  return call('init');
+}
+
 export async function pickRandomImage(folderId, excludeIds = []) {
   return call('pick-image', { folderId, excludeIds });
 }

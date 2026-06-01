@@ -4,7 +4,7 @@ export const meta = {
   id: 'funnel-over-photo',
   nameHe: 'תוצאה על רקע',
   type: 'frame-multi',
-  description: 'מגזין נועז על רקע תמונה. סרט אלכסוני בפינה שמאל-עליונה, כותרת ענקית, חלוקה אלכסונית, ושורות הסבר במשקלים מעורבים.',
+  description: 'מגזין נועז על רקע תמונה. סרט אלכסוני בפינה שמאל-עליונה עם שם המותג, כותרת ענקית, ושורות הסבר נקיות עם פסי הדגשה.',
   editableFields: [
     { key: 'headline',     labelHe: 'מספר/סטטיסטיקה ענקית (Suez One)', default: '100K ₪' },
     { key: 'subHeadline',  labelHe: 'תת-כותרת תיאורית', default: 'בחודש הראשון' },
@@ -29,9 +29,9 @@ function toLines(value) {
 
 export function render({ content, brand, format }) {
   const bg = content.backgroundUrl || brand.defaultBackgroundUrl;
-  const primary = brand.primaryColor || '#1F6FB2';
   const accent  = brand.accentColor || '#F2C94C';
   const brandName = brand.nameHe || brand.name || 'BRAND';
+  const brandHandle = brand.name || '';
   const headline = content.headline || '100K ₪';
   const subHeadline = content.subHeadline || 'בחודש הראשון';
   const imageUrl = content.sourceImageUrl;
@@ -43,32 +43,29 @@ export function render({ content, brand, format }) {
     class: 'tpl-canvas format-' + format + ' tpl-funnel',
     style: { background: bg ? 'url("' + bg + '") center/cover no-repeat' : 'linear-gradient(135deg, #1a2540 0%, #0d1320 100%)' }
   }, [
-    // Diagonal gradient overlay — angled split for editorial feel
+    // Diagonal gradient overlay for editorial feel
     el('div', { class: 'fn-bg-diagonal' }),
     el('div', { class: 'fn-bg-vignette' }),
 
-    // Top-LEFT diagonal ribbon banner with brand name
+    // Top-LEFT diagonal ribbon — brand NAME (text only)
     el('div', { class: 'fn-ribbon', style: { background: accent } }, [
-      brand.logoUrl
-        ? el('img', { class: 'fn-ribbon-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-        : el('span', { class: 'fn-ribbon-text' }, brandName)
+      el('span', { class: 'fn-ribbon-text' }, brandName)
     ]),
 
-    // Headline block — massive Suez display stat + serif italic subline
+    // Headline block — Suez display stat + serif italic subline
     el('div', { class: 'fn-headline-block' }, [
       headline ? el('div', {
         class: 'fn-headline-num',
-        'data-fit-max': '170', 'data-fit-min': '60'
+        'data-fit-max': '140', 'data-fit-min': '60'
       }, headline) : null,
       subHeadline ? el('div', {
         class: 'fn-headline-sub',
-        'data-fit-max': '36', 'data-fit-min': '20'
+        'data-fit-max': '28', 'data-fit-min': '16'
       }, subHeadline) : null,
-      // Decorative diagonal line under headline
       el('div', { class: 'fn-headline-rule', style: { background: accent } })
     ]),
 
-    // Image — raw, centered, no card
+    // Image — bigger now
     el('div', { class: 'img-card-wrap fn-img-wrap' }, [
       imageUrl
         ? el('div', { class: 'img-card img-card-bright' }, [
@@ -77,19 +74,24 @@ export function render({ content, brand, format }) {
         : null
     ]),
 
-    // Mixed-weight pill stack
-    el('div', { class: 'fn-pills' },
-      lines.map((line, i) => el('div', {
-        class: 'fn-pill ' + (i % 2 === 0 ? 'fn-pill-light' : 'fn-pill-bold'),
-        'data-fit-max': (i % 2 === 0 ? '28' : '32'), 'data-fit-min': '16'
-      }, line))
-    ),
+    // Magazine-style line list with accent leading bar
+    lines.length ? el('div', { class: 'fn-lines' },
+      lines.map((line) => el('div', { class: 'fn-line' }, [
+        el('span', { class: 'fn-line-bar', style: { background: accent } }),
+        el('span', {
+          class: 'fn-line-text',
+          'data-fit-max': '28', 'data-fit-min': '16'
+        }, line)
+      ]))
+    ) : null,
 
-    // Bottom-right serif signature with thin rule
+    // Bottom signature — brand LOGO + handle below it
     el('div', { class: 'fn-sig' }, [
       el('div', { class: 'fn-sig-rule', style: { background: accent } }),
-      el('div', { class: 'fn-sig-name' }, brandName),
-      el('div', { class: 'fn-sig-en' }, (brand.name || '').toUpperCase())
+      brand.logoUrl
+        ? el('img', { class: 'fn-sig-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
+        : el('div', { class: 'fn-sig-logo-fallback', style: { background: accent } }, (brandName || '?').slice(0, 1)),
+      brandHandle ? el('div', { class: 'fn-sig-handle' }, '@' + brandHandle.replace(/^@/, '')) : null
     ])
   ]);
 }

@@ -332,10 +332,17 @@ html, body {
   font-size: 8px;
   display: flex; align-items: center; justify-content: center;
 }
+.tpl-thumb-quote-card {
+  width: 70%; height: 36%;
+  align-self: center;
+  background: rgba(255,255,255,0.85);
+  border-radius: 3px;
+  margin-top: 4px;
+}
 .tpl-thumb-quote-mark {
   font-family: 'Suez One', serif;
-  color: #F2C94C; font-size: 32px;
-  line-height: 0.6; margin-top: 8px;
+  color: #F2C94C; font-size: 22px;
+  line-height: 0.6; margin-top: 4px;
 }
 .tpl-thumb-quote-text {
   width: 92%; height: 22%;
@@ -587,16 +594,25 @@ html, body {
 .tpl-blackproof {
   background: #000;
   padding: 60px 70px;
-  display: flex; flex-direction: column; align-items: stretch;
+  /* Image is the anchor: the whole group (top pill + image + bottom pill)
+     is centered vertically with a tight, consistent gap between text and
+     image. Small image → group floats centered; big image → text hugs it
+     at the same gap. */
+  display: flex; flex-direction: column; align-items: center;
   justify-content: center;
   gap: 28px;
 }
 .bp-pill {
+  /* Hug content: pill grows around the text. Single short word = narrow
+     pill; multi-line caption = wider pill that wraps. Capped so it never
+     spans the full canvas. */
   background: #fff;
   color: #000;
   border-radius: 20px;
-  padding: 28px 36px;
+  padding: 22px 32px;
   text-align: center;
+  width: fit-content;
+  max-width: 86%;
 }
 .bp-pill-top {
   font-family: 'Heebo', sans-serif;
@@ -611,11 +627,15 @@ html, body {
   font-size: 36px;
   line-height: 1.45;
 }
-.bp-img-wrap { padding: 0; }
+.bp-img-wrap {
+  padding: 0;
+  align-self: stretch;
+  display: flex; align-items: center; justify-content: center;
+}
 
 .tpl-blackproof.format-story { padding: 100px 70px; gap: 36px; }
-.tpl-blackproof.format-story .bp-pill-top    { font-size: 72px; padding: 36px 44px; }
-.tpl-blackproof.format-story .bp-pill-bottom { font-size: 40px; padding: 32px 40px; }
+.tpl-blackproof.format-story .bp-pill-top    { font-size: 72px; padding: 28px 38px; }
+.tpl-blackproof.format-story .bp-pill-bottom { font-size: 40px; padding: 24px 34px; }
 
 /* =========================================================================
    #2 FUNNEL OVER PHOTO — diagonal ribbon top-left, mixed pills, big stat.
@@ -654,28 +674,27 @@ html, body {
   letter-spacing: 6px;
   color: #1a1a1a;
 }
-.fn-ribbon-logo { max-height: 36px; max-width: 240px; object-fit: contain; }
 
 .fn-headline-block {
   position: relative; z-index: 3;
   text-align: center;
-  padding: 220px 80px 30px;
+  padding: 200px 80px 20px;
 }
 .fn-headline-num {
   font-family: 'Suez One', serif;
-  font-size: 170px;
+  font-size: 140px;
   line-height: 1;
   letter-spacing: -3px;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
   text-shadow: 0 4px 24px rgba(0,0,0,0.5);
 }
 .fn-headline-sub {
   font-family: 'Frank Ruhl Libre', serif;
   font-style: italic;
   font-weight: 400;
-  font-size: 36px;
+  font-size: 28px;
   color: rgba(255,255,255,0.9);
-  margin-bottom: 22px;
+  margin-bottom: 18px;
 }
 .fn-headline-rule {
   height: 4px; width: 140px;
@@ -683,52 +702,59 @@ html, body {
   transform: skewX(-20deg);
 }
 
-.fn-img-wrap { z-index: 3; padding: 24px 90px; }
+.fn-img-wrap { z-index: 3; padding: 8px 50px; }
 
-.fn-pills {
+.fn-lines {
   position: relative; z-index: 3;
   display: flex; flex-direction: column;
-  gap: 12px;
-  padding: 24px 90px 0;
+  gap: 14px;
+  padding: 28px 90px 0;
 }
-.fn-pill {
-  border-radius: 8px;
-  padding: 14px 24px;
-  text-align: center;
-  line-height: 1.35;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+.fn-line {
+  display: flex; align-items: center; gap: 16px;
+  direction: rtl;
 }
-.fn-pill-light {
-  background: rgba(255,255,255,0.97); color: #111;
-  font-family: 'Heebo', sans-serif; font-weight: 500;
+.fn-line-bar {
+  width: 6px; height: 28px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+.fn-line-text {
+  font-family: 'Heebo', sans-serif; font-weight: 600;
   font-size: 28px;
-}
-.fn-pill-bold {
-  background: rgba(255,255,255,0.97); color: #111;
-  font-family: 'Heebo', sans-serif; font-weight: 900;
-  font-size: 32px;
-  letter-spacing: -0.5px;
+  color: #fff;
+  line-height: 1.3;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.55);
 }
 
 .fn-sig {
   position: relative; z-index: 3;
   margin-top: auto;
   padding: 30px 80px 60px;
-  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
 }
 .fn-sig-rule { width: 120px; height: 3px; }
-.fn-sig-name {
-  font-family: 'Frank Ruhl Libre', serif; font-weight: 700;
-  font-size: 36px; color: #fff;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+.fn-sig-logo {
+  max-height: 96px; max-width: 320px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.55));
 }
-.fn-sig-en {
-  font-family: 'Heebo', sans-serif; font-weight: 300;
-  font-size: 16px; letter-spacing: 6px;
-  color: rgba(255,255,255,0.75);
+.fn-sig-logo-fallback {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #1a1a1a;
+  font-family: 'Suez One', serif;
+  font-size: 44px;
+}
+.fn-sig-handle {
+  font-family: 'Heebo', sans-serif; font-weight: 500;
+  font-size: 22px; letter-spacing: 2px;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.55);
 }
 
-.tpl-funnel.format-story .fn-headline-num { font-size: 200px; }
+.tpl-funnel.format-story .fn-headline-num { font-size: 170px; }
 .tpl-funnel.format-story .fn-headline-block { padding-top: 280px; }
 
 /* =========================================================================
@@ -766,11 +792,11 @@ html, body {
   display: flex; align-items: center; gap: 14px;
   padding: 0 16px;
 }
-.sp-top-logo { max-height: 44px; max-width: 200px; object-fit: contain; }
-.sp-top-dot { width: 18px; height: 18px; border-radius: 50%; }
+.sp-top-logo { max-height: 66px; max-width: 300px; object-fit: contain; }
+.sp-top-dot { width: 27px; height: 27px; border-radius: 50%; }
 .sp-top-name {
   font-family: 'Frank Ruhl Libre', serif; font-weight: 500;
-  font-size: 22px; letter-spacing: 5px;
+  font-size: 33px; letter-spacing: 5px;
   text-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
 
@@ -847,12 +873,22 @@ html, body {
   z-index: 2;
 }
 
+.bq-img-wrap {
+  position: relative; z-index: 2;
+  padding: 80px 90px 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.bq-img-wrap .img-card-img {
+  max-height: 540px;
+  width: auto;
+}
+
 .bq-mark {
   position: relative; z-index: 2;
   font-family: 'Suez One', serif;
-  font-size: 280px;
+  font-size: 160px;
   line-height: 0.6;
-  padding: 220px 90px 0;
+  padding: 30px 90px 0;
   font-weight: 400;
 }
 
@@ -860,12 +896,11 @@ html, body {
   position: relative; z-index: 2;
   font-family: 'Suez One', serif;
   font-style: italic;
-  font-size: 84px;
+  font-size: 60px;
   line-height: 1.2;
   letter-spacing: -1.5px;
   color: #fff;
   padding: 10px 90px;
-  flex: 1;
 }
 
 .bq-author-block {
@@ -905,8 +940,9 @@ html, body {
   color: rgba(255,255,255,0.65);
 }
 
-.tpl-quote.format-story .bq-quote { font-size: 96px; }
-.tpl-quote.format-story .bq-mark  { font-size: 320px; }
+.tpl-quote.format-story .bq-quote   { font-size: 72px; }
+.tpl-quote.format-story .bq-mark    { font-size: 200px; }
+.tpl-quote.format-story .bq-img-wrap .img-card-img { max-height: 760px; }
 
 /* =========================================================================
    #5 WHATSAPP — cream doodle pattern, brand-as-contact-avatar,
@@ -915,16 +951,10 @@ html, body {
 .tpl-whatsapp {
   padding: 0;
   display: flex; flex-direction: column; align-items: stretch;
-  background: #ECE5DD;
+  background: #fff;
   color: #111;
 }
-.wa-bg-pattern {
-  position: absolute; inset: 0;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='rgba(0,0,0,0.04)' font-family='sans-serif' font-size='14'><text x='10' y='30'>💬</text><text x='70' y='50'>❤</text><text x='40' y='80'>✓</text><text x='90' y='100'>★</text><text x='15' y='110'>📷</text></g></svg>");
-  background-size: 180px 180px;
-  opacity: 0.55;
-  z-index: 0;
-}
+.wa-bg-pattern { display: none; }
 
 .wa-top {
   position: relative; z-index: 2;
@@ -951,13 +981,14 @@ html, body {
 
 .wa-chat-frame {
   position: relative; z-index: 2;
-  margin: 8px 60px;
+  margin: 8px 100px;
   background: #fff;
-  border-radius: 22px;
+  border-radius: 40px;
   overflow: hidden;
-  box-shadow: 0 18px 50px rgba(0,0,0,0.22);
-  flex: 1;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.18), 0 0 0 8px #1a1a1a;
   display: flex; flex-direction: column;
+  align-self: center;
+  width: calc(100% - 200px);
 }
 .wa-chat-header {
   display: flex; align-items: center; gap: 16px;
@@ -1003,12 +1034,14 @@ html, body {
     #ECE5DD;
   padding: 26px;
   display: flex; align-items: center; justify-content: center;
-  flex: 1;
+  min-height: 540px;
+  max-height: 760px;
 }
 .wa-chat-img {
   display: block;
-  max-width: 100%; max-height: 100%;
+  max-width: 100%; max-height: 700px;
   width: auto; height: auto;
+  object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
@@ -1111,52 +1144,25 @@ html, body {
   letter-spacing: 0;
   margin-right: 8px;
 }
-.gr-brand-stamp {
+.gr-brand-logo-wrap {
+  display: flex; align-items: center; justify-content: center;
+  height: 88px;
+}
+.gr-brand-logo { max-height: 88px; max-width: 220px; object-fit: contain; }
+.gr-brand-logo-fallback {
   width: 88px; height: 88px;
-  border: 3px solid;
   border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
-}
-.gr-brand-stamp-logo { max-width: 70%; max-height: 70%; object-fit: contain; }
-.gr-brand-stamp-initial {
+  color: #fff;
   font-family: 'Suez One', serif;
   font-size: 44px;
   line-height: 1;
 }
 
-.gr-rating-block {
-  position: relative; z-index: 2;
-  text-align: center;
-  padding: 30px 90px 10px;
-}
-.gr-rating-num {
-  font-family: 'Suez One', serif;
-  font-size: 200px;
-  line-height: 0.9;
-  color: #1f1f1f;
-  letter-spacing: -6px;
-}
-.gr-rating-out {
-  font-family: 'Heebo', sans-serif; font-weight: 300;
-  font-size: 22px; letter-spacing: 6px;
-  color: #5f6368; margin-top: 12px;
-}
-
-.gr-headline {
-  position: relative; z-index: 2;
-  text-align: center;
-  font-family: 'Heebo', sans-serif;
-  font-weight: 900; font-size: 44px;
-  color: #1f1f1f;
-  padding: 16px 90px 0;
-}
-
 .gr-quote-wrap {
   position: relative; z-index: 2;
-  padding: 20px 90px;
-  flex: 1;
-  display: flex; flex-direction: column; justify-content: center;
-  position: relative;
+  padding: 30px 90px 16px;
+  text-align: center;
 }
 .gr-quote-mark-l, .gr-quote-mark-r {
   font-family: 'Suez One', serif;
@@ -1178,35 +1184,28 @@ html, body {
 .gr-img-wrap { z-index: 2; padding: 8px 90px; }
 .gr-img-card { background: transparent; box-shadow: none; }
 
-.gr-author {
-  position: relative; z-index: 2;
-  display: flex; align-items: center; gap: 18px;
-  padding: 16px 90px 0;
-}
-.gr-author-avatar {
-  width: 70px; height: 70px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff;
-  font-family: 'Suez One', serif;
-  font-size: 32px;
-}
-.gr-author-meta { display: flex; flex-direction: column; gap: 4px; }
-.gr-author-name {
-  font-family: 'Heebo', sans-serif; font-weight: 800;
-  font-size: 26px; color: #1f1f1f;
-}
-.gr-author-stars { font-size: 18px; letter-spacing: 4px; }
-
 .gr-bottom {
   position: relative; z-index: 2;
   margin-top: auto;
-  padding: 24px 90px 60px;
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 18px 90px 60px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.gr-rating-block { text-align: center; }
+.gr-rating-num {
+  font-family: 'Suez One', serif;
+  font-size: 96px;
+  line-height: 0.95;
+  color: #1f1f1f;
+  letter-spacing: -3px;
+}
+.gr-rating-out {
+  font-family: 'Heebo', sans-serif; font-weight: 300;
+  font-size: 18px; letter-spacing: 4px;
+  color: #5f6368; margin-top: 4px;
 }
 .gr-bottom-stars {
-  font-size: 32px;
-  letter-spacing: 8px;
+  font-size: 40px;
+  letter-spacing: 10px;
   line-height: 1;
 }
 .gr-verified {
@@ -1223,17 +1222,18 @@ html, body {
 .gr-sig-rule { width: 100px; height: 1px; background: #dadce0; }
 .gr-sig {
   display: flex; align-items: baseline; gap: 8px;
+  direction: rtl;
 }
 .gr-sig-prefix {
   font-family: 'Heebo', sans-serif; font-weight: 300;
-  font-size: 18px; color: #5f6368; letter-spacing: 2px;
+  font-size: 20px; color: #5f6368; letter-spacing: 2px;
 }
 .gr-sig-brand {
   font-family: 'Frank Ruhl Libre', serif; font-weight: 700;
-  font-size: 26px; letter-spacing: 4px;
+  font-size: 28px; letter-spacing: 2px;
 }
 
-.tpl-google.format-story .gr-rating-num { font-size: 240px; }
+.tpl-google.format-story .gr-rating-num { font-size: 120px; }
 .tpl-google.format-story .gr-quote { font-size: 50px; }
 
 /* =========================================================================

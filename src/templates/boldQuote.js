@@ -4,7 +4,7 @@ export const meta = {
   id: 'bold-quote',
   nameHe: 'ציטוט מגזין',
   type: 'extract',
-  description: 'מינימליסטי. רקע צבע מותג אחיד (התבנית היחידה עם רקע נקי). ציטוט סריף ענקי, מונוגרם בפינה שמאלית-עליונה, חתימת מותג בסריף בפינה ימנית-תחתונה.',
+  description: 'מינימליסטי. רקע צבע מותג אחיד (התבנית היחידה עם רקע נקי). תמונה ממורכזת, ציטוט סריף ענקי מתחת, מונוגרם בפינה ימנית-עליונה, חתימה בפינה ימנית-תחתונה.',
   editableFields: [
     { key: 'quote',      labelHe: 'הציטוט (Suez One איטליק)', multiline: true, default: 'השירות הכי טוב שקיבלתי. ממליצה בחום!' },
     { key: 'authorName', labelHe: 'שם הממליץ', default: 'שיר כהן' },
@@ -15,6 +15,7 @@ export const meta = {
 export function thumbnail() {
   return el('div', { class: 'tpl-thumb tpl-thumb-quote' }, [
     el('div', { class: 'tpl-thumb-quote-mono' }, 'B'),
+    el('div', { class: 'tpl-thumb-quote-card' }),
     el('div', { class: 'tpl-thumb-quote-mark' }, '"'),
     el('div', { class: 'tpl-thumb-quote-text' }),
     el('div', { class: 'tpl-thumb-quote-author' }, '— שם'),
@@ -30,21 +31,29 @@ export function render({ content, brand, format }) {
   const quote = content.quote || content.caption || 'המלצה';
   const authorName = content.authorName || '';
   const authorRole = content.authorRole || '';
+  const imageUrl = content.sourceImageUrl;
 
   return el('div', {
     class: 'tpl-canvas format-' + format + ' tpl-quote',
     style: { background: primary }
   }, [
-    // Top-LEFT monogram circle (single initial)
+    // Top-RIGHT monogram circle (single initial)
     el('div', { class: 'bq-mono', style: { borderColor: accent, color: accent } }, initial),
 
-    // Massive opening quote mark
+    // Image — centered above the quote
+    imageUrl ? el('div', { class: 'img-card-wrap bq-img-wrap' }, [
+      el('div', { class: 'img-card img-card-bright' }, [
+        el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
+      ])
+    ]) : null,
+
+    // Opening quote mark (smaller now that the image is the centerpiece)
     el('div', { class: 'bq-mark', style: { color: accent } }, '"'),
 
     // The quote in Suez serif italic
     el('div', {
       class: 'bq-quote',
-      'data-fit-max': '84', 'data-fit-min': '32'
+      'data-fit-max': '60', 'data-fit-min': '26'
     }, quote),
 
     // Thin accent rule + author
@@ -52,11 +61,11 @@ export function render({ content, brand, format }) {
       el('div', { class: 'bq-author-rule', style: { background: accent } }),
       authorName ? el('div', {
         class: 'bq-author-name',
-        'data-fit-max': '40', 'data-fit-min': '22'
+        'data-fit-max': '32', 'data-fit-min': '18'
       }, '— ' + authorName) : null,
       authorRole ? el('div', {
         class: 'bq-author-role',
-        'data-fit-max': '24', 'data-fit-min': '16'
+        'data-fit-max': '20', 'data-fit-min': '14'
       }, authorRole) : null
     ]) : null,
 

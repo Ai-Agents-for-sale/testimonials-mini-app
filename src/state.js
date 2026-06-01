@@ -89,11 +89,13 @@ export function setScheduleAt(iso) {
 
 // Reset just the per-post flow (keep brand, folders, selectedFolder).
 // Used when looping back to pick another template within the same folder.
+// Keeps currentImage + excludeIds so switching template re-uses the same
+// image (and just regenerates the caption for the new template) — without
+// this, every template switch picks a fresh random image and the user
+// loses the image they were working with.
 export function resetPostFlow() {
   state.templateId = null;
   state.format = 'feed';
-  state.currentImage = null;
-  state.excludeIds = [];
   state.generatedContent = null;
   state.editableValues = {};
   state.scheduleAt = null;
@@ -102,6 +104,8 @@ export function resetPostFlow() {
 // Full reset back to "open the app" state. Used to switch folder.
 export function resetAll() {
   resetPostFlow();
+  state.currentImage = null;
+  state.excludeIds = [];
   state.folders = [];
   state.galleryImages = [];
   state.selectedFolderId = null;

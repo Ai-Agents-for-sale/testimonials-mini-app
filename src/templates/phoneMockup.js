@@ -135,9 +135,7 @@ export function render({ content, brand, format }) {
       el('div', { class: 'pm-bottom-rule', style: { background: accent } }),
       el('div', { class: 'pm-bottom-row' }, [
         el('span', { class: 'pm-bottom-initial', style: { background: accent } }, initial),
-        el('span', { class: 'pm-bottom-name' }, brandName),
-        el('span', { class: 'pm-bottom-dot' }, '·'),
-        el('span', { class: 'pm-bottom-tag' }, 'TESTIMONIAL')
+        el('span', { class: 'pm-bottom-name' }, brandName)
       ])
     ])
   ]);

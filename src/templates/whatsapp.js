@@ -23,8 +23,10 @@ export function thumbnail() {
 }
 
 export function render({ content, brand, format }) {
-  const accent  = brand.accentColor || '#25D366';
-  const primary = brand.primaryColor || '#075E54';
+  // Always WhatsApp green for the chat UI so it reads as a real WhatsApp
+  // screenshot regardless of brand colors.
+  const waHeaderGreen = '#075E54';
+  const waBubbleGreen = '#DCF8C6';
   const brandName = brand.nameHe || brand.name || 'BRAND';
   const initial = (brandName || '?').slice(0, 1);
   const headline = content.headline || 'הלקוחות שלנו מספרים.';
@@ -32,28 +34,26 @@ export function render({ content, brand, format }) {
   const imageUrl = content.sourceImageUrl;
 
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-whatsapp' }, [
-    // Cream WhatsApp doodle pattern background
     el('div', { class: 'wa-bg-pattern' }),
 
     // Top: editorial-style magazine headline
     el('div', { class: 'wa-top' }, [
-      el('div', { class: 'wa-top-eyebrow' }, 'TESTIMONIAL · עדות אמיתית'),
       el('div', {
         class: 'wa-top-headline',
         'data-fit-max': '76', 'data-fit-min': '32'
       }, headline),
-      el('div', { class: 'wa-top-rule', style: { background: primary } })
+      el('div', { class: 'wa-top-rule', style: { background: waHeaderGreen } })
     ]),
 
     // Chat frame
     el('div', { class: 'wa-chat-frame' }, [
-      // Chat header — brand logo as the contact avatar, name = brand name
-      el('div', { class: 'wa-chat-header', style: { background: primary } }, [
+      // Chat header — green WhatsApp tab
+      el('div', { class: 'wa-chat-header', style: { background: waHeaderGreen } }, [
         el('div', { class: 'wa-chat-back' }, '‹'),
         el('div', { class: 'wa-chat-avatar' }, [
           brand.logoUrl
             ? el('img', { class: 'wa-chat-avatar-img', src: brand.logoUrl, crossorigin: 'anonymous' })
-            : el('div', { class: 'wa-chat-avatar-initial', style: { background: accent } }, initial)
+            : el('div', { class: 'wa-chat-avatar-initial', style: { background: '#25D366' } }, initial)
         ]),
         el('div', { class: 'wa-chat-meta' }, [
           el('div', { class: 'wa-chat-name' }, brandName),
@@ -70,10 +70,10 @@ export function render({ content, brand, format }) {
       ])
     ]),
 
-    // Owner reply bubble below the chat
+    // Outgoing-style green bubble below the chat
     caption ? el('div', { class: 'wa-reply' }, [
-      el('div', { class: 'wa-reply-bubble', style: { background: accent } }, [
-        el('div', { class: 'wa-reply-tail', style: { background: accent } }),
+      el('div', { class: 'wa-reply-bubble', style: { background: waBubbleGreen } }, [
+        el('div', { class: 'wa-reply-tail', style: { background: waBubbleGreen } }),
         el('div', { class: 'wa-reply-label' }, 'התגובה שלנו'),
         el('div', {
           class: 'wa-reply-text',
@@ -82,14 +82,9 @@ export function render({ content, brand, format }) {
       ])
     ]) : null,
 
-    // Bottom signature line — "מתוך שיחה עם {brand}"
+    // Bottom signature line — generic "מתוך שיחה עם לקוח", no rating
     el('div', { class: 'wa-sig' }, [
-      el('div', { class: 'wa-sig-line' }, [
-        el('span', {}, 'מתוך שיחה עם '),
-        el('span', { class: 'wa-sig-brand', style: { color: primary } }, brandName),
-        el('span', {}, ' · 5.0'),
-        el('span', { class: 'wa-sig-stars', style: { color: accent } }, ' ★★★★★')
-      ])
+      el('div', { class: 'wa-sig-line' }, 'מתוך שיחה עם לקוח')
     ])
   ]);
 }

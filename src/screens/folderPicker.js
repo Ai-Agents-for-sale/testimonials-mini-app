@@ -1,12 +1,15 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { fetchInit } from '../api.js';
+import { fetchInit, resetSession } from '../api.js';
 import { getState, setBrand, setFolders, setSelectedFolder, resetAll } from '../state.js';
 
 const FOLDER_EMOJI = ['📁', '📂', '🗂️', '📒', '📕', '📗', '📘', '📙'];
 
 export function folderPickerScreen({ navigate }) {
   resetAll();
+  // Fresh app open = fresh n8n session. Rewind to the original webhook URL
+  // so we start a brand-new execution instead of trying to resume a dead one.
+  resetSession();
 
   const root = el('div', { class: 'screen' }, [
     el('div', { class: 'topbar' }, [

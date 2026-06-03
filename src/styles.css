@@ -524,12 +524,30 @@ html, body {
 .rv-action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 6px 0 8px; }
 .rv-action { width: 100%; padding: 14px 10px; font-size: 14px; }
 
-.rv-schedule-block { padding: 10px 0; }
-.rv-schedule-hint { font-size: 12px; color: var(--hint); margin-bottom: 6px; font-weight: 700; }
-.rv-datetime {
-  width: 100%; padding: 10px 12px;
+/* Schedule popup — full-screen date + time picker */
+.rv-schedule-modal { max-width: 420px; text-align: right; }
+.rv-modal-pickers {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin: 8px 0 14px;
+}
+.rv-modal-label {
+  display: flex; flex-direction: column; gap: 6px;
+  text-align: right;
+}
+.rv-modal-label-text {
+  font-size: 12px; font-weight: 800; color: var(--hint);
+  letter-spacing: 0.5px;
+}
+.rv-modal-input {
+  width: 100%; padding: 14px 12px;
   border: 1px solid var(--border); border-radius: var(--radius-sm);
-  font-family: inherit; font-size: 14px; box-sizing: border-box; background: var(--surface);
+  font-family: inherit; font-size: 16px;
+  box-sizing: border-box; background: var(--surface);
+  color: var(--text);
+}
+.rv-modal-error {
+  min-height: 18px; font-size: 13px; color: #d33;
+  text-align: center; margin-bottom: 10px;
 }
 
 .rv-status { text-align: center; font-size: 13px; color: var(--hint); padding: 8px 0; min-height: 18px; }

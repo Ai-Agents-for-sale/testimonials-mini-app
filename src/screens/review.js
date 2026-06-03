@@ -115,7 +115,6 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   let regenBtn = null;
   let publishBtn = null;
   let scheduleBtn = null;
-  let confirmScheduleBtn = null;
 
   function buildReviewView() {
     const wrap = el('div', {}, [
@@ -194,44 +193,10 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     scheduleBtn = el('button', { class: 'btn btn-secondary rv-action' }, '📅 תזמן לפרסום');
     const actionRow = el('div', { class: 'rv-action-row' }, [publishBtn, scheduleBtn]);
 
-    const scheduleBlock = el('div', { class: 'rv-schedule-block hidden' });
-    const scheduleInput = el('input', { type: 'datetime-local', class: 'rv-datetime' });
-    scheduleBlock.appendChild(el('div', { class: 'rv-schedule-hint' }, 'בחר תאריך ושעה לפרסום אוטומטי'));
-    scheduleBlock.appendChild(scheduleInput);
-
-    const confirmRow = el('div', { class: 'rv-action-row hidden' });
-    const cancelBtn = el('button', { class: 'btn btn-secondary rv-action' }, '← ביטול');
-    confirmScheduleBtn = el('button', { class: 'btn btn-primary rv-action' }, '✅ אשר תזמון');
-    confirmRow.appendChild(cancelBtn);
-    confirmRow.appendChild(confirmScheduleBtn);
-
     publishBtn.addEventListener('click', () => { haptic('medium'); doSubmit(null); });
-    scheduleBtn.addEventListener('click', () => {
-      haptic('light');
-      scheduleBlock.classList.remove('hidden');
-      actionRow.classList.add('hidden');
-      confirmRow.classList.remove('hidden');
-    });
-    cancelBtn.addEventListener('click', () => {
-      scheduleBlock.classList.add('hidden');
-      actionRow.classList.remove('hidden');
-      confirmRow.classList.add('hidden');
-      setScheduleAt(null);
-      scheduleInput.value = '';
-    });
-    confirmScheduleBtn.addEventListener('click', () => {
-      haptic('medium');
-      const v = scheduleInput.value;
-      if (!v) { statusEl.textContent = 'בחר תאריך ושעה'; return; }
-      const iso = new Date(v).toISOString();
-      if (new Date(iso).getTime() < Date.now()) { statusEl.textContent = 'בחר תאריך עתידי'; return; }
-      setScheduleAt(iso);
-      doSubmit(iso);
-    });
+    scheduleBtn.addEventListener('click', () => { haptic('light'); openScheduleModal(); });
 
     wrap.appendChild(actionRow);
-    wrap.appendChild(scheduleBlock);
-    wrap.appendChild(confirmRow);
     wrap.appendChild(statusEl);
 
     // Sync stage to format after DOM insert
@@ -376,10 +341,9 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   }
 
   async function doSubmit(scheduleAt) {
-    if (!publishBtn || !scheduleBtn || !confirmScheduleBtn || !statusEl) return;
+    if (!publishBtn || !scheduleBtn || !statusEl) return;
     publishBtn.disabled = true;
     scheduleBtn.disabled = true;
-    confirmScheduleBtn.disabled = true;
     statusEl.textContent = 'מרנדר תמונה…';
     try {
       const dims = FORMAT_DIMS[state.format] || FORMAT_DIMS.feed;
@@ -403,8 +367,67 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       statusEl.textContent = 'שגיאה: ' + err.message;
       publishBtn.disabled = false;
       scheduleBtn.disabled = false;
-      confirmScheduleBtn.disabled = false;
     }
+  }
+
+  // ============================================================
+  // Schedule modal — full-screen date + time picker
+  // ============================================================
+
+  function openScheduleModal() {
+    const now = new Date();
+    // Default to tomorrow 09:00 in the user's local timezone so the picker
+    // opens with something sensible already filled in.
+    const tmrw = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    const pad = (n) => String(n).padStart(2, '0');
+    const todayStr = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+    const tmrwStr  = tmrw.getFullYear() + '-' + pad(tmrw.getMonth() + 1) + '-' + pad(tmrw.getDate());
+
+    const dateInput = el('input', { type: 'date', class: 'rv-modal-input', value: tmrwStr, min: todayStr });
+    const timeInput = el('input', { type: 'time', class: 'rv-modal-input', value: '09:00' });
+    const errorMsg = el('div', { class: 'rv-modal-error' }, '');
+
+    function close() { backdrop.remove(); }
+
+    const confirmBtn = el('button', { class: 'btn btn-primary popup-btn' }, '✅ אשר תזמון');
+    const cancelBtn  = el('button', { class: 'btn btn-secondary popup-btn' }, '← ביטול');
+    cancelBtn.addEventListener('click', () => { haptic('light'); close(); });
+    confirmBtn.addEventListener('click', () => {
+      const d = dateInput.value;
+      const t = timeInput.value;
+      if (!d || !t) { errorMsg.textContent = 'בחר תאריך ושעה'; return; }
+      const combined = new Date(d + 'T' + t);
+      if (isNaN(combined.getTime())) { errorMsg.textContent = 'תאריך/שעה לא תקינים'; return; }
+      if (combined.getTime() < Date.now()) { errorMsg.textContent = 'בחר זמן עתידי'; return; }
+      haptic('medium');
+      const iso = combined.toISOString();
+      setScheduleAt(iso);
+      close();
+      doSubmit(iso);
+    });
+
+    const card = el('div', { class: 'popup-card rv-schedule-modal' }, [
+      el('div', { class: 'popup-emoji' }, '📅'),
+      el('div', { class: 'popup-title' }, 'תזמן לפרסום'),
+      el('div', { class: 'popup-sub' }, 'בחר את התאריך והשעה שבהם הפוסט יפורסם אוטומטית'),
+      el('div', { class: 'rv-modal-pickers' }, [
+        el('label', { class: 'rv-modal-label' }, [
+          el('span', { class: 'rv-modal-label-text' }, 'תאריך'),
+          dateInput
+        ]),
+        el('label', { class: 'rv-modal-label' }, [
+          el('span', { class: 'rv-modal-label-text' }, 'שעה'),
+          timeInput
+        ])
+      ]),
+      errorMsg,
+      el('div', { class: 'popup-actions' }, [confirmBtn, cancelBtn])
+    ]);
+
+    const backdrop = el('div', { class: 'popup-backdrop' });
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) { haptic('light'); close(); } });
+    backdrop.appendChild(card);
+    document.body.appendChild(backdrop);
   }
 
   // ============================================================

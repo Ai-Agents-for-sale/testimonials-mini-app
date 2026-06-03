@@ -4,11 +4,10 @@ export const meta = {
   id: 'phone-mockup',
   nameHe: 'מוקאפ פאלפון',
   type: 'phone-mockup',
-  description: 'הסקרינשוט יושב בתוך מסגרת אייפון, חיצים ושכבות קישוט מסביב, רקע גראדיאנט עם עיגולים גדולים בצבעי המותג.',
+  description: 'הסקרינשוט יושב בתוך מסגרת אייפון, חיצים מסביב, רקע גראדיאנט רדיאלי מהמרכז עם עיגולים גדולים בצבעי המותג.',
   editableFields: [
     { key: 'headline',    labelHe: 'כותרת ראשית', default: 'תראו מה כתבו לנו.' },
-    { key: 'subHeadline', labelHe: 'תת-כותרת', default: 'הודעה אמיתית. צילום אמיתי.' },
-    { key: 'caption',     labelHe: 'אנוטציה צד (קצרה)', multiline: false, default: '★ אמיתי' }
+    { key: 'subHeadline', labelHe: 'תת-כותרת', default: 'הודעה אמיתית. צילום אמיתי.' }
   ]
 };
 
@@ -62,12 +61,14 @@ export function render({ content, brand, format }) {
   const initial = (brandName || '?').slice(0, 1);
   const headline    = content.headline;
   const subHeadline = content.subHeadline;
-  const caption     = content.caption;
   const imageUrl    = content.sourceImageUrl;
 
   return el('div', {
     class: 'tpl-canvas format-' + format + ' tpl-mockup',
-    style: { background: 'linear-gradient(155deg, ' + primary + ' 0%, #0a0e1a 100%)' }
+    // Centred radial gradient: brand primary glows from the middle and
+    // fades into deep navy at the edges. Replaces the previous off-axis
+    // 155° linear gradient.
+    style: { background: 'radial-gradient(ellipse at center, ' + primary + ' 0%, #0a0e1a 85%)' }
   }, [
     // Background decoration — large blurred color orbs
     el('div', { class: 'pm-bg-orbs' }, [
@@ -75,8 +76,6 @@ export function render({ content, brand, format }) {
       el('span', { class: 'pm-orb pm-orb-primary', style: { background: primary } }),
       el('span', { class: 'pm-orb pm-orb-soft', style: { background: '#fff' } })
     ]),
-    // Diagonal stripes overlay for extra texture
-    el('div', { class: 'pm-bg-stripes' }),
 
     // Top brand row
     el('div', { class: 'pm-top' }, [
@@ -118,16 +117,7 @@ export function render({ content, brand, format }) {
         ])
       ]),
 
-      curvyArrow({ variant: 'left', accent }),
-
-      // Floating annotation badge (right side)
-      caption ? el('div', {
-        class: 'pm-annotation pm-annotation-right',
-        style: { background: accent },
-        'data-fit-max': '22', 'data-fit-min': '14'
-      }, caption) : null,
-      // Floating sticker on left side
-      el('div', { class: 'pm-annotation pm-annotation-left' }, '✓ מאומת')
+      curvyArrow({ variant: 'left', accent })
     ]),
 
     // Bottom signature

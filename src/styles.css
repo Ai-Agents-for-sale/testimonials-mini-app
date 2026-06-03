@@ -1370,6 +1370,9 @@ html, body {
 
 /* Floating annotation stickers around the phone */
 .pm-annotation {
+  /* Sit alongside the phone, not over it. Phone is centred ~480-540px wide
+     in a 1080px canvas, so each side has ~270-300px of empty space —
+     plenty of room for these floating callouts. */
   position: absolute;
   font-family: 'Heebo', sans-serif;
   font-weight: 900;
@@ -1380,13 +1383,16 @@ html, body {
   color: #1a1a1a;
   box-shadow: 0 8px 24px rgba(0,0,0,0.4);
   z-index: 4;
-  transform: rotate(-6deg);
+  max-width: 210px;
+  text-align: center;
+  line-height: 1.25;
+  transform: rotate(-4deg);
 }
-.pm-annotation-right { top: 22%; right: 50px; }
+.pm-annotation-right { top: 30%; right: 10px; }
 .pm-annotation-left {
-  top: 70%; left: 50px;
+  top: 60%; left: 10px;
   background: #fff;
-  transform: rotate(8deg);
+  transform: rotate(5deg);
 }
 
 /* Bottom signature row */

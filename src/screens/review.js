@@ -10,7 +10,7 @@ import {
   setFormat,
   setScheduleAt
 } from '../state.js';
-import { renderCanvasToPng, dataUrlToBase64 } from '../png.js';
+import { buildCanvasHtmlDoc } from '../cloudRender.js';
 import { autofitCanvas } from '../autofit.js';
 
 const FORMAT_DIMS = {
@@ -344,16 +344,17 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     if (!publishBtn || !scheduleBtn || !statusEl) return;
     publishBtn.disabled = true;
     scheduleBtn.disabled = true;
-    statusEl.textContent = 'מרנדר תמונה…';
+    statusEl.textContent = 'מכין את הפוסט…';
     try {
       const dims = FORMAT_DIMS[state.format] || FORMAT_DIMS.feed;
-      // Make sure any pending autofit RAFs have settled before snapshotting.
+      // Let any pending autofit RAFs settle before grabbing the HTML.
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-      const dataUrl = await renderCanvasToPng(canvasEl, dims);
-      const base64 = dataUrlToBase64(dataUrl);
-      statusEl.textContent = 'שולח ל-n8n…';
+      const html = buildCanvasHtmlDoc(canvasEl);
+      statusEl.textContent = 'שולח לרינדור בענן…';
       await submitFinal({
-        imageBase64: base64,
+        html,
+        viewportWidth: dims.w,
+        viewportHeight: dims.h,
         caption: state.editableValues.caption || state.editableValues.quote || '',
         headline: state.editableValues.headline || '',
         templateId: template.meta.id,

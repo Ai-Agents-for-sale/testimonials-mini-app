@@ -88,9 +88,14 @@ export async function generateCaption({ imageId, imageUrl, templateId, templateT
   });
 }
 
-export async function submitFinal({ imageBase64, caption, headline, templateId, format, sourceImageId, scheduleAt }) {
+// Server-side rendering: we ship the canvas HTML + viewport dims to n8n,
+// which forwards to the Cloud Run / Puppeteer renderer. No more in-browser
+// PNG rasterisation, no more iOS WebView limits on data URL size.
+export async function submitFinal({ html, viewportWidth, viewportHeight, caption, headline, templateId, format, sourceImageId, scheduleAt }) {
   return call('publish', {
-    imageBase64,
+    html,
+    viewportWidth,
+    viewportHeight,
     caption,
     headline,
     templateId,

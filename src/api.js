@@ -1,4 +1,5 @@
 import { getClientInfo } from './telegram.js';
+import { setBrandLogo } from './state.js';
 
 // Single n8n webhook entry. After the first call the workflow pauses at a
 // Wait node and returns $execution.resumeUrl in its response body. Every
@@ -35,6 +36,13 @@ async function call(action, body = {}) {
   // it doesn't matter because the session is over.
   if (json && typeof json.resumeUrl === 'string' && json.resumeUrl) {
     activeUrl = json.resumeUrl;
+  }
+
+  // Late-arriving brand logo (init now ships sans logo to surface folders
+  // faster; review-start piggybacks the logoUrl once n8n's post-respond
+  // logo chain finishes). Any response carrying it gets merged in.
+  if (json && typeof json.logoUrl === 'string' && json.logoUrl) {
+    setBrandLogo(json.logoUrl);
   }
 
   return json;

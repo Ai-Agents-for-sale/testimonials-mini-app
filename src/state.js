@@ -23,6 +23,15 @@ export function setBrand(brand) {
   state.brand = brand;
 }
 
+// Late-arriving brand logo. Init now returns brand without logoUrl so the
+// folder picker loads fast; the logo is fetched in n8n after Respond Init
+// and shipped down on the next response (typically review-start). This
+// merges it in without clobbering the rest of the brand object.
+export function setBrandLogo(logoUrl) {
+  if (!logoUrl) return;
+  state.brand = { ...(state.brand || {}), logoUrl };
+}
+
 export function setFolders(folders) {
   state.folders = Array.isArray(folders) ? folders : [];
 }

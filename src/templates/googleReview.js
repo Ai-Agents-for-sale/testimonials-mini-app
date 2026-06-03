@@ -81,17 +81,12 @@ export function render({ content, brand, format }) {
       ])
     ]) : null,
 
-    // Bottom block: 5.0 → stars → verified → sig
+    // Bottom block: 5.0 → 5 stars → "ביקורת ל-[brand]" sig
     el('div', { class: 'gr-bottom' }, [
       el('div', { class: 'gr-rating-block' }, [
-        el('div', { class: 'gr-rating-num' }, '5.0'),
-        el('div', { class: 'gr-rating-out' }, 'out of 5')
+        el('div', { class: 'gr-rating-num' }, '5.0')
       ]),
       el('div', { class: 'gr-bottom-stars', style: { color: '#FBBC05' } }, '★ ★ ★ ★ ★'),
-      el('div', { class: 'gr-verified' }, [
-        el('span', { class: 'gr-check', style: { background: '#34A853' } }, '✓'),
-        el('span', { style: { color: '#5f6368' } }, 'Verified Review')
-      ]),
       el('div', { class: 'gr-sig-rule' }),
       el('div', { class: 'gr-sig' }, [
         el('span', { class: 'gr-sig-prefix' }, 'ביקורת ל-'),

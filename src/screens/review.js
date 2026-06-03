@@ -364,9 +364,18 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       statusEl.textContent = scheduleAt ? '✅ תוזמן בהצלחה' : '✅ נשלח לפרסום';
       if (onPublished) setTimeout(onPublished, 1000);
     } catch (err) {
-      statusEl.textContent = 'שגיאה: ' + err.message;
+      // html-to-image and a few fetch/abort paths reject with Events
+      // (no `.message`) or plain objects. Surface SOMETHING useful so
+      // the user doesn't see a bare "שגיאה: undefined".
+      const msg = (err && typeof err.message === 'string' && err.message)
+        || (err && typeof err === 'string' && err)
+        || (err && err.name)
+        || (err && err.toString && err.toString())
+        || 'משהו השתבש בעיבוד';
+      statusEl.textContent = 'שגיאה: ' + msg;
       publishBtn.disabled = false;
       scheduleBtn.disabled = false;
+      console.error('[publish] failed:', err);
     }
   }
 

@@ -1,33 +1,41 @@
 import { toPng } from 'html-to-image';
 
-// Wait for every <img> inside the root to finish decoding before we
-// snapshot. Without this the snapshot can fire before a freshly-set
-// data URL has resolved → that <img> renders blank in the PNG.
+// Resolve when this image is loaded — or after `timeoutMs`, so a single
+// stuck `<img>` can't deadlock the publish/schedule flow. Returns the
+// promise; never rejects.
+function waitForImage(img, timeoutMs = 2500) {
+  if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => { if (!done) { done = true; resolve(); } };
+    img.addEventListener('load',  finish, { once: true });
+    img.addEventListener('error', finish, { once: true });
+    setTimeout(finish, timeoutMs);
+  });
+}
+
 async function preloadImages(rootEl) {
   const imgs = Array.from(rootEl.querySelectorAll('img'));
-  await Promise.all(imgs.map((img) => {
-    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-    return new Promise((resolve) => {
-      img.addEventListener('load',  resolve, { once: true });
-      img.addEventListener('error', resolve, { once: true });
-    });
-  }));
+  await Promise.all(imgs.map((img) => waitForImage(img)));
 }
 
 // Convert a `data:image/...;base64,...` URL into a Blob URL.
-// html-to-image clones the DOM into an SVG <foreignObject>; on iOS WebView
-// (Telegram Mini App) large data: URLs in that foreignObject are dropped
-// silently — the rendered PNG comes out with the <img> missing. Blob URLs
-// survive that path reliably, so we swap each <img>'s src to a blob for
-// the duration of the snapshot, then restore the original src after.
+// html-to-image clones the canvas into an SVG <foreignObject>; on iOS
+// WebView (Telegram Mini App) large data: URLs in that foreignObject get
+// dropped silently — the resulting PNG renders blank in their place.
+// Blob URLs survive that path reliably.
 function dataUrlToBlobUrl(dataUrl) {
-  const match = dataUrl.match(/^data:([^;]+);base64,(.*)$/);
-  if (!match) return null;
-  const mime = match[1];
-  const binary = atob(match[2]);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return URL.createObjectURL(new Blob([bytes], { type: mime }));
+  try {
+    const match = dataUrl.match(/^data:([^;]+);base64,(.*)$/);
+    if (!match) return null;
+    const mime = match[1];
+    const binary = atob(match[2]);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return URL.createObjectURL(new Blob([bytes], { type: mime }));
+  } catch (_e) {
+    return null;
+  }
 }
 
 async function swapDataUrlsForBlobs(rootEl) {
@@ -41,14 +49,8 @@ async function swapDataUrlsForBlobs(rootEl) {
     swaps.push({ img, originalSrc: src, blobUrl });
     img.src = blobUrl;
   });
-  // Re-wait: changing src triggers a new load.
-  await Promise.all(swaps.map(({ img }) => {
-    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-    return new Promise((resolve) => {
-      img.addEventListener('load',  resolve, { once: true });
-      img.addEventListener('error', resolve, { once: true });
-    });
-  }));
+  // Don't deadlock if a blob load event never fires (iOS race).
+  await Promise.all(swaps.map(({ img }) => waitForImage(img)));
   return swaps;
 }
 
@@ -60,8 +62,12 @@ function restoreSrcs(swaps) {
 }
 
 export async function renderCanvasToPng(canvasEl, dims = { w: 1080, h: 1350 }) {
-  await preloadImages(canvasEl);
-  const swaps = await swapDataUrlsForBlobs(canvasEl);
+  // Best-effort preload + blob-swap; failures here must NOT prevent the
+  // snapshot from running. Worst case: html-to-image grabs whatever's in
+  // the DOM at the moment (the prior behaviour).
+  try { await preloadImages(canvasEl); } catch (_e) {}
+  let swaps = [];
+  try { swaps = await swapDataUrlsForBlobs(canvasEl); } catch (_e) { swaps = []; }
   try {
     return await toPng(canvasEl, {
       cacheBust: true,
@@ -71,7 +77,7 @@ export async function renderCanvasToPng(canvasEl, dims = { w: 1080, h: 1350 }) {
       backgroundColor: null
     });
   } finally {
-    restoreSrcs(swaps);
+    try { restoreSrcs(swaps); } catch (_e) {}
   }
 }
 

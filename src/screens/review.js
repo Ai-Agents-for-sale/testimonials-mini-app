@@ -33,12 +33,14 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   // View renderers — swap into `root` based on async state
   // ============================================================
 
-  function renderLoading() {
+  function renderLoading(customTitle) {
     root.replaceChildren(
       el('div', { class: 'screen-state screen-state-loading' }, [
         el('div', { class: 'state-emoji pulse' }, '🎨'),
-        el('div', { class: 'state-title' }, 'מכין לך את הפוסט…'),
-        el('div', { class: 'state-sub' }, 'שולף תמונה מהתיקייה ויוצר טקסט שיווקי'),
+        el('div', { class: 'state-title' }, customTitle || 'מכין לך את הפוסט…'),
+        el('div', { class: 'state-sub' }, customTitle
+          ? 'המודל מנתח את התמונה ויוצר טקסט חדש מותאם'
+          : 'שולף תמונה מהתיקייה ויוצר טקסט שיווקי'),
         el('div', { class: 'state-bar' }, [el('div', { class: 'state-bar-fill' })])
       ])
     );
@@ -296,13 +298,18 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     const fields = (template.meta && template.meta.editableFields) || [];
     fields.forEach((f) => {
       const val = state.editableValues[f.key] || '';
+      // Show the template default as a placeholder hint so the user can
+      // see what would look right here without it filling the canvas.
+      const placeholder = f.default || '';
       const input = f.multiline
         ? el('textarea', {
             class: 'rv-field-input', dir: 'rtl', rows: f.linesField ? 4 : 3, value: val,
+            placeholder,
             onInput: (e) => { setEditableValue(f.key, e.target.value); renderCanvas(); }
           })
         : el('input', {
             type: 'text', class: 'rv-field-input rv-field-input-single', dir: 'rtl', value: val,
+            placeholder,
             onInput: (e) => { setEditableValue(f.key, e.target.value); renderCanvas(); }
           });
       captionsBlockEl.appendChild(el('div', { class: 'rv-field' }, [
@@ -334,8 +341,14 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   function regenerateCaptionInline(statusNode, userInitiated = false) {
     const img = state.currentImage;
     if (!img) return Promise.resolve();
-    if (userInitiated && regenBtn) { regenBtn.disabled = true; regenBtn.textContent = 'מנסח…'; }
-    else if (statusNode) statusNode.textContent = 'מנסח טקסט מותאם…';
+    // For user-initiated regen, swap the whole review to a loading screen
+    // so it's unmistakable that something is happening. For inline regen
+    // (after image swap), the caller already shows a status line.
+    if (userInitiated) {
+      renderLoading(userInitiated ? 'מנסח טקסט חדש לתמונה…' : null);
+    } else if (statusNode) {
+      statusNode.textContent = 'מנסח טקסט מותאם…';
+    }
     return generateCaption({
       imageId: img.id,
       imageUrl: img.imageUrl,
@@ -345,15 +358,20 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     })
       .then((res) => {
         setGeneratedContent(res || {});
-        renderFieldInputs();
-        renderCanvas();
-        if (statusNode) statusNode.textContent = '';
+        if (userInitiated) {
+          renderReview();
+        } else {
+          renderFieldInputs();
+          renderCanvas();
+          if (statusNode) statusNode.textContent = '';
+        }
       })
       .catch((err) => {
-        if (statusEl) statusEl.textContent = 'שגיאה: ' + err.message;
-      })
-      .finally(() => {
-        if (userInitiated && regenBtn) { regenBtn.disabled = false; regenBtn.textContent = '🔄 צור טקסט חדש'; }
+        if (userInitiated) {
+          renderError(err.message || String(err));
+        } else if (statusEl) {
+          statusEl.textContent = 'שגיאה: ' + err.message;
+        }
       });
   }
 

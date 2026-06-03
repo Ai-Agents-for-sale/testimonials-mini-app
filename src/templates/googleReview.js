@@ -32,7 +32,7 @@ export function render({ content, brand, format }) {
   const primary = brand.primaryColor || '#1a73e8';
   const brandName = brand.nameHe || brand.name || 'BRAND';
   const initial = (brandName || '?').slice(0, 1);
-  const quote = content.quote || content.caption || '';
+  const quote = content.quote || content.caption;
   const imageUrl = content.sourceImageUrl;
 
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-google' }, [

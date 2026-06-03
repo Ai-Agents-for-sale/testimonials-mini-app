@@ -60,9 +60,9 @@ export function render({ content, brand, format }) {
   const accent  = brand.accentColor || '#F2C94C';
   const brandName = brand.nameHe || brand.name || 'BRAND';
   const initial = (brandName || '?').slice(0, 1);
-  const headline    = content.headline    || 'תראו מה כתבו לנו.';
-  const subHeadline = content.subHeadline || 'הודעה אמיתית. צילום אמיתי.';
-  const caption     = content.caption     || '★ אמיתי';
+  const headline    = content.headline;
+  const subHeadline = content.subHeadline;
+  const caption     = content.caption;
   const imageUrl    = content.sourceImageUrl;
 
   return el('div', {
@@ -89,17 +89,17 @@ export function render({ content, brand, format }) {
     ]),
 
     // Headline block (Suez display + serif italic sub)
-    el('div', { class: 'pm-headline-block' }, [
-      el('div', {
+    (headline || subHeadline) ? el('div', { class: 'pm-headline-block' }, [
+      headline ? el('div', {
         class: 'pm-headline',
         'data-fit-max': '92', 'data-fit-min': '40'
-      }, headline),
-      el('div', {
+      }, headline) : null,
+      subHeadline ? el('div', {
         class: 'pm-subhead',
         style: { color: accent },
         'data-fit-max': '32', 'data-fit-min': '20'
-      }, subHeadline)
-    ]),
+      }, subHeadline) : null
+    ]) : null,
 
     // Phone mockup with the screenshot inside it, flanked by curvy arrows
     el('div', { class: 'pm-stage' }, [
@@ -121,11 +121,11 @@ export function render({ content, brand, format }) {
       curvyArrow({ variant: 'left', accent }),
 
       // Floating annotation badge (right side)
-      el('div', {
+      caption ? el('div', {
         class: 'pm-annotation pm-annotation-right',
         style: { background: accent },
         'data-fit-max': '22', 'data-fit-min': '14'
-      }, caption),
+      }, caption) : null,
       // Floating sticker on left side
       el('div', { class: 'pm-annotation pm-annotation-left' }, '✓ מאומת')
     ]),

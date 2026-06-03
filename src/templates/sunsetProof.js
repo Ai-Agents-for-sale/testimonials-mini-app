@@ -28,8 +28,8 @@ export function render({ content, brand, format }) {
   const accent  = brand.accentColor || '#F2C94C';
   const brandName = brand.nameHe || brand.name || 'BRAND';
   const initial = (brandName || '?').slice(0, 1);
-  const headline = content.headline || 'כוחו של הסיפור.';
-  const statLine = content.statLine || content.caption || '';
+  const headline = content.headline;
+  const statLine = content.statLine || content.caption;
   const imageUrl = content.sourceImageUrl;
 
   // Brand-driven background. If a custom photo bg is provided, use it;
@@ -61,13 +61,12 @@ export function render({ content, brand, format }) {
       el('div', { class: 'sp-top-rule', style: { background: accent } })
     ]),
 
-    // Serif italic centered headline (more poetic)
-    el('div', { class: 'sp-headline-block' }, [
+    headline ? el('div', { class: 'sp-headline-block' }, [
       el('div', {
         class: 'sp-headline',
         'data-fit-max': '84', 'data-fit-min': '34'
       }, headline)
-    ]),
+    ]) : null,
 
     // Image — raw, centered
     el('div', { class: 'img-card-wrap sp-img-wrap' }, [

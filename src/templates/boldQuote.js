@@ -28,9 +28,9 @@ export function render({ content, brand, format }) {
   const accent  = brand.accentColor || '#F2C94C';
   const brandName = brand.nameHe || brand.name || 'BRAND';
   const initial = (brandName || '?').slice(0, 1);
-  const quote = content.quote || content.caption || 'המלצה';
-  const authorName = content.authorName || '';
-  const authorRole = content.authorRole || '';
+  const quote = content.quote || content.caption;
+  const authorName = content.authorName;
+  const authorRole = content.authorRole;
   const imageUrl = content.sourceImageUrl;
 
   return el('div', {
@@ -47,14 +47,12 @@ export function render({ content, brand, format }) {
       ])
     ]) : null,
 
-    // Opening quote mark (smaller now that the image is the centerpiece)
-    el('div', { class: 'bq-mark', style: { color: accent } }, '"'),
-
-    // The quote in Suez serif italic
-    el('div', {
+    // Opening quote mark + quote text (both gone if there's no quote)
+    quote ? el('div', { class: 'bq-mark', style: { color: accent } }, '"') : null,
+    quote ? el('div', {
       class: 'bq-quote',
       'data-fit-max': '60', 'data-fit-min': '26'
-    }, quote),
+    }, quote) : null,
 
     // Thin accent rule + author
     (authorName || authorRole) ? el('div', { class: 'bq-author-block' }, [

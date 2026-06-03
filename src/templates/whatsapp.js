@@ -4,10 +4,10 @@ export const meta = {
   id: 'whatsapp',
   nameHe: 'הודעת וואטסאפ',
   type: 'whatsapp',
-  description: 'אותנטי. רקע קרם בדוגמת וואטסאפ, כותרת מגזין מעל, צ׳אט בסגנון אפליקציה עם הלוגו של המותג כתמונת פרופיל, ושורת חתימה למטה.',
+  description: 'אותנטי. רקע לבן עם מסגרת טלפון, צ׳אט וואטסאפ אמיתי עם רקע הדודל הקלאסי, כותרת מעל וטקסט תחתון.',
   editableFields: [
-    { key: 'headline', labelHe: 'כותרת מגזין מעל הצ׳אט', default: 'הלקוחות שלנו מספרים.' },
-    { key: 'caption',  labelHe: 'תגובת בעל העסק (בועה ירוקה למטה)', multiline: true, default: 'תודה רבה! כיף לנו לקבל את ההודעה הזו.' }
+    { key: 'headline', labelHe: 'כותרת מעל הצ׳אט (Suez One)', default: 'הלקוחות שלנו מספרים.' },
+    { key: 'caption',  labelHe: 'טקסט מתחת לצ׳אט', multiline: true, default: 'תודה רבה! כיף לנו לקבל את ההודעה הזו.' }
   ]
 };
 
@@ -26,28 +26,24 @@ export function render({ content, brand, format }) {
   // Always WhatsApp green for the chat UI so it reads as a real WhatsApp
   // screenshot regardless of brand colors.
   const waHeaderGreen = '#075E54';
-  const waBubbleGreen = '#DCF8C6';
   const brandName = brand.nameHe || brand.name || 'BRAND';
   const initial = (brandName || '?').slice(0, 1);
-  const headline = content.headline || 'הלקוחות שלנו מספרים.';
-  const caption  = content.caption || '';
+  const headline = content.headline;
+  const caption  = content.caption;
   const imageUrl = content.sourceImageUrl;
 
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-whatsapp' }, [
-    el('div', { class: 'wa-bg-pattern' }),
-
-    // Top: editorial-style magazine headline
-    el('div', { class: 'wa-top' }, [
+    // Top: editorial-style Suez headline (AI-driven, disappears if cleared)
+    headline ? el('div', { class: 'wa-top' }, [
       el('div', {
         class: 'wa-top-headline',
         'data-fit-max': '76', 'data-fit-min': '32'
       }, headline),
       el('div', { class: 'wa-top-rule', style: { background: waHeaderGreen } })
-    ]),
+    ]) : null,
 
-    // Chat frame
+    // Chat frame (the "phone")
     el('div', { class: 'wa-chat-frame' }, [
-      // Chat header — green WhatsApp tab
       el('div', { class: 'wa-chat-header', style: { background: waHeaderGreen } }, [
         el('div', { class: 'wa-chat-back' }, '‹'),
         el('div', { class: 'wa-chat-avatar' }, [
@@ -62,7 +58,6 @@ export function render({ content, brand, format }) {
         el('div', { class: 'wa-chat-icons' }, '⋯')
       ]),
 
-      // Chat body containing the screenshot
       el('div', { class: 'wa-chat-body' }, [
         imageUrl
           ? el('img', { class: 'wa-chat-img', src: imageUrl, crossorigin: 'anonymous' })
@@ -70,19 +65,13 @@ export function render({ content, brand, format }) {
       ])
     ]),
 
-    // Outgoing-style green bubble below the chat
-    caption ? el('div', { class: 'wa-reply' }, [
-      el('div', { class: 'wa-reply-bubble', style: { background: waBubbleGreen } }, [
-        el('div', { class: 'wa-reply-tail', style: { background: waBubbleGreen } }),
-        el('div', { class: 'wa-reply-label' }, 'התגובה שלנו'),
-        el('div', {
-          class: 'wa-reply-text',
-          'data-fit-max': '26', 'data-fit-min': '16'
-        }, caption)
-      ])
-    ]) : null,
+    // Caption block below the chat — plain multi-line text, no bubble
+    caption ? el('div', {
+      class: 'wa-caption',
+      'data-fit-max': '32', 'data-fit-min': '18'
+    }, caption) : null,
 
-    // Bottom signature line — generic "מתוך שיחה עם לקוח", no rating
+    // Bottom signature — generic
     el('div', { class: 'wa-sig' }, [
       el('div', { class: 'wa-sig-line' }, 'מתוך שיחה עם לקוח')
     ])

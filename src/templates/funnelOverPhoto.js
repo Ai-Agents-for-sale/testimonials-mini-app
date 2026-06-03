@@ -32,8 +32,8 @@ export function render({ content, brand, format }) {
   const accent  = brand.accentColor || '#F2C94C';
   const brandName = brand.nameHe || brand.name || 'BRAND';
   const brandHandle = brand.name || '';
-  const headline = content.headline || '100K ₪';
-  const subHeadline = content.subHeadline || 'בחודש הראשון';
+  const headline = content.headline;
+  const subHeadline = content.subHeadline;
   const imageUrl = content.sourceImageUrl;
   const lines = toLines(content.captionLines).length
     ? toLines(content.captionLines)
@@ -52,8 +52,7 @@ export function render({ content, brand, format }) {
       el('span', { class: 'fn-ribbon-text' }, brandName)
     ]),
 
-    // Headline block — Suez display stat + serif italic subline
-    el('div', { class: 'fn-headline-block' }, [
+    (headline || subHeadline) ? el('div', { class: 'fn-headline-block' }, [
       headline ? el('div', {
         class: 'fn-headline-num',
         'data-fit-max': '140', 'data-fit-min': '60'
@@ -63,7 +62,7 @@ export function render({ content, brand, format }) {
         'data-fit-max': '28', 'data-fit-min': '16'
       }, subHeadline) : null,
       el('div', { class: 'fn-headline-rule', style: { background: accent } })
-    ]),
+    ]) : null,
 
     // Image — bigger now
     el('div', { class: 'img-card-wrap fn-img-wrap' }, [
@@ -91,7 +90,7 @@ export function render({ content, brand, format }) {
       brand.logoUrl
         ? el('img', { class: 'fn-sig-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
         : el('div', { class: 'fn-sig-logo-fallback', style: { background: accent } }, (brandName || '?').slice(0, 1)),
-      brandHandle ? el('div', { class: 'fn-sig-handle' }, '@' + brandHandle.replace(/^@/, '')) : null
+      brandHandle ? el('div', { class: 'fn-sig-handle', dir: 'ltr' }, '@' + brandHandle.replace(/^@/, '')) : null
     ])
   ]);
 }

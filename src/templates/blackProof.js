@@ -20,18 +20,16 @@ export function thumbnail() {
 }
 
 export function render({ content, format }) {
-  const headline = content.headline || 'הנה ההוכחה.';
-  const caption  = content.caption  || 'הלקוחות שלנו אומרים את הכל בעצמם.';
+  const headline = content.headline;
+  const caption  = content.caption;
   const imageUrl = content.sourceImageUrl;
 
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-blackproof' }, [
-    // Top text pill (white background, black text, Hebrew)
-    el('div', {
+    headline ? el('div', {
       class: 'bp-pill bp-pill-top',
       'data-fit-max': '60', 'data-fit-min': '28'
-    }, headline),
+    }, headline) : null,
 
-    // Middle: raw image (no card, no padding)
     el('div', { class: 'img-card-wrap bp-img-wrap' }, [
       imageUrl
         ? el('div', { class: 'img-card img-card-bright' }, [
@@ -40,10 +38,9 @@ export function render({ content, format }) {
         : null
     ]),
 
-    // Bottom text pill (white background, regular Hebrew sentence)
-    el('div', {
+    caption ? el('div', {
       class: 'bp-pill bp-pill-bottom',
       'data-fit-max': '36', 'data-fit-min': '18'
-    }, caption)
+    }, caption) : null
   ]);
 }

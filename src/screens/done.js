@@ -19,7 +19,7 @@ export function doneScreen({ navigate }) {
           resetPostFlow();
           navigate('folders', true);
         }
-      }, '🔁 בוא נמשיך — פוסט נוסף'),
+      }, '🔁 צור פוסט המלצה נוסף'),
 
       el('button', {
         class: 'btn btn-secondary done-btn',

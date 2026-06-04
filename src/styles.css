@@ -1089,16 +1089,16 @@ html, body {
   text-shadow: 0 2px 6px rgba(255,255,255,0.5);
 }
 
-/* Image alone, centred on the doodle background. No frame. */
+/* Image alone, centred on the doodle background. No frame. Capped so it
+   doesn't dominate the canvas — the bottom sig + caption need room. */
 .wa-image-wrap {
   position: relative; z-index: 2;
-  flex: 1;
   display: flex; align-items: center; justify-content: center;
-  padding: 30px 80px;
+  padding: 30px 120px;
 }
 .wa-image {
   display: block;
-  max-width: 100%; max-height: 100%;
+  max-width: 100%; max-height: 640px;
   width: auto; height: auto;
   object-fit: contain;
   border-radius: 14px;
@@ -1124,19 +1124,22 @@ html, body {
   padding: 28px 80px 60px;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
 }
-.wa-sig-rule { width: 110px; height: 4px; border-radius: 2px; }
-/* +50% over the previous 24px → 36px. */
+.wa-sig-rule { width: 140px; height: 5px; border-radius: 3px; }
+/* Significantly bigger — the user explicitly asked for larger here. */
 .wa-sig-text {
   font-family: 'Frank Ruhl Libre', serif;
   font-style: italic;
-  font-size: 36px;
+  font-weight: 700;
+  font-size: 56px;
   color: #075E54;
   letter-spacing: 1px;
+  line-height: 1.2;
 }
 
 .tpl-whatsapp.format-story .wa-headline  { font-size: 84px; }
 .tpl-whatsapp.format-story .wa-caption   { font-size: 36px; padding-top: 36px; }
-.tpl-whatsapp.format-story .wa-sig-text  { font-size: 44px; }
+.tpl-whatsapp.format-story .wa-sig-text  { font-size: 72px; }
+.tpl-whatsapp.format-story .wa-image     { max-height: 920px; }
 
 /* =========================================================================
    #6 GOOGLE REVIEW — grid background + 4-corner color dots, Google wordmark

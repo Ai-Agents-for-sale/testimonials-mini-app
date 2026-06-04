@@ -118,6 +118,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   let regenBtn = null;
   let publishBtn = null;
   let scheduleBtn = null;
+  let editPanelOpen = false;
 
   function buildReviewView() {
     const wrap = el('div', {}, [
@@ -180,20 +181,31 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     wrap.appendChild(fileInput);
     wrap.appendChild(imgStatus);
 
-    // --- Editable fields ---
+    // --- Editing panel (text + size + regen). Collapsed by default so the
+    //     review screen feels clean; user opens it via the toggle below. ---
     captionsBlockEl = el('div', { class: 'rv-fields' });
     renderFieldInputs();
-    wrap.appendChild(captionsBlockEl);
-
-    // --- Size controls (one row per editable field + one for image) ---
     sizesBlockEl = el('div', { class: 'rv-sizes' });
     renderSizeControls();
-    wrap.appendChild(sizesBlockEl);
-
-    // --- Regenerate ---
     regenBtn = el('button', { class: 'btn btn-secondary rv-regen' }, '🔄 צור טקסט חדש');
     regenBtn.addEventListener('click', () => { haptic('light'); regenerateCaptionInline(null, true); });
-    wrap.appendChild(regenBtn);
+
+    const editPanel = el('div', {
+      class: editPanelOpen ? 'rv-edit-panel' : 'rv-edit-panel hidden'
+    }, [captionsBlockEl, sizesBlockEl, regenBtn]);
+
+    const editToggleBtn = el('button', {
+      class: 'btn btn-secondary rv-edit-toggle'
+    }, editPanelOpen ? 'סגור עריכה ✕' : 'בצע שינויים ✏️');
+    editToggleBtn.addEventListener('click', () => {
+      haptic('light');
+      editPanelOpen = !editPanelOpen;
+      editPanel.classList.toggle('hidden', !editPanelOpen);
+      editToggleBtn.textContent = editPanelOpen ? 'סגור עריכה ✕' : 'בצע שינויים ✏️';
+    });
+
+    wrap.appendChild(editToggleBtn);
+    wrap.appendChild(editPanel);
 
     // --- Action buttons ---
     statusEl = el('div', { class: 'rv-status' });

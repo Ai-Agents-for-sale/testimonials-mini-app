@@ -550,6 +550,19 @@ html, body {
   text-align: center; margin-bottom: 10px;
 }
 
+/* Edit toggle + collapsible editing panel.
+   By default the review screen shows only the post + the primary actions;
+   the text/size/regen controls live behind this toggle. */
+.rv-edit-toggle {
+  width: 100%;
+  margin: 6px 0 4px;
+  padding: 13px 14px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.rv-edit-panel { display: block; }
+.rv-edit-panel.hidden { display: none; }
+
 /* Per-field size controls — one row per editable field + image */
 .rv-sizes {
   background: var(--surface);

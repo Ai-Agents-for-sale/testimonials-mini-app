@@ -12,7 +12,5 @@
   "devDependencies": {
     "vite": "^5.4.10"
   },
-  "dependencies": {
-    "html-to-image": "^1.11.13"
-  }
+  "dependencies": {}
 }

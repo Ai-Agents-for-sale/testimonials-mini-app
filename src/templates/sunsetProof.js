@@ -53,9 +53,7 @@ export function render({ content, brand, format }) {
     el('div', { class: 'sp-top-frame' }, [
       el('div', { class: 'sp-top-rule', style: { background: accent } }),
       el('div', { class: 'sp-top-brand' }, [
-        brand.logoUrl
-          ? el('img', { class: 'sp-top-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-          : el('div', { class: 'sp-top-dot', style: { background: accent } }),
+        el('div', { class: 'sp-top-dot', style: { background: accent } }),
         el('div', { class: 'sp-top-name' }, brandName)
       ]),
       el('div', { class: 'sp-top-rule', style: { background: accent } })

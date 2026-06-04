@@ -87,12 +87,10 @@ export function render({ content, brand, format }) {
       ]))
     ) : null,
 
-    // Bottom signature — brand LOGO + handle below it
+    // Bottom signature — brand name on top, handle below
     el('div', { class: 'fn-sig' }, [
       el('div', { class: 'fn-sig-rule', style: { background: accent } }),
-      brand.logoUrl
-        ? el('img', { class: 'fn-sig-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-        : el('div', { class: 'fn-sig-logo-fallback', style: { background: accent } }, (brandName || '?').slice(0, 1)),
+      el('div', { class: 'fn-sig-name' }, brandName),
       brandHandle ? el('div', { class: 'fn-sig-handle', dir: 'ltr' }, '@' + brandHandle.replace(/^@/, '')) : null
     ])
   ]);

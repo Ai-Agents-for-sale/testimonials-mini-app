@@ -77,12 +77,10 @@ export function render({ content, brand, format }) {
       el('span', { class: 'pm-orb pm-orb-soft', style: { background: '#fff' } })
     ]),
 
-    // Top brand row
+    // Top brand row — dot + name (no logo)
     el('div', { class: 'pm-top' }, [
       el('div', { class: 'pm-brand-pill', style: { borderColor: accent } }, [
-        brand.logoUrl
-          ? el('img', { class: 'pm-brand-pill-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-          : el('span', { class: 'pm-brand-pill-dot', style: { background: accent } }),
+        el('span', { class: 'pm-brand-pill-dot', style: { background: accent } }),
         el('span', { class: 'pm-brand-pill-name' }, brandName)
       ])
     ]),

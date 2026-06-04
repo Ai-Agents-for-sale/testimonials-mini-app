@@ -58,9 +58,7 @@ export function render({ content, brand, format }) {
         el('span', { class: 'gr-reviews', style: { color: '#5f6368' } }, ' Reviews')
       ]),
       el('div', { class: 'gr-brand-logo-wrap' }, [
-        brand.logoUrl
-          ? el('img', { class: 'gr-brand-logo', src: brand.logoUrl, crossorigin: 'anonymous' })
-          : el('div', { class: 'gr-brand-logo-fallback', style: { background: primary } }, initial)
+        el('div', { class: 'gr-brand-logo-fallback', style: { background: primary } }, initial)
       ])
     ]),
 

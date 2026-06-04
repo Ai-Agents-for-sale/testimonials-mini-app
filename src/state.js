@@ -85,7 +85,11 @@ export function setGeneratedContent(content) {
   fields.forEach((f) => {
     let v = state.generatedContent[f.key];
     if (Array.isArray(v)) v = v.join('\n');
-    if (v === undefined || v === null || v === '') v = f.default || '';
+    // No template-default fallback: if the AI returned nothing for this
+    // field, leave it empty so the template's conditional render hides
+    // the element entirely. The `default` is only shown as an input
+    // placeholder hint, not as canvas content.
+    if (v === undefined || v === null) v = '';
     next[f.key] = v;
   });
   // Carry through any AI fields the template doesn't declare (e.g. backgroundUrl)

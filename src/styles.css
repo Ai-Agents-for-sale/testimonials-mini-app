@@ -1029,39 +1029,20 @@ html, body {
 .tpl-quote.format-story .bq-img-wrap .img-card-img { max-height: 760px; }
 
 /* =========================================================================
-   #5 WHATSAPP — Google-Review-style chrome (soft cream-green bg, grid
-   pattern, blurred green orbs) with the WhatsApp chat frame as the
-   centerpiece. Brand chrome lives in the top stamp + bottom sig; chat
-   contact name is generic ('לקוח'), NOT the brand name.
+   #5 WHATSAPP — full-canvas WhatsApp doodle wallpaper (Pinterest-hosted)
+   with a light green tint overlay, WhatsApp wordmark at top, testimonial
+   image alone in the centre (no chat frame), bottom sig "מתוך שיחה עם לקוח".
    ========================================================================= */
 .tpl-whatsapp {
   padding: 0;
   display: flex; flex-direction: column; align-items: stretch;
-  background: #f4faf6;
+  /* Light green tint (rgba on top of the doodle PNG keeps the WhatsApp
+     wallpaper look while preserving the green-tone request). */
+  background:
+    linear-gradient(rgba(220, 248, 198, 0.45), rgba(220, 248, 198, 0.45)),
+    url('https://i.pinimg.com/736x/8c/98/99/8c98994518b575bfd8c949e91d20548b.jpg') center/cover no-repeat;
   color: #1f1f1f;
 }
-.wa-bg-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(7, 94, 84, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(7, 94, 84, 0.05) 1px, transparent 1px);
-  background-size: 40px 40px;
-  z-index: 0;
-}
-.wa-bg-orbs {
-  position: absolute; inset: 0; z-index: 1;
-  pointer-events: none; overflow: hidden;
-}
-.wa-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
-}
-.wa-orb-dark   { width: 480px; height: 480px; top: -120px;    right: -140px; }
-.wa-orb-mid    { width: 380px; height: 380px; top: 40%;       left: -160px;  }
-.wa-orb-bright { width: 440px; height: 440px; bottom: -120px; right: -100px; opacity: 0.6; }
-.wa-orb-soft   { width: 320px; height: 320px; bottom: 28%;    left: -100px;  opacity: 0.7; }
 
 .wa-top-row {
   position: relative; z-index: 2;
@@ -1105,58 +1086,25 @@ html, body {
   line-height: 1.05;
   letter-spacing: -2px;
   color: #075E54;
+  text-shadow: 0 2px 6px rgba(255,255,255,0.5);
 }
 
-.wa-chat-frame {
+/* Image alone, centred on the doodle background. No frame. */
+.wa-image-wrap {
   position: relative; z-index: 2;
-  margin: 26px 80px;
-  background: #fff;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 24px 60px rgba(7, 94, 84, 0.22);
-  display: flex; flex-direction: column;
-  align-self: center;
-  width: calc(100% - 160px);
-}
-.wa-chat-header {
-  display: flex; align-items: center; gap: 14px;
-  padding: 22px 24px;
-  color: #fff;
-}
-.wa-chat-back { font-size: 36px; font-weight: 300; line-height: 1; opacity: 0.85; }
-.wa-chat-avatar {
-  width: 64px; height: 64px;
-  border-radius: 50%;
+  flex: 1;
   display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-  font-size: 30px;
+  padding: 30px 80px;
 }
-.wa-chat-meta { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-.wa-chat-name { font-family: 'Heebo', sans-serif; font-weight: 700; font-size: 26px; }
-.wa-chat-status { font-family: 'Heebo', sans-serif; font-weight: 300; font-size: 16px; opacity: 0.85; }
-.wa-chat-icons { font-size: 32px; opacity: 0.85; letter-spacing: 4px; }
-
-.wa-chat-body {
-  /* Dense WhatsApp-style doodle wallpaper — ~40 emoji glyphs at low opacity
-     across a 400×400 tile, on a near-white bg matching the reference image. */
-  background:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'><g fill='rgba(60,60,60,0.16)' font-family='sans-serif' font-size='26'><text x='15' y='35'>💬</text><text x='70' y='28'>📷</text><text x='130' y='35'>❤</text><text x='190' y='28'>⭐</text><text x='250' y='35'>🎁</text><text x='310' y='28'>📞</text><text x='360' y='38'>🎵</text><text x='25' y='95'>🎧</text><text x='85' y='100'>🔥</text><text x='145' y='90'>👍</text><text x='205' y='100'>🍕</text><text x='265' y='95'>🍦</text><text x='325' y='100'>😊</text><text x='375' y='95'>✌</text><text x='40' y='160'>🐱</text><text x='100' y='165'>🐶</text><text x='160' y='155'>👋</text><text x='220' y='160'>💌</text><text x='280' y='165'>🌟</text><text x='340' y='160'>🎮</text><text x='30' y='230'>📱</text><text x='90' y='225'>🎨</text><text x='150' y='235'>👀</text><text x='210' y='230'>☕</text><text x='270' y='225'>🌈</text><text x='330' y='235'>🍔</text><text x='385' y='225'>🎯</text><text x='45' y='295'>🐢</text><text x='105' y='300'>🚲</text><text x='165' y='295'>📝</text><text x='225' y='305'>🍩</text><text x='285' y='295'>🎬</text><text x='345' y='300'>🦋</text><text x='15' y='360'>🎤</text><text x='75' y='365'>💻</text><text x='135' y='360'>🌸</text><text x='195' y='365'>🐠</text><text x='255' y='360'>🎂</text><text x='315' y='365'>🥑</text><text x='375' y='360'>🌵</text></g></svg>") repeat,
-    #fafafa;
-  background-size: 260px 260px;
-  padding: 26px;
-  display: flex; align-items: center; justify-content: center;
-  min-height: 540px;
-  max-height: 760px;
-}
-.wa-chat-img {
+.wa-image {
   display: block;
-  max-width: 100%; max-height: 700px;
+  max-width: 100%; max-height: 100%;
   width: auto; height: auto;
   object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.28);
 }
-.wa-chat-placeholder { color: #999; font-size: 24px; }
+.wa-image-placeholder { color: #999; font-size: 28px; }
 
 .wa-caption {
   position: relative; z-index: 2;
@@ -1167,25 +1115,28 @@ html, body {
   font-size: 32px;
   line-height: 1.5;
   color: #1f1f1f;
+  text-shadow: 0 2px 6px rgba(255,255,255,0.5);
 }
 
 .wa-sig {
   position: relative; z-index: 2;
   margin-top: auto;
   padding: 28px 80px 60px;
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
 }
-.wa-sig-rule { width: 80px; height: 3px; border-radius: 2px; }
+.wa-sig-rule { width: 110px; height: 4px; border-radius: 2px; }
+/* +50% over the previous 24px → 36px. */
 .wa-sig-text {
   font-family: 'Frank Ruhl Libre', serif;
   font-style: italic;
-  font-size: 24px;
-  color: #5f6368;
+  font-size: 36px;
+  color: #075E54;
   letter-spacing: 1px;
 }
 
-.tpl-whatsapp.format-story .wa-headline { font-size: 84px; }
-.tpl-whatsapp.format-story .wa-caption  { font-size: 36px; padding-top: 36px; }
+.tpl-whatsapp.format-story .wa-headline  { font-size: 84px; }
+.tpl-whatsapp.format-story .wa-caption   { font-size: 36px; padding-top: 36px; }
+.tpl-whatsapp.format-story .wa-sig-text  { font-size: 44px; }
 
 /* =========================================================================
    #6 GOOGLE REVIEW — grid background + 4-corner color dots, Google wordmark

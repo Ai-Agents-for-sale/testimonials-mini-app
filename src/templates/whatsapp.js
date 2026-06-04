@@ -45,14 +45,12 @@ export function render({ content, brand, format }) {
       el('span', { class: 'wa-orb wa-orb-soft',   style: { background: '#DCF8C6' } })
     ]),
 
-    // Top row: WhatsApp wordmark LEFT, brand stamp RIGHT
+    // Top row: WhatsApp wordmark only (centred). No brand naming.
     el('div', { class: 'wa-top-row' }, [
       el('div', { class: 'wa-wordmark' }, [
-        // WhatsApp speech-bubble glyph (SVG inline so it stays crisp)
         el('span', { class: 'wa-icon', style: { background: waBrandGreen } }, '✓'),
         el('span', { class: 'wa-wordmark-text', style: { color: waHeaderGreen } }, 'WhatsApp')
-      ]),
-      el('div', { class: 'wa-brand-stamp', style: { background: waHeaderGreen } }, initial)
+      ])
     ]),
 
     // Headline (AI-driven, disappears if cleared)
@@ -92,13 +90,10 @@ export function render({ content, brand, format }) {
       'data-fit-max': '32', 'data-fit-min': '18'
     }, caption) : null,
 
-    // Bottom signature — "מתוך שיחה עם {brand}"
+    // Bottom signature — generic, no brand name
     el('div', { class: 'wa-sig' }, [
       el('div', { class: 'wa-sig-rule', style: { background: waBrandGreen } }),
-      el('div', { class: 'wa-sig-text' }, [
-        el('span', { class: 'wa-sig-prefix' }, 'מתוך שיחה עם'),
-        el('span', { class: 'wa-sig-brand', style: { color: waHeaderGreen } }, brandName)
-      ])
+      el('div', { class: 'wa-sig-text' }, 'מתוך שיחה עם לקוח')
     ])
   ]);
 }

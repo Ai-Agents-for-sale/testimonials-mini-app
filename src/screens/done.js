@@ -19,7 +19,7 @@ export function doneScreen({ navigate }) {
           resetPostFlow();
           navigate('folders', true);
         }
-      }, '🔁 צור פוסט המלצה נוסף'),
+      }, 'צור פוסט המלצה נוסף 🔁'),
 
       el('button', {
         class: 'btn btn-secondary done-btn',
@@ -28,7 +28,7 @@ export function doneScreen({ navigate }) {
           const tg = window.Telegram && window.Telegram.WebApp;
           if (tg && tg.close) try { tg.close(); } catch (_) {}
         }
-      }, '👋 זהו, סיימתי')
+      }, 'זהו, סיימתי 👋')
     ])
   ]);
 

@@ -64,12 +64,13 @@ export function render({ content, brand, format }) {
     headline ? el('div', { class: 'sp-headline-block' }, [
       el('div', {
         class: 'sp-headline',
+        'data-field': 'headline',
         'data-fit-max': '84', 'data-fit-min': '34'
       }, headline)
     ]) : null,
 
     // Image — raw, centered
-    el('div', { class: 'img-card-wrap sp-img-wrap' }, [
+    el('div', { class: 'img-card-wrap sp-img-wrap', 'data-field': 'image' }, [
       imageUrl
         ? el('div', { class: 'img-card img-card-bright' }, [
             el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
@@ -81,6 +82,7 @@ export function render({ content, brand, format }) {
     statLine ? el('div', { class: 'sp-stat-block' }, [
       el('div', {
         class: 'sp-stat-text',
+        'data-field': 'statLine',
         'data-fit-max': '56', 'data-fit-min': '24'
       }, statLine)
     ]) : null,

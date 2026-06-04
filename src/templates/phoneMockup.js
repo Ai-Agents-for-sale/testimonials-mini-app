@@ -91,11 +91,13 @@ export function render({ content, brand, format }) {
     (headline || subHeadline) ? el('div', { class: 'pm-headline-block' }, [
       headline ? el('div', {
         class: 'pm-headline',
+        'data-field': 'headline',
         'data-fit-max': '92', 'data-fit-min': '40'
       }, headline) : null,
       subHeadline ? el('div', {
         class: 'pm-subhead',
         style: { color: accent },
+        'data-field': 'subHeadline',
         'data-fit-max': '32', 'data-fit-min': '20'
       }, subHeadline) : null
     ]) : null,
@@ -104,7 +106,7 @@ export function render({ content, brand, format }) {
     el('div', { class: 'pm-stage' }, [
       curvyArrow({ variant: 'right', accent }),
 
-      el('div', { class: 'pm-phone' }, [
+      el('div', { class: 'pm-phone', 'data-field': 'image' }, [
         el('div', { class: 'pm-phone-notch' }),
         el('div', { class: 'pm-phone-button pm-phone-mute' }),
         el('div', { class: 'pm-phone-button pm-phone-vol-up' }),

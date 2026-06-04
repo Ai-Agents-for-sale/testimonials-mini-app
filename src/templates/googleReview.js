@@ -69,13 +69,14 @@ export function render({ content, brand, format }) {
       el('div', { class: 'gr-quote-mark-l', style: { color: primary } }, '"'),
       el('div', {
         class: 'gr-quote',
+        'data-field': 'quote',
         'data-fit-max': '42', 'data-fit-min': '20'
       }, quote),
       el('div', { class: 'gr-quote-mark-r', style: { color: primary } }, '"')
     ]) : null,
 
     // Testimonial image
-    imageUrl ? el('div', { class: 'img-card-wrap gr-img-wrap' }, [
+    imageUrl ? el('div', { class: 'img-card-wrap gr-img-wrap', 'data-field': 'image' }, [
       el('div', { class: 'img-card img-card-bright gr-img-card' }, [
         el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
       ])

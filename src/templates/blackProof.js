@@ -27,10 +27,11 @@ export function render({ content, format }) {
   return el('div', { class: 'tpl-canvas format-' + format + ' tpl-blackproof' }, [
     headline ? el('div', {
       class: 'bp-pill bp-pill-top',
+      'data-field': 'headline',
       'data-fit-max': '60', 'data-fit-min': '28'
     }, headline) : null,
 
-    el('div', { class: 'img-card-wrap bp-img-wrap' }, [
+    el('div', { class: 'img-card-wrap bp-img-wrap', 'data-field': 'image' }, [
       imageUrl
         ? el('div', { class: 'img-card img-card-bright' }, [
             el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
@@ -40,6 +41,7 @@ export function render({ content, format }) {
 
     caption ? el('div', {
       class: 'bp-pill bp-pill-bottom',
+      'data-field': 'caption',
       'data-fit-max': '36', 'data-fit-min': '18'
     }, caption) : null
   ]);

@@ -550,6 +550,67 @@ html, body {
   text-align: center; margin-bottom: 10px;
 }
 
+/* Per-field size controls — one row per editable field + image */
+.rv-sizes {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 14px 14px;
+  margin: 12px 0 8px;
+}
+.rv-sizes-title {
+  font-size: 14px; font-weight: 800; color: var(--hint);
+  text-align: right;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 1px;
+}
+.rv-size-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid #e1e7f5;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  background: #f7faff;
+}
+.rv-size-row:last-child { margin-bottom: 0; }
+.rv-size-label {
+  font-size: 15px; font-weight: 700; color: var(--text);
+  flex: 1; text-align: right;
+}
+.rv-size-btns { display: flex; gap: 8px; }
+.rv-size-btn {
+  width: 42px; height: 42px;
+  border: 1px solid #d8ddec;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 22px; font-weight: 700;
+  color: var(--primary, #2962FF);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.1s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.rv-size-btn:active {
+  background: #eef3ff;
+  transform: scale(0.95);
+}
+
+/* Caption review popup — for feed posts only */
+.rv-caption-modal { max-width: 460px; text-align: right; }
+.rv-caption-modal-textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: 14px 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: inherit; font-size: 15px; line-height: 1.55;
+  resize: vertical;
+  box-sizing: border-box; background: var(--surface);
+  color: var(--text);
+  margin: 8px 0 14px;
+}
+
 .rv-status { text-align: center; font-size: 13px; color: var(--hint); padding: 8px 0; min-height: 18px; }
 
 /* ---- Buttons ---- */

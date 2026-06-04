@@ -37,13 +37,14 @@ export function render({ content, brand, format }) {
     headline ? el('div', { class: 'wa-top' }, [
       el('div', {
         class: 'wa-top-headline',
+        'data-field': 'headline',
         'data-fit-max': '76', 'data-fit-min': '32'
       }, headline),
       el('div', { class: 'wa-top-rule', style: { background: waHeaderGreen } })
     ]) : null,
 
     // Chat frame (the "phone")
-    el('div', { class: 'wa-chat-frame' }, [
+    el('div', { class: 'wa-chat-frame', 'data-field': 'image' }, [
       el('div', { class: 'wa-chat-header', style: { background: waHeaderGreen } }, [
         el('div', { class: 'wa-chat-back' }, '‹'),
         el('div', { class: 'wa-chat-avatar' }, [
@@ -68,6 +69,7 @@ export function render({ content, brand, format }) {
     // Caption block below the chat — plain multi-line text, no bubble
     caption ? el('div', {
       class: 'wa-caption',
+      'data-field': 'caption',
       'data-fit-max': '32', 'data-fit-min': '18'
     }, caption) : null,
 

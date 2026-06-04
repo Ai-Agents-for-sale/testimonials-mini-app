@@ -55,17 +55,19 @@ export function render({ content, brand, format }) {
     (headline || subHeadline) ? el('div', { class: 'fn-headline-block' }, [
       headline ? el('div', {
         class: 'fn-headline-num',
+        'data-field': 'headline',
         'data-fit-max': '140', 'data-fit-min': '60'
       }, headline) : null,
       subHeadline ? el('div', {
         class: 'fn-headline-sub',
+        'data-field': 'subHeadline',
         'data-fit-max': '28', 'data-fit-min': '16'
       }, subHeadline) : null,
       el('div', { class: 'fn-headline-rule', style: { background: accent } })
     ]) : null,
 
     // Image — bigger now
-    el('div', { class: 'img-card-wrap fn-img-wrap' }, [
+    el('div', { class: 'img-card-wrap fn-img-wrap', 'data-field': 'image' }, [
       imageUrl
         ? el('div', { class: 'img-card img-card-bright' }, [
             el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
@@ -79,6 +81,7 @@ export function render({ content, brand, format }) {
         el('span', { class: 'fn-line-bar', style: { background: accent } }),
         el('span', {
           class: 'fn-line-text',
+          'data-field': 'captionLines',
           'data-fit-max': '28', 'data-fit-min': '16'
         }, line)
       ]))

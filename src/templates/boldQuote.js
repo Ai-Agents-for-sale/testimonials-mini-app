@@ -41,7 +41,7 @@ export function render({ content, brand, format }) {
     el('div', { class: 'bq-mono', style: { borderColor: accent, color: accent } }, initial),
 
     // Image — centered above the quote
-    imageUrl ? el('div', { class: 'img-card-wrap bq-img-wrap' }, [
+    imageUrl ? el('div', { class: 'img-card-wrap bq-img-wrap', 'data-field': 'image' }, [
       el('div', { class: 'img-card img-card-bright' }, [
         el('img', { class: 'img-card-img', src: imageUrl, crossorigin: 'anonymous' })
       ])
@@ -51,6 +51,7 @@ export function render({ content, brand, format }) {
     quote ? el('div', { class: 'bq-mark', style: { color: accent } }, '"') : null,
     quote ? el('div', {
       class: 'bq-quote',
+      'data-field': 'quote',
       'data-fit-max': '60', 'data-fit-min': '26'
     }, quote) : null,
 
@@ -59,10 +60,12 @@ export function render({ content, brand, format }) {
       el('div', { class: 'bq-author-rule', style: { background: accent } }),
       authorName ? el('div', {
         class: 'bq-author-name',
+        'data-field': 'authorName',
         'data-fit-max': '32', 'data-fit-min': '18'
       }, '— ' + authorName) : null,
       authorRole ? el('div', {
         class: 'bq-author-role',
+        'data-field': 'authorRole',
         'data-fit-max': '20', 'data-fit-min': '14'
       }, authorRole) : null
     ]) : null,

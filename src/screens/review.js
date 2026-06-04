@@ -8,7 +8,9 @@ import {
   setGeneratedContent,
   setEditableValue,
   setFormat,
-  setScheduleAt
+  setScheduleAt,
+  adjustSize,
+  getFieldScale
 } from '../state.js';
 import { buildCanvasHtmlDoc } from '../cloudRender.js';
 import { autofitCanvas } from '../autofit.js';
@@ -111,6 +113,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   let stage = null;
   let canvasWrap = null;
   let captionsBlockEl = null;
+  let sizesBlockEl = null;
   let statusEl = null;
   let regenBtn = null;
   let publishBtn = null;
@@ -182,6 +185,11 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     renderFieldInputs();
     wrap.appendChild(captionsBlockEl);
 
+    // --- Size controls (one row per editable field + one for image) ---
+    sizesBlockEl = el('div', { class: 'rv-sizes' });
+    renderSizeControls();
+    wrap.appendChild(sizesBlockEl);
+
     // --- Regenerate ---
     regenBtn = el('button', { class: 'btn btn-secondary rv-regen' }, '🔄 צור טקסט חדש');
     regenBtn.addEventListener('click', () => { haptic('light'); regenerateCaptionInline(null, true); });
@@ -193,8 +201,18 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     scheduleBtn = el('button', { class: 'btn btn-secondary rv-action' }, '📅 תזמן לפרסום');
     const actionRow = el('div', { class: 'rv-action-row' }, [publishBtn, scheduleBtn]);
 
-    publishBtn.addEventListener('click', () => { haptic('medium'); doSubmit(null); });
-    scheduleBtn.addEventListener('click', () => { haptic('light'); openScheduleModal(); });
+    publishBtn.addEventListener('click', () => {
+      haptic('medium');
+      // Feed posts get a caption review step (the text that lands under the
+      // photo on Instagram); stories skip straight through.
+      if (state.format === 'feed') openCaptionReviewModal(() => doSubmit(null));
+      else doSubmit(null);
+    });
+    scheduleBtn.addEventListener('click', () => {
+      haptic('light');
+      if (state.format === 'feed') openCaptionReviewModal(() => openScheduleModal());
+      else openScheduleModal();
+    });
 
     wrap.appendChild(actionRow);
     wrap.appendChild(statusEl);
@@ -252,8 +270,10 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       format: state.format
     });
     canvasWrap.appendChild(canvasEl);
-    // Shrink-to-fit any text marked with data-fit-max so long content
-    // doesn't push the image off the canvas.
+    // Apply user's per-field size adjustments first — for text this just
+    // bumps data-fit-max, so autofit's own shrink pass below still wins
+    // if the new size would overflow.
+    applyUserScales(canvasEl);
     autofitCanvas(canvasEl);
   }
 
@@ -282,6 +302,61 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         input
       ]));
     });
+  }
+
+  // ============================================================
+  // Size controls — +/- per editable text field + image
+  // ============================================================
+
+  function buildSizeRow(key, label) {
+    const plus  = el('button', { class: 'rv-size-btn', type: 'button' }, '+');
+    const minus = el('button', { class: 'rv-size-btn', type: 'button' }, '−');
+    plus.addEventListener('click',  () => { haptic('light'); adjustSize(key, +1); renderCanvas(); });
+    minus.addEventListener('click', () => { haptic('light'); adjustSize(key, -1); renderCanvas(); });
+    return el('div', { class: 'rv-size-row' }, [
+      el('div', { class: 'rv-size-label' }, label),
+      el('div', { class: 'rv-size-btns' }, [plus, minus])
+    ]);
+  }
+
+  function renderSizeControls() {
+    if (!sizesBlockEl) return;
+    sizesBlockEl.replaceChildren();
+    sizesBlockEl.appendChild(el('div', { class: 'rv-sizes-title' }, 'גודל'));
+    const fields = (template.meta && template.meta.editableFields) || [];
+    fields.forEach((f) => sizesBlockEl.appendChild(buildSizeRow(f.key, f.labelHe)));
+    // One always-present row for the image itself.
+    sizesBlockEl.appendChild(buildSizeRow('image', 'תמונה'));
+  }
+
+  // Apply the user's size adjustments to the freshly-rendered canvas BEFORE
+  // autofit runs. For text: bump the element's data-fit-max so autofit
+  // honours the new ceiling (it'll still shrink if the bigger size would
+  // make the canvas overflow). For the image wrapper: CSS transform: scale.
+  function applyUserScales(canvasEl) {
+    if (!template || !template.meta) return;
+    const fields = template.meta.editableFields || [];
+    fields.forEach((f) => {
+      const scale = getFieldScale(f.key);
+      if (scale === 1) return;
+      canvasEl.querySelectorAll(`[data-field="${f.key}"]`).forEach((node) => {
+        const fitMax = parseFloat(node.dataset.fitMax);
+        if (!isNaN(fitMax)) {
+          node.dataset.fitMax = (fitMax * scale).toFixed(1);
+        } else {
+          const computed = parseFloat(getComputedStyle(node).fontSize);
+          if (!isNaN(computed)) node.style.fontSize = (computed * scale) + 'px';
+        }
+      });
+    });
+
+    const imgScale = getFieldScale('image');
+    if (imgScale !== 1) {
+      canvasEl.querySelectorAll('[data-field="image"]').forEach((wrap) => {
+        wrap.style.transform = `scale(${imgScale})`;
+        wrap.style.transformOrigin = 'center';
+      });
+    }
   }
 
   // ============================================================
@@ -344,13 +419,15 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     if (!publishBtn || !scheduleBtn || !statusEl) return;
     publishBtn.disabled = true;
     scheduleBtn.disabled = true;
-    statusEl.textContent = 'מכין את הפוסט…';
+    // No intermediate "preparing / sending / rendering" text — buttons are
+    // disabled to signal work is in progress, and on success we navigate
+    // straight to the done screen. Failures still surface via the catch.
+    statusEl.textContent = '';
     try {
       const dims = FORMAT_DIMS[state.format] || FORMAT_DIMS.feed;
       // Let any pending autofit RAFs settle before grabbing the HTML.
       await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
       const html = buildCanvasHtmlDoc(canvasEl);
-      statusEl.textContent = 'שולח לרינדור בענן…';
       await submitFinal({
         html,
         viewportWidth: dims.w,
@@ -362,8 +439,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         sourceImageId: state.currentImage ? state.currentImage.id : null,
         scheduleAt
       });
-      statusEl.textContent = scheduleAt ? '✅ תוזמן בהצלחה' : '✅ נשלח לפרסום';
-      if (onPublished) setTimeout(onPublished, 1000);
+      if (onPublished) onPublished();
     } catch (err) {
       // html-to-image and a few fetch/abort paths reject with Events
       // (no `.message`) or plain objects. Surface SOMETHING useful so
@@ -431,6 +507,49 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         ])
       ]),
       errorMsg,
+      el('div', { class: 'popup-actions' }, [confirmBtn, cancelBtn])
+    ]);
+
+    const backdrop = el('div', { class: 'popup-backdrop' });
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) { haptic('light'); close(); } });
+    backdrop.appendChild(card);
+    document.body.appendChild(backdrop);
+  }
+
+  // ============================================================
+  // Caption review modal — feed format only. Lets the user review +
+  // edit the Instagram caption (the text that appears under the post)
+  // before the actual publish/schedule step runs.
+  // ============================================================
+
+  function openCaptionReviewModal(onConfirm) {
+    const initial = state.editableValues.caption
+      || state.editableValues.quote
+      || state.editableValues.captionLines
+      || '';
+
+    const textarea = el('textarea', {
+      class: 'rv-caption-modal-textarea', dir: 'rtl', rows: 9, value: initial,
+      placeholder: 'הכיתוב שיופיע מתחת לתמונה באינסטגרם…'
+    });
+
+    function close() { backdrop.remove(); }
+
+    const confirmBtn = el('button', { class: 'btn btn-primary popup-btn' }, 'אישור והמשך');
+    const cancelBtn  = el('button', { class: 'btn btn-secondary popup-btn' }, 'חזרה');
+    cancelBtn.addEventListener('click', () => { haptic('light'); close(); });
+    confirmBtn.addEventListener('click', () => {
+      haptic('medium');
+      setEditableValue('caption', textarea.value);
+      close();
+      onConfirm();
+    });
+
+    const card = el('div', { class: 'popup-card rv-caption-modal' }, [
+      el('div', { class: 'popup-emoji' }, '📝'),
+      el('div', { class: 'popup-title' }, 'בדוק את הכיתוב לפוסט'),
+      el('div', { class: 'popup-sub' }, 'הכיתוב הזה יופיע מתחת לתמונה באינסטגרם. אפשר לערוך לפני שמפרסמים.'),
+      textarea,
       el('div', { class: 'popup-actions' }, [confirmBtn, cancelBtn])
     ]);
 

@@ -12,8 +12,16 @@ const state = {
   excludeIds: [],
   generatedContent: null,
   editableValues: {},
+  // Per-field size deltas (integer number of clicks, default 0). Each
+  // step changes the displayed size by SIZE_STEP percent. Applied on top
+  // of the template's CSS / data-fit-max default, after autofit runs.
+  sizeAdjustments: {},
   scheduleAt: null
 };
+
+const SIZE_STEP = 0.10;
+const SIZE_MIN_SCALE = 0.5;
+const SIZE_MAX_SCALE = 2.0;
 
 export function getState() {
   return state;
@@ -92,6 +100,21 @@ export function setEditableValue(key, value) {
   state.editableValues = { ...state.editableValues, [key]: value };
 }
 
+// Bump the user's size adjustment for `key` by +1 (bigger) or -1 (smaller).
+// Each step = SIZE_STEP%, clamped to [SIZE_MIN_SCALE, SIZE_MAX_SCALE].
+export function adjustSize(key, direction) {
+  const current = state.sizeAdjustments[key] || 0;
+  const next = current + (direction > 0 ? 1 : -1);
+  const scale = 1 + next * SIZE_STEP;
+  if (scale < SIZE_MIN_SCALE || scale > SIZE_MAX_SCALE) return;
+  state.sizeAdjustments = { ...state.sizeAdjustments, [key]: next };
+}
+
+export function getFieldScale(key) {
+  const steps = state.sizeAdjustments[key] || 0;
+  return 1 + steps * SIZE_STEP;
+}
+
 export function setScheduleAt(iso) {
   state.scheduleAt = iso;
 }
@@ -107,6 +130,7 @@ export function resetPostFlow() {
   state.format = 'feed';
   state.generatedContent = null;
   state.editableValues = {};
+  state.sizeAdjustments = {};
   state.scheduleAt = null;
 }
 

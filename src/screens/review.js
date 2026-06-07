@@ -1,6 +1,6 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart, uploadImagesToFolder } from '../api.js';
+import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart, uploadImagesToFolder, getCloudinaryUploadSignature } from '../api.js';
 import { getTemplate } from '../templates/index.js';
 import {
   getState,
@@ -68,19 +68,18 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       renderReview();
     }
 
-    // Client-side compress: 1600px on the long edge, JPEG q85. Cuts a 3-5 MB
-    // phone photo to ~300-500 KB, so we can ship every image in a single
-    // POST without blowing past n8n's webhook payload limit. That also
-    // avoids the sequential-resumeUrl race (each POST consumes the Wait's
-    // current URL; the next one isn't ready until the loop-back re-pauses).
+    // Client-side compress to a Blob (NOT base64). Returns the blob + a
+    // .jpg filename. The Blob is pushed straight to Cloudinary via FormData
+    // — Cloudinary handles file uploads natively, so there's no payload-
+    // inflation problem the way base64-through-n8n-webhook had.
     async function compressImage(file, maxSize = 1600, quality = 0.85) {
-      const url = URL.createObjectURL(file);
+      const objUrl = URL.createObjectURL(file);
       try {
         const img = await new Promise((resolve, reject) => {
           const i = new Image();
           i.onload  = () => resolve(i);
           i.onerror = () => reject(new Error('לא ניתן לקרוא את התמונה ' + file.name));
-          i.src = url;
+          i.src = objUrl;
         });
         const w0 = img.naturalWidth, h0 = img.naturalHeight;
         const ratio = Math.min(maxSize / w0, maxSize / h0, 1);
@@ -92,13 +91,34 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        const dataUrl = canvas.toDataURL('image/jpeg', quality);
-        const base64 = String(dataUrl).split(',')[1] || '';
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Compression failed')), 'image/jpeg', quality);
+        });
         const baseName = (file.name || 'photo').replace(/\.[^.]+$/, '');
-        return { name: baseName + '.jpg', mimeType: 'image/jpeg', base64 };
+        return { blob, name: baseName + '.jpg' };
       } finally {
-        URL.revokeObjectURL(url);
+        URL.revokeObjectURL(objUrl);
       }
+    }
+
+    // Push a compressed image straight to Cloudinary using the signature we
+    // got from n8n. Cloudinary returns a secure_url that we hand back to
+    // n8n in the final upload-to-folder call. Direct browser → Cloudinary
+    // sidesteps n8n's webhook payload limit entirely.
+    async function uploadOneToCloudinary(blob, name, sig) {
+      const fd = new FormData();
+      fd.append('file', blob, name);
+      fd.append('api_key',   String(sig.apiKey));
+      fd.append('timestamp', String(sig.timestamp));
+      fd.append('signature', String(sig.signature));
+      fd.append('folder',    String(sig.folder));
+      const res = await fetch(sig.uploadUrl, { method: 'POST', body: fd });
+      if (!res.ok) {
+        const t = await res.text().catch(() => '');
+        throw new Error('Cloudinary ' + res.status + ': ' + t.slice(0, 200));
+      }
+      const json = await res.json();
+      return { url: json.secure_url, name };
     }
 
     function renderProgress(stage) {
@@ -129,25 +149,47 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     }
 
     async function uploadFilesToFolder(files) {
-      renderProgress('דוחס ' + files.length + ' תמונות…');
-      let images = [];
+      // 1. Get a Cloudinary signature from n8n (tiny request).
+      let sig;
+      renderProgress('מתחיל…');
       try {
-        images = await Promise.all(Array.from(files).map((f) => compressImage(f)));
+        sig = await getCloudinaryUploadSignature();
       } catch (err) {
-        console.error('[upload-to-folder] compress failed:', err);
-        showUploadError([(err && err.message) || 'שגיאה בדחיסת התמונות']);
+        console.error('[upload-to-folder] get-sig failed:', err);
+        showUploadError([(err && err.message) || 'שגיאה בקבלת הרשאת העלאה']);
         return;
       }
 
+      // 2. Compress each file + upload straight to Cloudinary.
+      const uploaded = [];
+      const errors = [];
+      for (let i = 0; i < files.length; i++) {
+        renderProgress('מעלה ' + (i + 1) + ' מתוך ' + files.length);
+        try {
+          const { blob, name } = await compressImage(files[i]);
+          const result = await uploadOneToCloudinary(blob, name, sig);
+          uploaded.push(result);
+        } catch (err) {
+          console.error('[upload-to-folder] cloudinary upload failed:', files[i].name, err);
+          errors.push((files[i].name || ('#' + (i + 1))) + ': ' + ((err && err.message) || String(err)));
+        }
+      }
+
+      if (!uploaded.length) {
+        showUploadError(errors.length ? errors.slice(0, 3) : ['לא הועלו תמונות']);
+        return;
+      }
+
+      // 3. Hand n8n the list of URLs; it downloads + writes to Drive.
       renderProgress('שולח לתיקייה…');
       try {
-        await uploadImagesToFolder(state.selectedFolderId, images);
+        await uploadImagesToFolder(state.selectedFolderId, uploaded);
         backdrop.remove();
         renderLoading();
         loadInitial();
       } catch (err) {
-        console.error('[upload-to-folder] post failed:', err);
-        showUploadError([(err && err.message) || 'שגיאה בשליחה לשרת']);
+        console.error('[upload-to-folder] urls→folder failed:', err);
+        showUploadError([(err && err.message) || 'שגיאה בשליחת ה-URLs לשרת']);
       }
     }
 

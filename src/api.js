@@ -78,11 +78,19 @@ export async function listImages(folderId) {
   return call('list-images', { folderId });
 }
 
-// Upload one or more local images straight into the chosen Drive folder.
-// images: [{ name, mimeType, base64 }]. Used by the empty-folder modal so
-// the user can populate a folder without leaving the app.
-export async function uploadImagesToFolder(folderId, images) {
-  return call('upload-to-folder', { folderId, images });
+// Ask n8n for a Cloudinary upload signature; FE uses it to push images
+// directly to Cloudinary (no base64-through-webhook). Returns:
+//   { cloudName, apiKey, uploadUrl, folder, timestamp, signature, resumeUrl }
+export async function getCloudinaryUploadSignature() {
+  return call('get-upload-sig');
+}
+
+// After all images have been pushed to Cloudinary by the FE, hand n8n the
+// list of resulting URLs. n8n downloads each one and writes it into the
+// chosen Drive folder.
+//   uploads: [{ url, name }]
+export async function uploadImagesToFolder(folderId, uploads) {
+  return call('upload-to-folder', { folderId, urls: uploads });
 }
 
 export async function generateCaption({ imageId, imageUrl, templateId, templateType, regenerate }) {

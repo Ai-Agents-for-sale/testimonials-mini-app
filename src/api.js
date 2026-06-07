@@ -23,6 +23,17 @@ function urlIsValid(u) {
 }
 
 async function call(action, body = {}) {
+  try {
+    return await _callInner(action, body);
+  } catch (e) {
+    // Final safety net: any error escapes wrapped with action context, no
+    // matter where in call()'s body it originated.
+    if (e && typeof e.message === 'string' && e.message.indexOf('[' + action + ']') !== -1) throw e;
+    throw new Error((e && e.message ? e.message : String(e)) + ' [call ' + action + ']');
+  }
+}
+
+async function _callInner(action, body = {}) {
   let info;
   try { info = getClientInfo(); } catch (e) {
     throw new Error('pre-fetch getClientInfo: ' + (e.message || e) + ' [' + action + ']');
@@ -108,19 +119,11 @@ export async function listImages(folderId) {
   return call('list-images', { folderId });
 }
 
-// Ask n8n for a Cloudinary upload signature; FE uses it to push images
-// directly to Cloudinary (no base64-through-webhook). Returns:
-//   { cloudName, apiKey, uploadUrl, folder, timestamp, signature, resumeUrl }
-export async function getCloudinaryUploadSignature() {
-  return call('get-upload-sig');
-}
-
-// After all images have been pushed to Cloudinary by the FE, hand n8n the
-// list of resulting URLs. n8n downloads each one and writes it into the
-// chosen Drive folder.
-//   uploads: [{ url, name }]
-export async function uploadImagesToFolder(folderId, uploads) {
-  return call('upload-to-folder', { folderId, urls: uploads });
+// Ship a batch of compressed images to the chosen Drive folder in ONE n8n
+// call. images is [{name, dataUrl}] where dataUrl is data:image/jpeg;base64,…
+// n8n decodes each, writes it to Drive, returns once all are uploaded.
+export async function uploadImagesToFolder(folderId, images) {
+  return call('upload-to-folder', { folderId, images });
 }
 
 export async function generateCaption({ imageId, imageUrl, templateId, templateType, regenerate }) {

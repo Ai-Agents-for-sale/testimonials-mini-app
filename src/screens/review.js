@@ -1,6 +1,6 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart, uploadImagesToFolder, getCloudinaryUploadSignature } from '../api.js';
+import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart, uploadImagesToFolder } from '../api.js';
 import { getTemplate } from '../templates/index.js';
 import {
   getState,
@@ -68,57 +68,32 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       renderReview();
     }
 
-    // Client-side compress to a Blob (NOT base64). Returns the blob + a
-    // .jpg filename. The Blob is pushed straight to Cloudinary via FormData
-    // — Cloudinary handles file uploads natively, so there's no payload-
-    // inflation problem the way base64-through-n8n-webhook had.
-    async function compressImage(file, maxSize = 1600, quality = 0.85) {
+    // Compress to a 1400px-wide JPEG dataURL. ~80–150KB per image so a
+    // batch of 5 stays well under any webhook size limit.
+    async function compressImageToDataUrl(file, maxSize = 1400, quality = 0.78) {
       const objUrl = URL.createObjectURL(file);
       try {
         const img = await new Promise((resolve, reject) => {
           const i = new Image();
           i.onload  = () => resolve(i);
-          i.onerror = () => reject(new Error('לא ניתן לקרוא את התמונה ' + file.name));
+          i.onerror = () => reject(new Error('cannot read image'));
           i.src = objUrl;
         });
-        const w0 = img.naturalWidth, h0 = img.naturalHeight;
-        const ratio = Math.min(maxSize / w0, maxSize / h0, 1);
-        const w = Math.max(1, Math.round(w0 * ratio));
-        const h = Math.max(1, Math.round(h0 * ratio));
+        const ratio = Math.min(maxSize / img.naturalWidth, maxSize / img.naturalHeight, 1);
+        const w = Math.max(1, Math.round(img.naturalWidth  * ratio));
+        const h = Math.max(1, Math.round(img.naturalHeight * ratio));
         const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        const blob = await new Promise((resolve, reject) => {
-          canvas.toBlob((b) => b ? resolve(b) : reject(new Error('Compression failed')), 'image/jpeg', quality);
-        });
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
         const baseName = (file.name || 'photo').replace(/\.[^.]+$/, '');
-        return { blob, name: baseName + '.jpg' };
+        return { dataUrl, name: baseName + '.jpg' };
       } finally {
         URL.revokeObjectURL(objUrl);
       }
-    }
-
-    // Push a compressed image straight to Cloudinary using the signature we
-    // got from n8n. Cloudinary returns a secure_url that we hand back to
-    // n8n in the final upload-to-folder call. Direct browser → Cloudinary
-    // sidesteps n8n's webhook payload limit entirely.
-    async function uploadOneToCloudinary(blob, name, sig) {
-      const fd = new FormData();
-      fd.append('file', blob, name);
-      fd.append('api_key',   String(sig.apiKey));
-      fd.append('timestamp', String(sig.timestamp));
-      fd.append('signature', String(sig.signature));
-      fd.append('folder',    String(sig.folder));
-      const res = await fetch(sig.uploadUrl, { method: 'POST', body: fd });
-      if (!res.ok) {
-        const t = await res.text().catch(() => '');
-        throw new Error('Cloudinary ' + res.status + ': ' + t.slice(0, 200));
-      }
-      const json = await res.json();
-      return { url: json.secure_url, name };
     }
 
     function renderProgress(stage) {
@@ -142,7 +117,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v5-urlsp-fix'),
+        }, 'build: v6-base64'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -155,47 +130,31 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     async function uploadFilesToFolder(files) {
       let step = 'start';
       try {
-        step = 'files:' + files.length + ' folder:' + (state.selectedFolderId || 'EMPTY');
-        renderProgress('מתחיל…');
+        if (!state.selectedFolderId) throw new Error('no folder selected');
 
-        step = 'get-sig';
-        const sig = await getCloudinaryUploadSignature();
-
-        step = 'sig-check uploadUrl=' + (sig && sig.uploadUrl ? 'yes' : 'NO');
-        if (!sig || !sig.uploadUrl) throw new Error('sig empty');
-
-        const uploaded = [];
-        const errors = [];
+        const images = [];
         for (let i = 0; i < files.length; i++) {
-          renderProgress('מעלה ' + (i + 1) + ' מתוך ' + files.length);
-          step = 'compress[' + i + '] name=' + (files[i].name || '?');
-          let blob, name;
+          step = 'compress[' + (i + 1) + '/' + files.length + ']';
+          renderProgress('דוחס ' + (i + 1) + ' מתוך ' + files.length);
           try {
-            const c = await compressImage(files[i]);
-            blob = c.blob; name = c.name;
-          } catch (e) { errors.push('compress ' + (files[i].name || i) + ': ' + (e.message || e)); continue; }
-
-          step = 'cloudinary[' + i + ']';
-          try {
-            uploaded.push(await uploadOneToCloudinary(blob, name, sig));
-          } catch (e) { errors.push('cloud ' + name + ': ' + (e.message || e)); }
+            const { dataUrl, name } = await compressImageToDataUrl(files[i]);
+            images.push({ name, dataUrl });
+          } catch (e) {
+            console.warn('compress failed', files[i] && files[i].name, e);
+          }
         }
+        if (!images.length) throw new Error('no images compressed');
 
-        if (!uploaded.length) {
-          showUploadError(errors.length ? errors.slice(0, 3) : ['no uploads (' + step + ')']);
-          return;
-        }
+        step = 'send ' + images.length;
+        renderProgress('שולח ' + images.length + ' תמונות לתיקייה…');
+        await uploadImagesToFolder(state.selectedFolderId, images);
 
-        step = 'send-to-folder ' + uploaded.length + ' urls';
-        renderProgress('שולח לתיקייה…');
-        await uploadImagesToFolder(state.selectedFolderId, uploaded);
         backdrop.remove();
         renderLoading();
         loadInitial();
       } catch (err) {
-        console.error('[upload-to-folder] failed at step:', step, err);
-        const msg = (err && err.message) || String(err);
-        showUploadError(['STEP: ' + step, 'ERR: ' + msg]);
+        console.error('[upload-to-folder] failed at', step, err);
+        showUploadError(['STEP: ' + step, 'ERR: ' + ((err && err.message) || String(err))]);
       }
     }
 

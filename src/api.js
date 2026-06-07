@@ -69,12 +69,16 @@ async function _callInner(action, body = {}) {
     throw new Error('fetch: ' + (fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)) + ' [' + action + ' ' + tail + ']');
   }
 
-  // 409 means the Wait URL was already consumed (previous chain errored
-  // out without firing Respond, or two POSTs raced). Reset back to the
-  // entry webhook so the very next call kicks off a fresh execution.
-  if (res.status === 409) {
+  // Any non-2xx response from a Wait URL means the session is broken:
+  //   409 → URL already consumed (race / duplicate POST)
+  //   410 → URL expired (n8n killed the execution)
+  //   404 → execution ended, URL gone
+  //   5xx → n8n internal error mid-chain → Respond never fired
+  // In every case the OLD Wait URL is unusable. Reset to the entry webhook
+  // so the very next call starts a fresh execution from init.
+  if (!res.ok && url !== WEBHOOK_URL) {
     activeUrl = WEBHOOK_URL;
-    throw new Error('session expired — please retry [' + action + ']');
+    throw new Error('session expired (HTTP ' + res.status + ') — please retry [' + action + ']');
   }
   if (!res.ok) throw new Error('HTTP ' + res.status + ' [' + action + ']');
   const json = await res.json();

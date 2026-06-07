@@ -23,7 +23,10 @@ function urlIsValid(u) {
 }
 
 async function call(action, body = {}) {
-  const info = getClientInfo();
+  let info;
+  try { info = getClientInfo(); } catch (e) {
+    throw new Error('pre-fetch getClientInfo: ' + (e.message || e) + ' [' + action + ']');
+  }
   const payload = { action, ...body, chatId: info.chatId, clientName: info.clientName };
 
   // Defensive: if activeUrl was somehow corrupted (stale, blank, weird

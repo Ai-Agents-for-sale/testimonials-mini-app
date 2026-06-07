@@ -18,9 +18,14 @@ export function getClientInfo() {
     info.clientName = (firstName + ' ' + lastName).trim();
   }
 
-  const params = new URLSearchParams(window.location.search);
-  if (!info.chatId) info.chatId = params.get('chatId') || '';
-  if (!info.clientName) info.clientName = params.get('clientName') || '';
+  // iOS Safari's URLSearchParams throws "The string did not match the
+  // expected pattern." when Telegram appends tgWebAppData with characters
+  // its parser rejects. Defensive try keeps the rest of the app alive.
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (!info.chatId) info.chatId = params.get('chatId') || '';
+    if (!info.clientName) info.clientName = params.get('clientName') || '';
+  } catch (_) { /* leave whatever Telegram WebApp gave us */ }
 
   return info;
 }

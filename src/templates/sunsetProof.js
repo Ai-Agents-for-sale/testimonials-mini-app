@@ -1,5 +1,5 @@
 import { el } from '../dom.js';
-import { SAMPLE_IMG, SAMPLE } from './_samples.js';
+import { SAMPLE_IMG, SAMPLE, SAMPLE_BRAND_NAME, SAMPLE_INITIAL } from './_samples.js';
 
 export const meta = {
   id: 'sunset-proof',
@@ -17,7 +17,7 @@ export const meta = {
 export function thumbnail(brand) {
   const primary = (brand && brand.primaryColor) || '#1F6FB2';
   const accent  = (brand && brand.accentColor)  || '#F2C94C';
-  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  const brandName = SAMPLE_BRAND_NAME;
   return el('div', {
     class: 'mp mp-sunset',
     style: { background: 'linear-gradient(180deg, ' + primary + ' 0%, ' + accent + ' 55%, ' + primary + ' 100%)' }
@@ -32,7 +32,7 @@ export function thumbnail(brand) {
       el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
     ]),
     el('div', { class: 'mp-sunset-stat' }, SAMPLE.statHead + ' ' + SAMPLE.statSub),
-    el('div', { class: 'mp-sunset-mono', style: { borderColor: accent, color: accent } }, (brandName[0] || '?'))
+    el('div', { class: 'mp-sunset-mono', style: { borderColor: accent, color: accent } }, SAMPLE_INITIAL)
   ]);
 }
 

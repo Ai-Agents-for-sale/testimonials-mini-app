@@ -1,5 +1,5 @@
 import { el } from '../dom.js';
-import { SAMPLE_IMG, SAMPLE } from './_samples.js';
+import { SAMPLE_IMG, SAMPLE, SAMPLE_BRAND_NAME, SAMPLE_INITIAL } from './_samples.js';
 
 export const meta = {
   id: 'bold-quote',
@@ -18,9 +18,9 @@ export const meta = {
 export function thumbnail(brand) {
   const primary = (brand && brand.primaryColor) || '#0d1b4b';
   const accent  = (brand && brand.accentColor)  || '#F2C94C';
-  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  const brandName = SAMPLE_BRAND_NAME;
   return el('div', { class: 'mp mp-quote', style: { background: primary } }, [
-    el('div', { class: 'mp-quote-mono', style: { borderColor: accent, color: accent } }, (brandName[0] || '?')),
+    el('div', { class: 'mp-quote-mono', style: { borderColor: accent, color: accent } }, SAMPLE_INITIAL),
     el('div', { class: 'mp-img-wrap mp-img-wrap-sm' }, [
       el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
     ]),

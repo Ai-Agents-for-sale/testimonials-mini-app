@@ -31,6 +31,12 @@ const SVG = (
 
 export const SAMPLE_IMG = 'data:image/svg+xml;utf8,' + encodeURIComponent(SVG);
 
+// Generic brand-name placeholder used in every thumbnail so the picker
+// previews are universal — never the actual client name. Same for the
+// initial used in monograms.
+export const SAMPLE_BRAND_NAME = 'שם מותג';
+export const SAMPLE_INITIAL    = 'ש';
+
 // Sample texts used inside the mini previews so users can SEE the kind of
 // content that will sit inside each template.
 export const SAMPLE = {

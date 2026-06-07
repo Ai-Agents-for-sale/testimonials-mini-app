@@ -1,5 +1,5 @@
 import { el } from '../dom.js';
-import { SAMPLE_IMG, SAMPLE } from './_samples.js';
+import { SAMPLE_IMG, SAMPLE, SAMPLE_BRAND_NAME } from './_samples.js';
 
 export const meta = {
   id: 'funnel-over-photo',
@@ -18,7 +18,7 @@ export const meta = {
 export function thumbnail(brand) {
   const primary = (brand && brand.primaryColor) || '#1F6FB2';
   const accent  = (brand && brand.accentColor)  || '#F2C94C';
-  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  const brandName = SAMPLE_BRAND_NAME;
   return el('div', {
     class: 'mp mp-funnel',
     style: { background: 'linear-gradient(135deg, ' + primary + ' 0%, #0d1320 100%)' }

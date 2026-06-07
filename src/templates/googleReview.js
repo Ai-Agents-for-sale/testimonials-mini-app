@@ -1,5 +1,5 @@
 import { el } from '../dom.js';
-import { SAMPLE_IMG, SAMPLE } from './_samples.js';
+import { SAMPLE_IMG, SAMPLE, SAMPLE_BRAND_NAME, SAMPLE_INITIAL } from './_samples.js';
 
 export const meta = {
   id: 'google-review',
@@ -13,8 +13,8 @@ export const meta = {
   ]
 };
 
-export function thumbnail(brand) {
-  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+export function thumbnail() {
+  const brandName = SAMPLE_BRAND_NAME;
   return el('div', { class: 'mp mp-google' }, [
     el('div', { class: 'mp-google-top' }, [
       el('div', { class: 'mp-google-word' }, [
@@ -25,7 +25,7 @@ export function thumbnail(brand) {
         el('span', { style: { color: '#34A853' } }, 'l'),
         el('span', { style: { color: '#EA4335' } }, 'e')
       ]),
-      el('div', { class: 'mp-google-stamp' }, (brandName[0] || '?'))
+      el('div', { class: 'mp-google-stamp' }, SAMPLE_INITIAL)
     ]),
     el('div', { class: 'mp-google-quote' }, [
       el('span', { class: 'mp-google-mark' }, '“'),

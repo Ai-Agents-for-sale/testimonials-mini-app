@@ -20,6 +20,33 @@ const FORMAT_DIMS = {
   story: { w: 1080, h: 1920 }
 };
 
+// Compress a File to a base64 JPEG data URL (NOT a blob: URL).
+// OpenAI Vision rejects blob: URLs as "invalid_image_url", so any image
+// we ever hand back to n8n must come through here.
+async function fileToCompressedDataUrl(file, maxSize = 1400, quality = 0.82) {
+  const objUrl = URL.createObjectURL(file);
+  try {
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload  = () => resolve(i);
+      i.onerror = () => reject(new Error('cannot read image'));
+      i.src = objUrl;
+    });
+    const ratio = Math.min(maxSize / img.naturalWidth, maxSize / img.naturalHeight, 1);
+    const w = Math.max(1, Math.round(img.naturalWidth  * ratio));
+    const h = Math.max(1, Math.round(img.naturalHeight * ratio));
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', quality);
+  } finally {
+    URL.revokeObjectURL(objUrl);
+  }
+}
+
 export function reviewScreen({ navigate, goBack, onPublished }) {
   const state = getState();
   const template = getTemplate(state.templateId);
@@ -117,7 +144,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v12-fix-nav'),
+        }, 'build: v13-golive'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -327,13 +354,21 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     // --- Image actions ---
     const imgStatus = el('div', { class: 'rv-img-status' });
     const fileInput = el('input', { type: 'file', accept: 'image/*', class: 'hidden' });
-    fileInput.addEventListener('change', () => {
+    fileInput.addEventListener('change', async () => {
       const file = fileInput.files && fileInput.files[0];
       if (!file) return;
-      const url = URL.createObjectURL(file);
-      setCurrentImage({ id: 'local-' + Date.now(), imageUrl: url, mimeType: file.type, local: true });
-      renderCanvas();
-      regenerateCaptionInline(imgStatus);
+      // Compress to a base64 data URL — NOT a blob: URL. Blob URLs are
+      // browser-only and OpenAI Vision can't fetch them (400 Bad request).
+      // Data URLs work in both the <img> preview and the API call.
+      try {
+        const dataUrl = await fileToCompressedDataUrl(file);
+        setCurrentImage({ id: 'local-' + Date.now(), imageUrl: dataUrl, mimeType: 'image/jpeg', local: true });
+        renderCanvas();
+        regenerateCaptionInline(imgStatus);
+      } catch (e) {
+        console.error('[local-upload] compress failed:', e);
+        imgStatus.textContent = 'שגיאה בקריאת התמונה';
+      }
     });
     wrap.appendChild(el('div', { class: 'rv-img-actions' }, [
       el('button', {

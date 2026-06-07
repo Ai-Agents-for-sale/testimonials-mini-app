@@ -1,5 +1,5 @@
 import { el } from '../dom.js';
-import { SAMPLE_IMG, SAMPLE } from './_samples.js';
+import { SAMPLE_IMG, SAMPLE, SAMPLE_BRAND_NAME, SAMPLE_INITIAL } from './_samples.js';
 
 export const meta = {
   id: 'phone-mockup',
@@ -17,7 +17,7 @@ export const meta = {
 export function thumbnail(brand) {
   const primary = (brand && brand.primaryColor) || '#1F6FB2';
   const accent  = (brand && brand.accentColor)  || '#F2C94C';
-  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  const brandName = SAMPLE_BRAND_NAME;
   return el('div', {
     class: 'mp mp-mockup',
     style: { background: 'radial-gradient(ellipse at center, ' + primary + ' 0%, #0a0e1a 90%)' }
@@ -36,7 +36,7 @@ export function thumbnail(brand) {
     ]),
     el('div', { class: 'mp-mockup-arrow mp-mockup-arrow-r', style: { color: accent } }, '↙'),
     el('div', { class: 'mp-mockup-foot' }, [
-      el('span', { class: 'mp-mockup-initial', style: { background: accent } }, (brandName[0] || '?')),
+      el('span', { class: 'mp-mockup-initial', style: { background: accent } }, SAMPLE_INITIAL),
       el('span', {}, brandName)
     ])
   ]);

@@ -46,16 +46,16 @@ async function call(action, body = {}) {
     });
   } catch (fetchErr) {
     console.error('[api] fetch threw for', action, '. URL was:', url, 'err:', fetchErr);
-    // If we hit a URL-pattern error specifically, the activeUrl is dead.
-    // Reset and let the caller retry by re-opening the app / re-running
-    // the action; without this every subsequent call will re-throw.
     if (fetchErr && /string|pattern|URL|Invalid/i.test(String(fetchErr.message || fetchErr))) {
       activeUrl = WEBHOOK_URL;
     }
-    throw new Error('בעיית חיבור: ' + (fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)) + ' (' + action + ')');
+    // Surface the URL prefix in the error message so we can debug from a
+    // screenshot when Web Inspector isn't available.
+    const tail = url.replace(/^https?:\/\/[^/]+/, '').slice(0, 50);
+    throw new Error('fetch: ' + (fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)) + ' [' + action + ' ' + tail + ']');
   }
 
-  if (!res.ok) throw new Error('Webhook responded with ' + res.status);
+  if (!res.ok) throw new Error('HTTP ' + res.status + ' [' + action + ']');
   const json = await res.json();
 
   // If this response carried a resumeUrl, switch to it. publish responses

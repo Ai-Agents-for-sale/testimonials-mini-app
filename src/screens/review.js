@@ -117,7 +117,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v8-recover-all'),
+        }, 'build: v9-success'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -714,52 +714,53 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   // Initial load — sequential: image first, then caption
   // ============================================================
 
-  async function loadInitial() {
-    try {
-      if (!state.selectedFolderId) {
-        renderError('לא נבחרה תיקייה');
-        return;
-      }
-
-      // If we already have a current image (entered review from gallery
-      // picker or after a local upload), regenerate the caption for THAT
-      // image instead of picking a fresh random one.
-      if (state.currentImage && state.currentImage.imageUrl) {
-        const content = await generateCaption({
-          imageId: state.currentImage.id,
-          imageUrl: state.currentImage.imageUrl,
-          templateId: template.meta.id,
-          templateType: template.meta.type,
-          regenerate: false
-        });
-        setGeneratedContent(content || {});
-        renderReview();
-        return;
-      }
-
-      // First entry from templates: single 'review-start' call picks a
-      // random image AND generates the caption in one n8n execution,
-      // saving one round-trip vs. the legacy pick-image + caption pair.
-      const res = await fetchReviewStart({
-        folderId: state.selectedFolderId,
+  async function _runLoad() {
+    if (state.currentImage && state.currentImage.imageUrl) {
+      const content = await generateCaption({
+        imageId: state.currentImage.id,
+        imageUrl: state.currentImage.imageUrl,
         templateId: template.meta.id,
-        templateType: template.meta.type
+        templateType: template.meta.type,
+        regenerate: false
       });
-      if (res && res.empty) {
-        renderEmptyFolder();
-        return;
-      }
-      const img = res && res.image;
-      if (!img || !img.imageUrl) {
-        renderError('לא הוחזרה תמונה מהתיקייה');
-        return;
-      }
-      setCurrentImage({ id: img.id, imageUrl: img.imageUrl, mimeType: img.mimeType });
-      setGeneratedContent((res && res.content) || {});
-
+      setGeneratedContent(content || {});
       renderReview();
+      return;
+    }
+    const res = await fetchReviewStart({
+      folderId: state.selectedFolderId,
+      templateId: template.meta.id,
+      templateType: template.meta.type
+    });
+    if (res && res.empty) { renderEmptyFolder(); return; }
+    const img = res && res.image;
+    if (!img || !img.imageUrl) { renderError('לא הוחזרה תמונה מהתיקייה'); return; }
+    setCurrentImage({ id: img.id, imageUrl: img.imageUrl, mimeType: img.mimeType });
+    setGeneratedContent((res && res.content) || {});
+    renderReview();
+  }
+
+  async function loadInitial() {
+    if (!state.selectedFolderId) { renderError('לא נבחרה תיקייה'); return; }
+    try {
+      await _runLoad();
     } catch (err) {
-      renderError(err.message || String(err));
+      // Session-level errors (stale Wait URL, transient n8n hiccup) self-
+      // heal: reset to entry webhook, re-init, replay the original call
+      // ONCE. The user never sees the error screen for recoverable issues.
+      const msg = (err && err.message) || '';
+      if (/session expired|HTTP 4\d\d|HTTP 5\d\d/i.test(msg)) {
+        try {
+          resetSession();
+          await fetchInit();
+          await _runLoad();
+          return;
+        } catch (err2) {
+          renderError((err2 && err2.message) || String(err2));
+          return;
+        }
+      }
+      renderError(msg || String(err));
     }
   }
 

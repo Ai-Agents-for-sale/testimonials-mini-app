@@ -17,16 +17,43 @@ export function resetSession() {
   activeUrl = WEBHOOK_URL;
 }
 
+function urlIsValid(u) {
+  if (typeof u !== 'string' || !u) return false;
+  try { new URL(u); return true; } catch (_) { return false; }
+}
+
 async function call(action, body = {}) {
   const info = getClientInfo();
   const payload = { action, ...body, chatId: info.chatId, clientName: info.clientName };
-  const url = activeUrl;
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  // Defensive: if activeUrl was somehow corrupted (stale, blank, weird
+  // chars), fetch will throw "The string did not match the expected
+  // pattern" before doing anything useful. Detect that BEFORE the fetch
+  // and fall back to the entry webhook so the user can at least retry.
+  if (!urlIsValid(activeUrl)) {
+    console.warn('[api] activeUrl invalid, resetting to entry webhook. was:', JSON.stringify(activeUrl));
+    activeUrl = WEBHOOK_URL;
+  }
+  const url = activeUrl;
+  console.log('[api] →', action, url.slice(0, 100));
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (fetchErr) {
+    console.error('[api] fetch threw for', action, '. URL was:', url, 'err:', fetchErr);
+    // If we hit a URL-pattern error specifically, the activeUrl is dead.
+    // Reset and let the caller retry by re-opening the app / re-running
+    // the action; without this every subsequent call will re-throw.
+    if (fetchErr && /string|pattern|URL|Invalid/i.test(String(fetchErr.message || fetchErr))) {
+      activeUrl = WEBHOOK_URL;
+    }
+    throw new Error('בעיית חיבור: ' + (fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)) + ' (' + action + ')');
+  }
 
   if (!res.ok) throw new Error('Webhook responded with ' + res.status);
   const json = await res.json();

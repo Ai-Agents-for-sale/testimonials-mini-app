@@ -68,47 +68,70 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       renderReview();
     }
 
+    function fileToImagePayload(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload  = () => {
+          const base64 = String(r.result).split(',')[1] || '';
+          resolve({ name: file.name, mimeType: file.type || 'image/png', base64 });
+        };
+        r.onerror = () => reject(new Error('שגיאה בקריאת ' + file.name));
+        r.readAsDataURL(file);
+      });
+    }
+
+    function renderProgress(done, total, lastErr) {
+      const c = backdrop.querySelector('.popup-card');
+      if (!c) return;
+      c.replaceChildren(
+        el('div', { class: 'popup-emoji pulse' }, '📤'),
+        el('div', { class: 'popup-title' }, 'מעלה תמונות לתיקייה…'),
+        el('div', { class: 'popup-sub' }, done + ' מתוך ' + total + (lastErr ? '  ⚠ ' + lastErr : '')),
+        el('div', { class: 'state-bar' }, [el('div', { class: 'state-bar-fill' })])
+      );
+    }
+
     async function uploadFilesToFolder(files) {
-      const card = backdrop.querySelector('.popup-card');
-      if (card) {
-        card.replaceChildren(
-          el('div', { class: 'popup-emoji pulse' }, '📤'),
-          el('div', { class: 'popup-title' }, 'מעלה תמונות לתיקייה…'),
-          el('div', { class: 'popup-sub' }, files.length + ' תמונות'),
-          el('div', { class: 'state-bar' }, [el('div', { class: 'state-bar-fill' })])
-        );
+      renderProgress(0, files.length, '');
+      let ok = 0;
+      let lastErr = '';
+      const errors = [];
+      // One image per HTTP request — phone photos are several MB; batching
+      // them in a single POST blows past n8n cloud's webhook payload limit.
+      for (let i = 0; i < files.length; i++) {
+        try {
+          const payload = await fileToImagePayload(files[i]);
+          await uploadImagesToFolder(state.selectedFolderId, [payload]);
+          ok++;
+        } catch (err) {
+          lastErr = (err && err.message) || String(err);
+          errors.push((files[i].name || ('#' + (i+1))) + ': ' + lastErr);
+          console.error('[upload-to-folder] file failed:', files[i].name, err);
+        }
+        renderProgress(i + 1, files.length, lastErr);
       }
-      try {
-        const images = await Promise.all(files.map(async (file) => {
-          const dataUrl = await new Promise((resolve, reject) => {
-            const r = new FileReader();
-            r.onload  = () => resolve(r.result);
-            r.onerror = reject;
-            r.readAsDataURL(file);
-          });
-          const base64 = String(dataUrl).split(',')[1];
-          return { name: file.name, mimeType: file.type || 'image/png', base64 };
-        }));
-        await uploadImagesToFolder(state.selectedFolderId, images);
-        // Folder now has images — retry review-start.
+
+      if (ok > 0) {
         backdrop.remove();
         renderLoading();
         loadInitial();
-      } catch (err) {
-        const c = backdrop.querySelector('.popup-card');
-        if (c) {
-          c.replaceChildren(
-            el('div', { class: 'popup-emoji' }, '⚠️'),
-            el('div', { class: 'popup-title' }, 'שגיאה בהעלאה'),
-            el('div', { class: 'popup-sub' }, err && err.message ? err.message : 'משהו השתבש'),
-            el('div', { class: 'popup-actions' }, [
-              el('button', {
-                class: 'btn btn-secondary popup-btn',
-                onClick: () => { backdrop.remove(); renderEmptyFolder(); }
-              }, '← חזרה')
-            ])
-          );
-        }
+        return;
+      }
+
+      // 0 succeeded → surface the actual error so we can debug.
+      const c = backdrop.querySelector('.popup-card');
+      if (c) {
+        c.replaceChildren(
+          el('div', { class: 'popup-emoji' }, '⚠️'),
+          el('div', { class: 'popup-title' }, 'שגיאה בהעלאה'),
+          el('div', { class: 'popup-sub' }, errors.slice(0, 3).join('\n') || 'משהו השתבש'),
+          el('div', { class: 'popup-actions' }, [
+            el('button', {
+              class: 'btn btn-secondary popup-btn',
+              onClick: () => { backdrop.remove(); renderEmptyFolder(); }
+            }, '← חזרה')
+          ])
+        );
       }
     }
 

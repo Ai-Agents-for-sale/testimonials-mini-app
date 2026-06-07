@@ -142,7 +142,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v3-cloudinary'),
+        }, 'build: v4-trace'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -153,54 +153,60 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
     }
 
     async function uploadFilesToFolder(files) {
-      // 1. Get a Cloudinary signature from n8n (tiny request).
-      let sig;
-      renderProgress('מתחיל…');
+      let step = 'start';
       try {
-        sig = await getCloudinaryUploadSignature();
-      } catch (err) {
-        console.error('[upload-to-folder] get-sig failed:', err);
-        showUploadError([(err && err.message) || 'שגיאה בקבלת הרשאת העלאה']);
-        return;
-      }
+        step = 'files:' + files.length + ' folder:' + (state.selectedFolderId || 'EMPTY');
+        renderProgress('מתחיל…');
 
-      // 2. Compress each file + upload straight to Cloudinary.
-      const uploaded = [];
-      const errors = [];
-      for (let i = 0; i < files.length; i++) {
-        renderProgress('מעלה ' + (i + 1) + ' מתוך ' + files.length);
-        try {
-          const { blob, name } = await compressImage(files[i]);
-          const result = await uploadOneToCloudinary(blob, name, sig);
-          uploaded.push(result);
-        } catch (err) {
-          console.error('[upload-to-folder] cloudinary upload failed:', files[i].name, err);
-          errors.push((files[i].name || ('#' + (i + 1))) + ': ' + ((err && err.message) || String(err)));
+        step = 'get-sig';
+        const sig = await getCloudinaryUploadSignature();
+
+        step = 'sig-check uploadUrl=' + (sig && sig.uploadUrl ? 'yes' : 'NO');
+        if (!sig || !sig.uploadUrl) throw new Error('sig empty');
+
+        const uploaded = [];
+        const errors = [];
+        for (let i = 0; i < files.length; i++) {
+          renderProgress('מעלה ' + (i + 1) + ' מתוך ' + files.length);
+          step = 'compress[' + i + '] name=' + (files[i].name || '?');
+          let blob, name;
+          try {
+            const c = await compressImage(files[i]);
+            blob = c.blob; name = c.name;
+          } catch (e) { errors.push('compress ' + (files[i].name || i) + ': ' + (e.message || e)); continue; }
+
+          step = 'cloudinary[' + i + ']';
+          try {
+            uploaded.push(await uploadOneToCloudinary(blob, name, sig));
+          } catch (e) { errors.push('cloud ' + name + ': ' + (e.message || e)); }
         }
-      }
 
-      if (!uploaded.length) {
-        showUploadError(errors.length ? errors.slice(0, 3) : ['לא הועלו תמונות']);
-        return;
-      }
+        if (!uploaded.length) {
+          showUploadError(errors.length ? errors.slice(0, 3) : ['no uploads (' + step + ')']);
+          return;
+        }
 
-      // 3. Hand n8n the list of URLs; it downloads + writes to Drive.
-      renderProgress('שולח לתיקייה…');
-      try {
+        step = 'send-to-folder ' + uploaded.length + ' urls';
+        renderProgress('שולח לתיקייה…');
         await uploadImagesToFolder(state.selectedFolderId, uploaded);
         backdrop.remove();
         renderLoading();
         loadInitial();
       } catch (err) {
-        console.error('[upload-to-folder] urls→folder failed:', err);
-        showUploadError([(err && err.message) || 'שגיאה בשליחת ה-URLs לשרת']);
+        console.error('[upload-to-folder] failed at step:', step, err);
+        const msg = (err && err.message) || String(err);
+        showUploadError(['STEP: ' + step, 'ERR: ' + msg]);
       }
     }
 
     fileInput.addEventListener('change', () => {
-      const files = Array.from(fileInput.files || []);
-      if (!files.length) return;
-      uploadFilesToFolder(files);
+      try {
+        const files = Array.from(fileInput.files || []);
+        if (!files.length) return;
+        uploadFilesToFolder(files);
+      } catch (e) {
+        showUploadError(['picker failed: ' + (e.message || e)]);
+      }
     });
 
     const card = el('div', { class: 'popup-card' }, [

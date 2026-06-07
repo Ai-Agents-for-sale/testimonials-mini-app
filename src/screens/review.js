@@ -117,12 +117,40 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v9-success'),
+        }, 'build: v10-success-screen'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
             onClick: () => { backdrop.remove(); renderEmptyFolder(); }
           }, '← חזרה')
+        ])
+      );
+    }
+
+    function showUploadSuccess(count) {
+      const c = backdrop.querySelector('.popup-card');
+      if (!c) return;
+      c.replaceChildren(
+        el('div', { class: 'popup-emoji' }, '✅'),
+        el('div', { class: 'popup-title' }, 'הועלו ' + count + ' תמונות!'),
+        el('div', { class: 'popup-sub' }, 'התמונות נשמרו בתיקייה. נמשיך?'),
+        el('div', { class: 'popup-actions' }, [
+          el('button', {
+            class: 'btn btn-primary popup-btn',
+            onClick: async () => {
+              haptic('light');
+              backdrop.remove();
+              renderLoading();
+              // Fresh session after upload — the upload's resumeUrl is
+              // already consumed, so don't try to reuse it. Init kicks off
+              // a brand-new execution that picks up the just-uploaded images.
+              try {
+                resetSession();
+                await fetchInit();
+              } catch (_) { /* loadInitial has its own recovery */ }
+              loadInitial();
+            }
+          }, 'המשך →')
         ])
       );
     }
@@ -149,9 +177,9 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         renderProgress('שולח ' + images.length + ' תמונות לתיקייה…');
         await uploadImagesToFolder(state.selectedFolderId, images);
 
-        backdrop.remove();
-        renderLoading();
-        loadInitial();
+        // Upload succeeded. Show success state regardless of what happens
+        // next — user is the source of truth: files ARE in Drive now.
+        showUploadSuccess(images.length);
       } catch (err) {
         console.error('[upload-to-folder] failed at', step, err);
         showUploadError(['STEP: ' + step, 'ERR: ' + ((err && err.message) || String(err))]);

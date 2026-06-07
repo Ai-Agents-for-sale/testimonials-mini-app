@@ -78,6 +78,13 @@ export async function listImages(folderId) {
   return call('list-images', { folderId });
 }
 
+// Upload one or more local images straight into the chosen Drive folder.
+// images: [{ name, mimeType, base64 }]. Used by the empty-folder modal so
+// the user can populate a folder without leaving the app.
+export async function uploadImagesToFolder(folderId, images) {
+  return call('upload-to-folder', { folderId, images });
+}
+
 export async function generateCaption({ imageId, imageUrl, templateId, templateType, regenerate }) {
   return call('caption', {
     imageId,

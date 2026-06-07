@@ -1,6 +1,6 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart } from '../api.js';
+import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart, uploadImagesToFolder } from '../api.js';
 import { getTemplate } from '../templates/index.js';
 import {
   getState,
@@ -49,31 +49,102 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   }
 
   function renderEmptyFolder() {
-    // Popup-style modal: dim backdrop + centered card with two actions.
-    // Tapping the backdrop closes the popup and pops back to folders.
+    // Three-way: upload images to the folder (persisted in Drive), continue
+    // without an image and use a one-off device upload for this run, or
+    // pick a different folder.
     const backdrop = el('div', { class: 'popup-backdrop' });
+
+    // Hidden multi-file picker fed by the upload button.
+    const fileInput = el('input', {
+      type: 'file', accept: 'image/*', multiple: true, class: 'hidden'
+    });
+
+    function continueWithoutImage() {
+      backdrop.remove();
+      // Render a bare review view; the user's existing 'Upload from device'
+      // button handles the one-off image for this run.
+      setCurrentImage(null);
+      setGeneratedContent({});
+      renderReview();
+    }
+
+    async function uploadFilesToFolder(files) {
+      const card = backdrop.querySelector('.popup-card');
+      if (card) {
+        card.replaceChildren(
+          el('div', { class: 'popup-emoji pulse' }, '📤'),
+          el('div', { class: 'popup-title' }, 'מעלה תמונות לתיקייה…'),
+          el('div', { class: 'popup-sub' }, files.length + ' תמונות'),
+          el('div', { class: 'state-bar' }, [el('div', { class: 'state-bar-fill' })])
+        );
+      }
+      try {
+        const images = await Promise.all(files.map(async (file) => {
+          const dataUrl = await new Promise((resolve, reject) => {
+            const r = new FileReader();
+            r.onload  = () => resolve(r.result);
+            r.onerror = reject;
+            r.readAsDataURL(file);
+          });
+          const base64 = String(dataUrl).split(',')[1];
+          return { name: file.name, mimeType: file.type || 'image/png', base64 };
+        }));
+        await uploadImagesToFolder(state.selectedFolderId, images);
+        // Folder now has images — retry review-start.
+        backdrop.remove();
+        renderLoading();
+        loadInitial();
+      } catch (err) {
+        const c = backdrop.querySelector('.popup-card');
+        if (c) {
+          c.replaceChildren(
+            el('div', { class: 'popup-emoji' }, '⚠️'),
+            el('div', { class: 'popup-title' }, 'שגיאה בהעלאה'),
+            el('div', { class: 'popup-sub' }, err && err.message ? err.message : 'משהו השתבש'),
+            el('div', { class: 'popup-actions' }, [
+              el('button', {
+                class: 'btn btn-secondary popup-btn',
+                onClick: () => { backdrop.remove(); renderEmptyFolder(); }
+              }, '← חזרה')
+            ])
+          );
+        }
+      }
+    }
+
+    fileInput.addEventListener('change', () => {
+      const files = Array.from(fileInput.files || []);
+      if (!files.length) return;
+      uploadFilesToFolder(files);
+    });
+
     const card = el('div', { class: 'popup-card' }, [
       el('div', { class: 'popup-emoji' }, '📭'),
-      el('div', { class: 'popup-title' }, 'אין תמונות בתיקייה הזו'),
+      el('div', { class: 'popup-title' }, 'אין תמונות בתיקייה'),
       el('div', { class: 'popup-sub' },
-        'התיקייה "' + (state.selectedFolderName || '') + '" לא מכילה צילומים. בחר תיקייה אחרת כדי להמשיך.'),
+        'התיקייה "' + (state.selectedFolderName || '') + '" ריקה. איך תרצה להמשיך?'),
       el('div', { class: 'popup-actions' }, [
         el('button', {
           class: 'btn btn-primary popup-btn',
-          onClick: () => { haptic('light'); goBack(); setTimeout(goBack, 30); }
-        }, '🗂️ בחר תיקייה אחרת'),
+          onClick: () => { haptic('light'); fileInput.click(); }
+        }, '📤 העלה תמונות לתיקייה'),
         el('button', {
           class: 'btn btn-secondary popup-btn',
-          onClick: () => { haptic('light'); goBack(); }
-        }, '← חזרה לתבניות')
+          onClick: () => { haptic('light'); continueWithoutImage(); }
+        }, '✏️ המשך בלי תמונה'),
+        el('button', {
+          class: 'btn btn-secondary popup-btn',
+          onClick: () => { haptic('light'); backdrop.remove(); goBack(); setTimeout(goBack, 30); }
+        }, '🗂️ בחר תיקייה אחרת')
       ])
     ]);
+
     backdrop.addEventListener('click', (e) => {
-      if (e.target === backdrop) { haptic('light'); goBack(); setTimeout(goBack, 30); }
+      if (e.target === backdrop) { haptic('light'); backdrop.remove(); goBack(); setTimeout(goBack, 30); }
     });
     backdrop.appendChild(card);
+    backdrop.appendChild(fileInput);
 
-    // Keep the loading view dimmed underneath so the popup truly feels overlaid.
     root.replaceChildren(
       el('div', { class: 'screen-state screen-state-loading dimmed' }, [
         el('div', { class: 'state-emoji' }, '🎨'),

@@ -492,16 +492,27 @@ html, body {
 .rv-format-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 .rv-stage {
-  background: #f0f0f0; border: 1px solid var(--border);
+  /* Sticky preview: the canvas stays pinned at the top of the screen while
+     the user scrolls the edit panel below, so size/text changes are visible
+     live. Capped at 48vh so it doesn't dominate small screens. */
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg); border: 1px solid var(--border);
   border-radius: var(--radius); overflow: hidden;
-  position: relative; margin: 6px 0 10px;
+  box-shadow: 0 6px 14px -10px rgba(0, 0, 0, 0.18);
+  margin: 6px 0 10px;
   width: 100%; aspect-ratio: 1080 / 1350;
+  max-height: 48vh;
+  display: flex; align-items: center; justify-content: center;
 }
 .rv-canvas-scale {
-  position: absolute; top: 0; left: 0;
+  /* Centred (instead of top-left) so when the stage's natural aspect-ratio
+     is clamped by max-height, the canvas sits in the middle with even
+     side-margins instead of pushing against the top-left corner. */
+  position: absolute;
+  top: 50%; left: 50%;
   width: 1080px; height: 1350px;
-  transform-origin: top left;
-  transform: scale(var(--canvas-scale, 0.3));
+  transform-origin: center center;
+  transform: translate(-50%, -50%) scale(var(--canvas-scale, 0.3));
 }
 
 .rv-img-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 4px 0 10px; }

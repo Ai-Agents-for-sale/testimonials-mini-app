@@ -251,8 +251,15 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
   function syncScale() {
     if (!stage) return;
     const w = stage.clientWidth;
-    if (!w) return;
-    stage.style.setProperty('--canvas-scale', String(w / 1080));
+    const h = stage.clientHeight;
+    if (!w || !h) return;
+    const dims = FORMAT_DIMS[state.format] || FORMAT_DIMS.feed;
+    // Pick the TIGHTER constraint: when the stage's max-height clamps below
+    // what the aspect-ratio would dictate, height becomes the binding axis
+    // and we shrink the canvas to fit vertically; otherwise width wins.
+    const scaleW = w / 1080;
+    const scaleH = h / dims.h;
+    stage.style.setProperty('--canvas-scale', String(Math.min(scaleW, scaleH)));
   }
 
   function buildContent() {

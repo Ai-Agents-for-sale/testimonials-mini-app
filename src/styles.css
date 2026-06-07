@@ -1136,21 +1136,21 @@ html, body {
   padding: 28px 80px 60px;
   display: flex; flex-direction: column; align-items: center; gap: 14px;
 }
-.wa-sig-rule { width: 140px; height: 5px; border-radius: 3px; }
-/* Significantly bigger — the user explicitly asked for larger here. */
+.wa-sig-rule { width: 180px; height: 6px; border-radius: 3px; }
+/* +70% on top of the previous 56px → 96px feed / 122px story. */
 .wa-sig-text {
   font-family: 'Frank Ruhl Libre', serif;
   font-style: italic;
   font-weight: 700;
-  font-size: 56px;
+  font-size: 96px;
   color: #075E54;
   letter-spacing: 1px;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .tpl-whatsapp.format-story .wa-headline  { font-size: 84px; }
 .tpl-whatsapp.format-story .wa-caption   { font-size: 36px; padding-top: 36px; }
-.tpl-whatsapp.format-story .wa-sig-text  { font-size: 72px; }
+.tpl-whatsapp.format-story .wa-sig-text  { font-size: 122px; }
 .tpl-whatsapp.format-story .wa-image     { max-height: 920px; }
 
 /* =========================================================================

@@ -29,8 +29,11 @@ export function thumbnail() {
 }
 
 export function render({ content, brand, format }) {
-  const primary = brand.primaryColor || '#1a73e8';
-  const brandName = brand.nameHe || brand.name || 'BRAND';
+  // Google Review is intentionally LOCKED to Google's brand colors —
+  // brand.primaryColor / accentColor are NOT used. The template's
+  // recognisability comes from looking like a real Google review.
+  const googleBlue = '#1a73e8';
+  const brandName = (brand && (brand.nameHe || brand.name)) || 'BRAND';
   const initial = (brandName || '?').slice(0, 1);
   const quote = content.quote || content.caption;
   const imageUrl = content.sourceImageUrl;
@@ -58,19 +61,19 @@ export function render({ content, brand, format }) {
         el('span', { class: 'gr-reviews', style: { color: '#5f6368' } }, ' Reviews')
       ]),
       el('div', { class: 'gr-brand-logo-wrap' }, [
-        el('div', { class: 'gr-brand-logo-fallback', style: { background: primary } }, initial)
+        el('div', { class: 'gr-brand-logo-fallback', style: { background: googleBlue } }, initial)
       ])
     ]),
 
     // Quote — serif italic, with quote marks framing it
     quote ? el('div', { class: 'gr-quote-wrap' }, [
-      el('div', { class: 'gr-quote-mark-l', style: { color: primary } }, '"'),
+      el('div', { class: 'gr-quote-mark-l', style: { color: googleBlue } }, '"'),
       el('div', {
         class: 'gr-quote',
         'data-field': 'quote',
         'data-fit-max': '42', 'data-fit-min': '20'
       }, quote),
-      el('div', { class: 'gr-quote-mark-r', style: { color: primary } }, '"')
+      el('div', { class: 'gr-quote-mark-r', style: { color: googleBlue } }, '"')
     ]) : null,
 
     // Testimonial image
@@ -89,7 +92,7 @@ export function render({ content, brand, format }) {
       el('div', { class: 'gr-sig-rule' }),
       el('div', { class: 'gr-sig' }, [
         el('span', { class: 'gr-sig-prefix' }, 'ביקורת ל-'),
-        el('span', { class: 'gr-sig-brand', style: { color: primary } }, brandName)
+        el('span', { class: 'gr-sig-brand', style: { color: googleBlue } }, brandName)
       ])
     ])
   ]);

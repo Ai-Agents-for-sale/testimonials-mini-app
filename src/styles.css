@@ -708,9 +708,10 @@ html, body {
 .bp-pill {
   /* Hug content: pill grows around the text. Single short word = narrow
      pill; multi-line caption = wider pill that wraps. Capped so it never
-     spans the full canvas. */
+     spans the full canvas. Border + text colour are set inline from the
+     brand object so the pills pick up the client's brand accents. */
   background: #fff;
-  color: #000;
+  border: 3px solid;
   border-radius: 20px;
   padding: 22px 32px;
   text-align: center;

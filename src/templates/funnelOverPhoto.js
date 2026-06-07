@@ -28,10 +28,11 @@ function toLines(value) {
 }
 
 export function render({ content, brand, format }) {
-  const bg = content.backgroundUrl || brand.defaultBackgroundUrl;
-  const accent  = brand.accentColor || '#F2C94C';
-  const brandName = brand.nameHe || brand.name || 'BRAND';
-  const brandHandle = brand.name || '';
+  const bg = content.backgroundUrl || (brand && brand.defaultBackgroundUrl);
+  const primary = (brand && brand.primaryColor) || '#1F6FB2';
+  const accent  = (brand && brand.accentColor)  || '#F2C94C';
+  const brandName   = (brand && (brand.nameHe || brand.name)) || 'BRAND';
+  const brandHandle = (brand && brand.name) || '';
   const headline = content.headline;
   const subHeadline = content.subHeadline;
   const imageUrl = content.sourceImageUrl;
@@ -39,9 +40,13 @@ export function render({ content, brand, format }) {
     ? toLines(content.captionLines)
     : (content.caption ? [content.caption] : []);
 
+  // Fallback gradient is now brand-primary → deep navy so the canvas
+  // reacts to the brand colour when there's no background photo.
+  const fallbackGradient = 'linear-gradient(135deg, ' + primary + ' 0%, #0d1320 100%)';
+
   return el('div', {
     class: 'tpl-canvas format-' + format + ' tpl-funnel',
-    style: { background: bg ? 'url("' + bg + '") center/cover no-repeat' : 'linear-gradient(135deg, #1a2540 0%, #0d1320 100%)' }
+    style: { background: bg ? 'url("' + bg + '") center/cover no-repeat' : fallbackGradient }
   }, [
     // Diagonal gradient overlay for editorial feel
     el('div', { class: 'fn-bg-diagonal' }),

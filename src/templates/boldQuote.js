@@ -1,10 +1,13 @@
 import { el } from '../dom.js';
+import { SAMPLE_IMG, SAMPLE } from './_samples.js';
 
 export const meta = {
   id: 'bold-quote',
   nameHe: 'ציטוט מגזין',
   type: 'extract',
   description: 'מינימליסטי. רקע צבע מותג אחיד (התבנית היחידה עם רקע נקי). תמונה ממורכזת, ציטוט סריף ענקי מתחת, מונוגרם בפינה ימנית-עליונה, חתימה בפינה ימנית-תחתונה.',
+  descLong: 'הציטוט הוא הכוכב. רקע אחיד בצבע המותג, תמונה קטנה למעלה, ציטוט ענק באמצע, שם הממליץ למטה. מתאים כשיש משפט חזק שמדבר בעד עצמו.',
+  bestFor: 'ציטוט עוצמתי + שם',
   editableFields: [
     { key: 'quote',      labelHe: 'הציטוט (Suez One איטליק)', multiline: true, default: 'השירות הכי טוב שקיבלתי. ממליצה בחום!' },
     { key: 'authorName', labelHe: 'שם הממליץ', default: 'שיר כהן' },
@@ -12,14 +15,22 @@ export const meta = {
   ]
 };
 
-export function thumbnail() {
-  return el('div', { class: 'tpl-thumb tpl-thumb-quote' }, [
-    el('div', { class: 'tpl-thumb-quote-mono' }, 'B'),
-    el('div', { class: 'tpl-thumb-quote-card' }),
-    el('div', { class: 'tpl-thumb-quote-mark' }, '"'),
-    el('div', { class: 'tpl-thumb-quote-text' }),
-    el('div', { class: 'tpl-thumb-quote-author' }, '— שם'),
-    el('div', { class: 'tpl-thumb-quote-sig' }, 'BRAND')
+export function thumbnail(brand) {
+  const primary = (brand && brand.primaryColor) || '#0d1b4b';
+  const accent  = (brand && brand.accentColor)  || '#F2C94C';
+  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  return el('div', { class: 'mp mp-quote', style: { background: primary } }, [
+    el('div', { class: 'mp-quote-mono', style: { borderColor: accent, color: accent } }, (brandName[0] || '?')),
+    el('div', { class: 'mp-img-wrap mp-img-wrap-sm' }, [
+      el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
+    ]),
+    el('div', { class: 'mp-quote-mark', style: { color: accent } }, '"'),
+    el('div', { class: 'mp-quote-text' }, SAMPLE.quote),
+    el('div', { class: 'mp-quote-author' }, [
+      el('div', { class: 'mp-quote-rule', style: { background: accent } }),
+      el('div', null, '— ' + SAMPLE.authorName)
+    ]),
+    el('div', { class: 'mp-quote-sig' }, brandName)
   ]);
 }
 

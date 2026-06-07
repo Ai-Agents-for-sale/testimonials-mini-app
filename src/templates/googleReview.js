@@ -1,30 +1,45 @@
 import { el } from '../dom.js';
+import { SAMPLE_IMG, SAMPLE } from './_samples.js';
 
 export const meta = {
   id: 'google-review',
   nameHe: 'ביקורת גוגל',
   type: 'google-review',
   description: 'בסגנון מטריאל. רקע גריד עדין, וורדמארק Google שמאל-עליון, לוגו המותג ימין-עליון, ציטוט סריף איטליק, ותחתית עם דירוג, כוכבים וסימן אימות.',
+  descLong: 'נראה כמו ביקורת אמיתית בגוגל — דירוג 5 כוכבים, וורדמארק גוגל, פונט סריף איטליק לציטוט. צבעי גוגל קבועים (לא משתנים עם המותג).',
+  bestFor: 'ביקורות גוגל',
   editableFields: [
     { key: 'quote', labelHe: 'תוכן הביקורת (סריף איטליק)', multiline: true, default: 'השירות הכי טוב שקיבלתי. צוות מקצועי, זמין ומהיר. ממליצה בחום!' }
   ]
 };
 
-export function thumbnail() {
-  return el('div', { class: 'tpl-thumb tpl-thumb-google' }, [
-    el('div', { class: 'tpl-thumb-google-word' }, [
-      el('span', { style: { color: '#4285F4' } }, 'G'),
-      el('span', { style: { color: '#EA4335' } }, 'o'),
-      el('span', { style: { color: '#FBBC05' } }, 'o'),
-      el('span', { style: { color: '#4285F4' } }, 'g'),
-      el('span', { style: { color: '#34A853' } }, 'l'),
-      el('span', { style: { color: '#EA4335' } }, 'e')
+export function thumbnail(brand) {
+  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  return el('div', { class: 'mp mp-google' }, [
+    el('div', { class: 'mp-google-top' }, [
+      el('div', { class: 'mp-google-word' }, [
+        el('span', { style: { color: '#4285F4' } }, 'G'),
+        el('span', { style: { color: '#EA4335' } }, 'o'),
+        el('span', { style: { color: '#FBBC05' } }, 'o'),
+        el('span', { style: { color: '#4285F4' } }, 'g'),
+        el('span', { style: { color: '#34A853' } }, 'l'),
+        el('span', { style: { color: '#EA4335' } }, 'e')
+      ]),
+      el('div', { class: 'mp-google-stamp' }, (brandName[0] || '?'))
     ]),
-    el('div', { class: 'tpl-thumb-google-stamp' }, 'B'),
-    el('div', { class: 'tpl-thumb-google-card' }),
-    el('div', { class: 'tpl-thumb-google-rating' }, '5.0'),
-    el('div', { class: 'tpl-thumb-google-stars' }, '★★★★★'),
-    el('div', { class: 'tpl-thumb-google-sig' }, 'ביקורת ל-BRAND')
+    el('div', { class: 'mp-google-quote' }, [
+      el('span', { class: 'mp-google-mark' }, '“'),
+      SAMPLE.quote,
+      el('span', { class: 'mp-google-mark' }, '”')
+    ]),
+    el('div', { class: 'mp-img-wrap mp-img-wrap-sm' }, [
+      el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
+    ]),
+    el('div', { class: 'mp-google-bottom' }, [
+      el('div', { class: 'mp-google-rating' }, '5.0'),
+      el('div', { class: 'mp-google-stars' }, '★★★★★'),
+      el('div', { class: 'mp-google-sig' }, 'ביקורת ל-' + brandName)
+    ])
   ]);
 }
 

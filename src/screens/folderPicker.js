@@ -15,9 +15,19 @@ export function folderPickerScreen({ navigate }) {
     el('div', { class: 'topbar' }, [
       el('div', { class: 'topbar-title' }, '⭐ הוכחות לקוחות')
     ]),
+    el('div', { class: 'step-bar' }, [
+      el('div', { class: 'step step-current' }, [el('span', { class: 'step-num' }, '1'), el('span', { class: 'step-lbl' }, 'תיקייה')]),
+      el('div', { class: 'step-line' }),
+      el('div', { class: 'step' }, [el('span', { class: 'step-num' }, '2'), el('span', { class: 'step-lbl' }, 'תבנית')]),
+      el('div', { class: 'step-line' }),
+      el('div', { class: 'step' }, [el('span', { class: 'step-num' }, '3'), el('span', { class: 'step-lbl' }, 'עריכה ופרסום')])
+    ]),
     el('div', { class: 'intro' }, [
-      el('div', { class: 'intro-title' }, 'מאיזו תיקייה ניצור היום?'),
-      el('div', { class: 'intro-sub' }, 'בחר את תיקיית הצילומים שממנה תוצא תמונה לפוסט')
+      el('div', { class: 'intro-title' }, '📁 מאיזו תיקייה ניצור היום?'),
+      el('div', { class: 'intro-sub' },
+        'כל תיקייה היא קטגוריה של הוכחות (וואטסאפ, ביקורות, תוצאות וכו\'). ' +
+        'בחר/י תיקייה — נשלוף ממנה תמונה אקראית ונבנה איתה פוסט. ' +
+        'אם אין תמונות בתיקייה, נציע להעלות חדשות.')
     ])
   ]);
 

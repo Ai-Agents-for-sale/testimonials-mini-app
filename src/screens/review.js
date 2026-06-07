@@ -117,7 +117,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v10-success-screen'),
+        }, 'build: v11-thumbnails'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -285,6 +285,13 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       el('div', { class: 'header' }, [
         el('button', { class: 'back-btn', onClick: () => { haptic('light'); goBack(); } }, '› חזרה'),
         el('span', { class: 'header-title right' }, template.meta.nameHe)
+      ]),
+      el('div', { class: 'step-bar' }, [
+        el('div', { class: 'step step-done' }, [el('span', { class: 'step-num' }, '1'), el('span', { class: 'step-lbl' }, 'תיקייה')]),
+        el('div', { class: 'step-line step-line-done' }),
+        el('div', { class: 'step step-done' }, [el('span', { class: 'step-num' }, '2'), el('span', { class: 'step-lbl' }, 'תבנית')]),
+        el('div', { class: 'step-line step-line-done' }),
+        el('div', { class: 'step step-current' }, [el('span', { class: 'step-num' }, '3'), el('span', { class: 'step-lbl' }, 'עריכה ופרסום')])
       ])
     ]);
 

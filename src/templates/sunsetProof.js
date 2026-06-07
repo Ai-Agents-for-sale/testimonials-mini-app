@@ -1,24 +1,38 @@
 import { el } from '../dom.js';
+import { SAMPLE_IMG, SAMPLE } from './_samples.js';
 
 export const meta = {
   id: 'sunset-proof',
   nameHe: 'הוכחה אווירתית',
   type: 'frame-stat',
   description: 'אווירה חמה. גראדיינט אפרסק על תמונה, רקע נקודות הלפטון, מסגרת מותג מרכזית למעלה, כותרת בסריף איטליק, ומונוגרם עדין בתחתית.',
+  descLong: 'גראדיאנט חם בצבעי המותג כרקע. כותרת איטליק עוטפת. בתחתית — מונוגרם נקי. רך, מסוגנן, פחות "אגרסיבי" מהשאר. נראה כמו פוסט פרימיום.',
+  bestFor: 'תוכן רגשי / סיפור',
   editableFields: [
     { key: 'headline', labelHe: 'כותרת איטליק (Frank Ruhl)', default: 'כוחו של הסיפור.' },
     { key: 'statLine', labelHe: 'שורת תוצאה תחתונה', multiline: true, default: 'הכניס מעל 100,000 ₪ בחודש הראשון.' }
   ]
 };
 
-export function thumbnail() {
-  return el('div', { class: 'tpl-thumb tpl-thumb-sunset' }, [
-    el('div', { class: 'tpl-thumb-sunset-bg' }),
-    el('div', { class: 'tpl-thumb-sunset-frame' }, 'BRAND'),
-    el('div', { class: 'tpl-thumb-sunset-headline' }, '...כוחו של'),
-    el('div', { class: 'tpl-thumb-sunset-card' }),
-    el('div', { class: 'tpl-thumb-sunset-stat' }, '100K+'),
-    el('div', { class: 'tpl-thumb-sunset-mono' })
+export function thumbnail(brand) {
+  const primary = (brand && brand.primaryColor) || '#1F6FB2';
+  const accent  = (brand && brand.accentColor)  || '#F2C94C';
+  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  return el('div', {
+    class: 'mp mp-sunset',
+    style: { background: 'linear-gradient(180deg, ' + primary + ' 0%, ' + accent + ' 55%, ' + primary + ' 100%)' }
+  }, [
+    el('div', { class: 'mp-sunset-frame' }, [
+      el('div', { class: 'mp-sunset-rule', style: { background: accent } }),
+      el('span', { class: 'mp-sunset-name' }, brandName),
+      el('div', { class: 'mp-sunset-rule', style: { background: accent } })
+    ]),
+    el('div', { class: 'mp-sunset-headline' }, SAMPLE.headline + '.'),
+    el('div', { class: 'mp-img-wrap mp-img-wrap-sm' }, [
+      el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
+    ]),
+    el('div', { class: 'mp-sunset-stat' }, SAMPLE.statHead + ' ' + SAMPLE.statSub),
+    el('div', { class: 'mp-sunset-mono', style: { borderColor: accent, color: accent } }, (brandName[0] || '?'))
   ]);
 }
 

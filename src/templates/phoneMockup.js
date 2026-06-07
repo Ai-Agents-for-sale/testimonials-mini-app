@@ -1,26 +1,44 @@
 import { el } from '../dom.js';
+import { SAMPLE_IMG, SAMPLE } from './_samples.js';
 
 export const meta = {
   id: 'phone-mockup',
   nameHe: 'מוקאפ פאלפון',
   type: 'phone-mockup',
   description: 'הסקרינשוט יושב בתוך מסגרת אייפון, חיצים מסביב, רקע גראדיאנט רדיאלי מהמרכז עם עיגולים גדולים בצבעי המותג.',
+  descLong: 'הצילום מתוך מסגרת אייפון אמיתית. החיצים מסביב מושכים את העין למסך. תבנית "פרסומת" — מתאימה כשרוצים שהצילום ייראה כמו ידיעה.',
+  bestFor: 'צילום מסך כללי',
   editableFields: [
     { key: 'headline',    labelHe: 'כותרת ראשית', default: 'תראו מה כתבו לנו.' },
     { key: 'subHeadline', labelHe: 'תת-כותרת', default: 'הודעה אמיתית. צילום אמיתי.' }
   ]
 };
 
-export function thumbnail() {
-  return el('div', { class: 'tpl-thumb tpl-thumb-mockup' }, [
-    el('div', { class: 'tpl-thumb-mockup-orb-a' }),
-    el('div', { class: 'tpl-thumb-mockup-orb-b' }),
-    el('div', { class: 'tpl-thumb-mockup-headline' }, 'הוכחה'),
-    el('div', { class: 'tpl-thumb-mockup-phone' }, [
-      el('div', { class: 'tpl-thumb-mockup-screen' })
+export function thumbnail(brand) {
+  const primary = (brand && brand.primaryColor) || '#1F6FB2';
+  const accent  = (brand && brand.accentColor)  || '#F2C94C';
+  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  return el('div', {
+    class: 'mp mp-mockup',
+    style: { background: 'radial-gradient(ellipse at center, ' + primary + ' 0%, #0a0e1a 90%)' }
+  }, [
+    el('span', { class: 'mp-orb mp-orb-a', style: { background: accent } }),
+    el('span', { class: 'mp-orb mp-orb-b', style: { background: primary } }),
+    el('div', { class: 'mp-mockup-pill', style: { borderColor: accent } }, [
+      el('span', { class: 'mp-mockup-dot', style: { background: accent } }),
+      el('span', null, brandName)
     ]),
-    el('div', { class: 'tpl-thumb-mockup-arrow' }, '↘'),
-    el('div', { class: 'tpl-thumb-mockup-foot' }, 'BRAND')
+    el('div', { class: 'mp-line mp-line-headline mp-mockup-headline' }, SAMPLE.headline),
+    el('div', { class: 'mp-mockup-arrow', style: { color: accent } }, '↘'),
+    el('div', { class: 'mp-mockup-phone' }, [
+      el('div', { class: 'mp-mockup-notch' }),
+      el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img mp-mockup-screen' })
+    ]),
+    el('div', { class: 'mp-mockup-arrow mp-mockup-arrow-r', style: { color: accent } }, '↙'),
+    el('div', { class: 'mp-mockup-foot' }, [
+      el('span', { class: 'mp-mockup-initial', style: { background: accent } }, (brandName[0] || '?')),
+      el('span', null, brandName)
+    ])
   ]);
 }
 

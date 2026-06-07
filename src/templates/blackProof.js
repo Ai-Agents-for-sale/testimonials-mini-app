@@ -1,21 +1,31 @@
 import { el } from '../dom.js';
+import { SAMPLE_IMG, SAMPLE } from './_samples.js';
 
 export const meta = {
   id: 'black-proof',
   nameHe: 'הוכחה שחורה',
   type: 'frame',
   description: 'מינימליסטי. רקע שחור נקי בלי קישוטים. כותרת בעברית על רקע לבן למעלה, תמונה באמצע, ומשפט קצר על רקע לבן למטה.',
+  descLong: 'נקי, רציני, מינימליסטי. רקע כהה עם זוהר עדין בצבע המותג. שני "כדורים" לבנים — אחד למעלה ואחד למטה — עוטפים את הצילום באמצע.',
+  bestFor: 'תמונות עבודה / מוצר',
   editableFields: [
     { key: 'headline', labelHe: 'טקסט עליון (על רקע לבן)', default: 'הנה ההוכחה.' },
     { key: 'caption',  labelHe: 'משפט תחתון (על רקע לבן)', multiline: true, default: 'הלקוחות שלנו אומרים את הכל בעצמם.' }
   ]
 };
 
-export function thumbnail() {
-  return el('div', { class: 'tpl-thumb tpl-thumb-blackproof' }, [
-    el('div', { class: 'tpl-thumb-blackproof-pill-top' }, 'טקסט'),
-    el('div', { class: 'tpl-thumb-blackproof-card' }),
-    el('div', { class: 'tpl-thumb-blackproof-pill-bot' }, 'משפט')
+export function thumbnail(brand) {
+  const primary = (brand && brand.primaryColor) || '#1F6FB2';
+  const accent  = (brand && brand.accentColor)  || '#F2C94C';
+  return el('div', {
+    class: 'mp mp-bp',
+    style: { background: 'radial-gradient(ellipse at center, ' + primary + ' 0%, #000 80%)' }
+  }, [
+    el('div', { class: 'mp-bp-pill', style: { borderColor: accent, color: primary } }, SAMPLE.headline),
+    el('div', { class: 'mp-img-wrap' }, [
+      el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
+    ]),
+    el('div', { class: 'mp-bp-pill', style: { borderColor: accent, color: primary } }, SAMPLE.caption)
   ]);
 }
 

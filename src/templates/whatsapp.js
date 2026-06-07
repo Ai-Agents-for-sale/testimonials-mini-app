@@ -1,10 +1,13 @@
 import { el } from '../dom.js';
+import { SAMPLE_IMG, SAMPLE } from './_samples.js';
 
 export const meta = {
   id: 'whatsapp',
   nameHe: 'הודעת וואטסאפ',
   type: 'whatsapp',
   description: 'רקע דודל וואטסאפ עם גוון ירוק, התמונה לבדה במרכז, סמליל וואטסאפ למעלה וכיתוב "מתוך שיחה עם לקוח" למטה.',
+  descLong: 'מתאים מצוין לצילומי מסך של שיחות וואטסאפ. צבעי וואטסאפ קבועים (לא משתנים עם המותג) — נראה אותנטי וברור.',
+  bestFor: 'צילומי וואטסאפ',
   editableFields: [
     { key: 'headline', labelHe: 'כותרת מעל התמונה',  default: 'הלקוחות שלנו מספרים.' },
     { key: 'caption',  labelHe: 'טקסט מתחת לתמונה', multiline: true, default: 'תודה רבה! כיף לנו לקבל את ההודעה הזו.' }
@@ -12,12 +15,23 @@ export const meta = {
 };
 
 export function thumbnail() {
-  return el('div', { class: 'tpl-thumb tpl-thumb-whatsapp' }, [
-    el('div', { class: 'tpl-thumb-wa-headline' }, 'הלקוחות'),
-    el('div', { class: 'tpl-thumb-wa-frame' }, [
-      el('div', { class: 'tpl-thumb-wa-body' })
+  // Mini version of the real template: WhatsApp wordmark + headline + a
+  // miniature screenshot inside + signature. Uses fixed WA colors (this
+  // template intentionally doesn't follow brand colors).
+  return el('div', { class: 'mp mp-wa' }, [
+    el('div', { class: 'mp-wa-top' }, [
+      el('span', { class: 'mp-wa-icon' }, '✓'),
+      el('span', { class: 'mp-wa-mark' }, 'WhatsApp')
     ]),
-    el('div', { class: 'tpl-thumb-wa-sig' }, 'מתוך שיחה עם לקוח')
+    el('div', { class: 'mp-line mp-line-headline' }, SAMPLE.headline),
+    el('div', { class: 'mp-img-wrap' }, [
+      el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
+    ]),
+    el('div', { class: 'mp-line mp-line-caption' }, SAMPLE.caption),
+    el('div', { class: 'mp-wa-sig' }, [
+      el('div', { class: 'mp-wa-rule' }),
+      el('div', { class: 'mp-wa-sig-text' }, 'מתוך שיחה עם לקוח')
+    ])
   ]);
 }
 

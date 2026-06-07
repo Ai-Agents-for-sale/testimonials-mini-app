@@ -1,10 +1,13 @@
 import { el } from '../dom.js';
+import { SAMPLE_IMG, SAMPLE } from './_samples.js';
 
 export const meta = {
   id: 'funnel-over-photo',
   nameHe: 'תוצאה על רקע',
   type: 'frame-multi',
   description: 'מגזין נועז על רקע תמונה. סרט אלכסוני בפינה שמאל-עליונה עם שם המותג, כותרת ענקית, ושורות הסבר נקיות עם פסי הדגשה.',
+  descLong: 'הסטטיסטיקה ענקית באמצע. סרט אלכסוני עם שם המותג בפינה. למטה — שורות הסבר על איך הגעת לתוצאה. נראה כמו פוסט מגזין עסקי.',
+  bestFor: 'תוצאות עם מספרים',
   editableFields: [
     { key: 'headline',     labelHe: 'מספר/סטטיסטיקה ענקית (Suez One)', default: '100K ₪' },
     { key: 'subHeadline',  labelHe: 'תת-כותרת תיאורית', default: 'בחודש הראשון' },
@@ -12,12 +15,29 @@ export const meta = {
   ]
 };
 
-export function thumbnail() {
-  return el('div', { class: 'tpl-thumb tpl-thumb-funnel' }, [
-    el('div', { class: 'tpl-thumb-funnel-photo' }),
-    el('div', { class: 'tpl-thumb-funnel-ribbon' }, 'BRAND'),
-    el('div', { class: 'tpl-thumb-funnel-stat' }, '100K'),
-    el('div', { class: 'tpl-thumb-funnel-pills' })
+export function thumbnail(brand) {
+  const primary = (brand && brand.primaryColor) || '#1F6FB2';
+  const accent  = (brand && brand.accentColor)  || '#F2C94C';
+  const brandName = (brand && (brand.nameHe || brand.name)) || 'מותג';
+  return el('div', {
+    class: 'mp mp-funnel',
+    style: { background: 'linear-gradient(135deg, ' + primary + ' 0%, #0d1320 100%)' }
+  }, [
+    el('div', { class: 'mp-funnel-ribbon', style: { background: accent } }, brandName),
+    el('div', { class: 'mp-funnel-stat' }, [
+      el('div', { class: 'mp-funnel-num' }, SAMPLE.statHead),
+      el('div', { class: 'mp-funnel-sub' }, SAMPLE.statSub),
+      el('div', { class: 'mp-funnel-rule', style: { background: accent } })
+    ]),
+    el('div', { class: 'mp-img-wrap mp-img-wrap-sm' }, [
+      el('img', { src: SAMPLE_IMG, alt: '', class: 'mp-img' })
+    ]),
+    el('div', { class: 'mp-funnel-lines' },
+      SAMPLE.captionLines.map((ln) => el('div', { class: 'mp-funnel-line' }, [
+        el('span', { class: 'mp-funnel-bar', style: { background: accent } }),
+        el('span', null, ln)
+      ]))
+    )
   ]);
 }
 

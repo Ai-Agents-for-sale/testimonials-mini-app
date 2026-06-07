@@ -69,6 +69,13 @@ async function _callInner(action, body = {}) {
     throw new Error('fetch: ' + (fetchErr && fetchErr.message ? fetchErr.message : String(fetchErr)) + ' [' + action + ' ' + tail + ']');
   }
 
+  // 409 means the Wait URL was already consumed (previous chain errored
+  // out without firing Respond, or two POSTs raced). Reset back to the
+  // entry webhook so the very next call kicks off a fresh execution.
+  if (res.status === 409) {
+    activeUrl = WEBHOOK_URL;
+    throw new Error('session expired — please retry [' + action + ']');
+  }
   if (!res.ok) throw new Error('HTTP ' + res.status + ' [' + action + ']');
   const json = await res.json();
 
@@ -116,6 +123,7 @@ export async function fetchReviewStart({ folderId, templateId, templateType }) {
 }
 
 export async function listImages(folderId) {
+  if (!folderId) throw new Error('listImages: missing folderId');
   return call('list-images', { folderId });
 }
 

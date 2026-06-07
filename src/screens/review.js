@@ -1,6 +1,6 @@
 import { el } from '../dom.js';
 import { haptic } from '../telegram.js';
-import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart, uploadImagesToFolder } from '../api.js';
+import { pickRandomImage, generateCaption, submitFinal, fetchReviewStart, uploadImagesToFolder, fetchInit, resetSession } from '../api.js';
 import { getTemplate } from '../templates/index.js';
 import {
   getState,
@@ -117,7 +117,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v6-base64'),
+        }, 'build: v7-recover'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -212,7 +212,18 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', { class: 'state-sub' }, message || 'משהו השתבש'),
         el('button', {
           class: 'btn btn-primary state-action',
-          onClick: () => { haptic('light'); renderLoading(); loadInitial(); }
+          // Reset session + re-init so we don't replay a dead resumeUrl
+          // (the most common cause: previous chain errored in n8n, no
+          // Respond fired, so the Wait URL is stuck consumed).
+          onClick: async () => {
+            haptic('light');
+            renderLoading();
+            try {
+              resetSession();
+              await fetchInit();
+            } catch (_) {}
+            loadInitial();
+          }
         }, '🔁 נסה שוב'),
         el('button', {
           class: 'btn btn-secondary state-action',

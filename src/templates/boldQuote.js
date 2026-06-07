@@ -28,7 +28,7 @@ export function thumbnail(brand) {
     el('div', { class: 'mp-quote-text' }, SAMPLE.quote),
     el('div', { class: 'mp-quote-author' }, [
       el('div', { class: 'mp-quote-rule', style: { background: accent } }),
-      el('div', null, '— ' + SAMPLE.authorName)
+      el('div', {}, '— ' + SAMPLE.authorName)
     ]),
     el('div', { class: 'mp-quote-sig' }, brandName)
   ]);

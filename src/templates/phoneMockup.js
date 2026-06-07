@@ -26,7 +26,7 @@ export function thumbnail(brand) {
     el('span', { class: 'mp-orb mp-orb-b', style: { background: primary } }),
     el('div', { class: 'mp-mockup-pill', style: { borderColor: accent } }, [
       el('span', { class: 'mp-mockup-dot', style: { background: accent } }),
-      el('span', null, brandName)
+      el('span', {}, brandName)
     ]),
     el('div', { class: 'mp-line mp-line-headline mp-mockup-headline' }, SAMPLE.headline),
     el('div', { class: 'mp-mockup-arrow', style: { color: accent } }, '↘'),
@@ -37,7 +37,7 @@ export function thumbnail(brand) {
     el('div', { class: 'mp-mockup-arrow mp-mockup-arrow-r', style: { color: accent } }, '↙'),
     el('div', { class: 'mp-mockup-foot' }, [
       el('span', { class: 'mp-mockup-initial', style: { background: accent } }, (brandName[0] || '?')),
-      el('span', null, brandName)
+      el('span', {}, brandName)
     ])
   ]);
 }

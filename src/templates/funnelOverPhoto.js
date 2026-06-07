@@ -35,7 +35,7 @@ export function thumbnail(brand) {
     el('div', { class: 'mp-funnel-lines' },
       SAMPLE.captionLines.map((ln) => el('div', { class: 'mp-funnel-line' }, [
         el('span', { class: 'mp-funnel-bar', style: { background: accent } }),
-        el('span', null, ln)
+        el('span', {}, ln)
       ]))
     )
   ]);

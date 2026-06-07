@@ -1,5 +1,9 @@
 export function el(tag, attrs = {}, children = []) {
   const node = document.createElement(tag);
+  // Defensive: accept null/undefined as "no attrs". Prior signature only
+  // defaulted on undefined — `el('span', null, ...)` would Object.keys(null)
+  // and crash the entire screen render, masquerading as "X isn't clickable".
+  if (attrs == null) attrs = {};
 
   Object.keys(attrs).forEach((key) => {
     const value = attrs[key];

@@ -68,70 +68,86 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       renderReview();
     }
 
-    function fileToImagePayload(file) {
-      return new Promise((resolve, reject) => {
-        const r = new FileReader();
-        r.onload  = () => {
-          const base64 = String(r.result).split(',')[1] || '';
-          resolve({ name: file.name, mimeType: file.type || 'image/png', base64 });
-        };
-        r.onerror = () => reject(new Error('שגיאה בקריאת ' + file.name));
-        r.readAsDataURL(file);
-      });
+    // Client-side compress: 1600px on the long edge, JPEG q85. Cuts a 3-5 MB
+    // phone photo to ~300-500 KB, so we can ship every image in a single
+    // POST without blowing past n8n's webhook payload limit. That also
+    // avoids the sequential-resumeUrl race (each POST consumes the Wait's
+    // current URL; the next one isn't ready until the loop-back re-pauses).
+    async function compressImage(file, maxSize = 1600, quality = 0.85) {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = await new Promise((resolve, reject) => {
+          const i = new Image();
+          i.onload  = () => resolve(i);
+          i.onerror = () => reject(new Error('לא ניתן לקרוא את התמונה ' + file.name));
+          i.src = url;
+        });
+        const w0 = img.naturalWidth, h0 = img.naturalHeight;
+        const ratio = Math.min(maxSize / w0, maxSize / h0, 1);
+        const w = Math.max(1, Math.round(w0 * ratio));
+        const h = Math.max(1, Math.round(h0 * ratio));
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+        const base64 = String(dataUrl).split(',')[1] || '';
+        const baseName = (file.name || 'photo').replace(/\.[^.]+$/, '');
+        return { name: baseName + '.jpg', mimeType: 'image/jpeg', base64 };
+      } finally {
+        URL.revokeObjectURL(url);
+      }
     }
 
-    function renderProgress(done, total, lastErr) {
+    function renderProgress(stage) {
       const c = backdrop.querySelector('.popup-card');
       if (!c) return;
       c.replaceChildren(
         el('div', { class: 'popup-emoji pulse' }, '📤'),
         el('div', { class: 'popup-title' }, 'מעלה תמונות לתיקייה…'),
-        el('div', { class: 'popup-sub' }, done + ' מתוך ' + total + (lastErr ? '  ⚠ ' + lastErr : '')),
+        el('div', { class: 'popup-sub' }, stage || ''),
         el('div', { class: 'state-bar' }, [el('div', { class: 'state-bar-fill' })])
       );
     }
 
-    async function uploadFilesToFolder(files) {
-      renderProgress(0, files.length, '');
-      let ok = 0;
-      let lastErr = '';
-      const errors = [];
-      // One image per HTTP request — phone photos are several MB; batching
-      // them in a single POST blows past n8n cloud's webhook payload limit.
-      for (let i = 0; i < files.length; i++) {
-        try {
-          const payload = await fileToImagePayload(files[i]);
-          await uploadImagesToFolder(state.selectedFolderId, [payload]);
-          ok++;
-        } catch (err) {
-          lastErr = (err && err.message) || String(err);
-          errors.push((files[i].name || ('#' + (i+1))) + ': ' + lastErr);
-          console.error('[upload-to-folder] file failed:', files[i].name, err);
-        }
-        renderProgress(i + 1, files.length, lastErr);
-      }
+    function showUploadError(messages) {
+      const c = backdrop.querySelector('.popup-card');
+      if (!c) return;
+      c.replaceChildren(
+        el('div', { class: 'popup-emoji' }, '⚠️'),
+        el('div', { class: 'popup-title' }, 'שגיאה בהעלאה'),
+        el('div', { class: 'popup-sub' }, (messages || []).join('\n') || 'משהו השתבש'),
+        el('div', { class: 'popup-actions' }, [
+          el('button', {
+            class: 'btn btn-secondary popup-btn',
+            onClick: () => { backdrop.remove(); renderEmptyFolder(); }
+          }, '← חזרה')
+        ])
+      );
+    }
 
-      if (ok > 0) {
-        backdrop.remove();
-        renderLoading();
-        loadInitial();
+    async function uploadFilesToFolder(files) {
+      renderProgress('דוחס ' + files.length + ' תמונות…');
+      let images = [];
+      try {
+        images = await Promise.all(Array.from(files).map((f) => compressImage(f)));
+      } catch (err) {
+        console.error('[upload-to-folder] compress failed:', err);
+        showUploadError([(err && err.message) || 'שגיאה בדחיסת התמונות']);
         return;
       }
 
-      // 0 succeeded → surface the actual error so we can debug.
-      const c = backdrop.querySelector('.popup-card');
-      if (c) {
-        c.replaceChildren(
-          el('div', { class: 'popup-emoji' }, '⚠️'),
-          el('div', { class: 'popup-title' }, 'שגיאה בהעלאה'),
-          el('div', { class: 'popup-sub' }, errors.slice(0, 3).join('\n') || 'משהו השתבש'),
-          el('div', { class: 'popup-actions' }, [
-            el('button', {
-              class: 'btn btn-secondary popup-btn',
-              onClick: () => { backdrop.remove(); renderEmptyFolder(); }
-            }, '← חזרה')
-          ])
-        );
+      renderProgress('שולח לתיקייה…');
+      try {
+        await uploadImagesToFolder(state.selectedFolderId, images);
+        backdrop.remove();
+        renderLoading();
+        loadInitial();
+      } catch (err) {
+        console.error('[upload-to-folder] post failed:', err);
+        showUploadError([(err && err.message) || 'שגיאה בשליחה לשרת']);
       }
     }
 

@@ -144,7 +144,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v18-revert-zoom'),
+        }, 'build: v19-margin-reflow'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -573,15 +573,35 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
 
     const imgScale = getFieldScale('image');
     canvasEl.querySelectorAll('[data-field="image"]').forEach((wrap) => {
-      // Clear any leftover zoom from the v17 experiment — it conflicted with
-      // the canvas's outer scale transform and made the +/− feel unresponsive.
+      // Clean every style we've ever touched so this is idempotent across
+      // render cycles. Each renderCanvas() builds fresh DOM, but inline
+      // styles propagate from this function — always reset before applying.
       wrap.style.zoom = '';
-      if (imgScale === 1) {
-        wrap.style.transform = '';
-        wrap.style.transformOrigin = '';
-      } else {
-        wrap.style.transform = `scale(${imgScale})`;
-        wrap.style.transformOrigin = 'center';
+      wrap.style.transform = '';
+      wrap.style.transformOrigin = '';
+      wrap.style.marginTop = '';
+      wrap.style.marginBottom = '';
+
+      if (imgScale === 1) return;
+
+      // offsetHeight is the wrapper's layout-box height in canvas coordinates
+      // (1080-wide unscaled space), unaffected by the canvas's outer transform.
+      // That's exactly the unit we need for margin so the math is clean.
+      const naturalH = wrap.offsetHeight;
+
+      // Apply the visual scale (same as before — this is what the user sees).
+      wrap.style.transform = `scale(${imgScale})`;
+      wrap.style.transformOrigin = 'center';
+
+      // Push siblings via real margin so they don't sit under the visually-
+      // bigger image. Margin is split top/bottom because transform-origin
+      // is center — the image grows equally up and down from its centre.
+      // For shrinking (scale < 1), this becomes negative margin and pulls
+      // siblings closer, removing the empty gap.
+      if (naturalH > 0) {
+        const extra = naturalH * (imgScale - 1);
+        wrap.style.marginTop = `${extra / 2}px`;
+        wrap.style.marginBottom = `${extra / 2}px`;
       }
     });
   }

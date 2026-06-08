@@ -144,7 +144,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v13-golive'),
+        }, 'build: v14-story-default'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -331,7 +331,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       renderCanvas();
     }
     const formatBar = el('div', { class: 'rv-format-bar' }, [
-      el('div', { class: 'rv-format-label' }, 'פורמט:'),
+      el('div', { class: 'rv-format-label' }, 'לאן להעלות:'),
       el('button', {
         class: 'rv-format-btn' + (state.format === 'feed' ? ' active' : ''),
         onClick: () => { haptic('light'); setFormatAndRender('feed'); }

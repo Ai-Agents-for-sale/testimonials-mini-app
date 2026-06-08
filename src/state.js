@@ -7,7 +7,7 @@ const state = {
   selectedFolderName: '',
   galleryImages: [],
   templateId: null,
-  format: 'feed',
+  format: 'story',
   currentImage: null,
   excludeIds: [],
   generatedContent: null,
@@ -131,7 +131,7 @@ export function setScheduleAt(iso) {
 // loses the image they were working with.
 export function resetPostFlow() {
   state.templateId = null;
-  state.format = 'feed';
+  state.format = 'story';
   state.generatedContent = null;
   state.editableValues = {};
   state.sizeAdjustments = {};

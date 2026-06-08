@@ -39,7 +39,6 @@ export function templatesScreen({ navigate, goBack }) {
       el('div', { class: 'tpl-card-thumb' }, [tpl.thumbnail(brand)]),
       el('div', { class: 'tpl-card-body' }, [
         el('div', { class: 'tpl-card-name' }, tpl.meta.nameHe),
-        tpl.meta.bestFor ? el('div', { class: 'tpl-card-tag' }, '⚡ ' + tpl.meta.bestFor) : null,
         el('div', { class: 'tpl-card-desc' }, tpl.meta.descLong || tpl.meta.description)
       ])
     ]);

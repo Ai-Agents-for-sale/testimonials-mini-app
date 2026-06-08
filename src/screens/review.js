@@ -144,7 +144,7 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
         el('div', {
           class: 'popup-sub',
           style: { color: '#c0392b', fontSize: '11px', marginTop: '4px', fontWeight: '600' }
-        }, 'build: v16-wa-sizes'),
+        }, 'build: v17-dynamic-image'),
         el('div', { class: 'popup-actions' }, [
           el('button', {
             class: 'btn btn-secondary popup-btn',
@@ -571,13 +571,18 @@ export function reviewScreen({ navigate, goBack, onPublished }) {
       });
     });
 
+    // Image scaling uses CSS `zoom`, NOT `transform: scale`. Transform is
+    // purely visual — the wrapper's box stays the original size, so siblings
+    // don't move and you get overlap. Zoom changes the actual computed size
+    // of the wrapper (and propagates to descendants), so the flex-column
+    // template canvases push the caption/sig/etc. down to make room.
     const imgScale = getFieldScale('image');
-    if (imgScale !== 1) {
-      canvasEl.querySelectorAll('[data-field="image"]').forEach((wrap) => {
-        wrap.style.transform = `scale(${imgScale})`;
-        wrap.style.transformOrigin = 'center';
-      });
-    }
+    canvasEl.querySelectorAll('[data-field="image"]').forEach((wrap) => {
+      // Clear any stale transform from prior versions.
+      wrap.style.transform = '';
+      wrap.style.transformOrigin = '';
+      wrap.style.zoom = imgScale === 1 ? '' : String(imgScale);
+    });
   }
 
   // ============================================================

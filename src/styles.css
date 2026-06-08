@@ -1425,14 +1425,16 @@ html, body {
 }
 .wa-image-placeholder { color: #999; font-size: 28px; }
 
+/* Caption (the text between the image and the signature) is the MAIN
+   readable text in this template — bumped ~70% from the prior 32/36px. */
 .wa-caption {
   position: relative; z-index: 2;
-  padding: 26px 80px 0;
+  padding: 26px 60px 0;
   text-align: center;
   font-family: 'Frank Ruhl Libre', serif;
-  font-weight: 400;
-  font-size: 32px;
-  line-height: 1.5;
+  font-weight: 500;
+  font-size: 54px;
+  line-height: 1.4;
   color: #1f1f1f;
   text-shadow: 0 2px 6px rgba(255,255,255,0.5);
 }
@@ -1441,26 +1443,26 @@ html, body {
   position: relative; z-index: 2;
   margin-top: auto;
   padding: 28px 80px 60px;
-  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
 }
-.wa-sig-rule { width: 200px; height: 7px; border-radius: 4px; }
-/* Bumped again — user reported still small, so this round goes much
-   further. 120px feed / 160px story. White-space:nowrap so a long sig
-   doesn't reflow + autoshrink. */
+/* Signature rule + text — dialled WAY back. Previously 120/160px which
+   dominated the canvas; now a small, italic byline-style sig. */
+.wa-sig-rule { width: 80px; height: 4px; border-radius: 4px; }
 .wa-sig-text {
   font-family: 'Frank Ruhl Libre', serif;
   font-style: italic;
-  font-weight: 800;
-  font-size: 120px !important;
+  font-weight: 700;
+  font-size: 28px;
   color: #075E54;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   line-height: 1.1;
   white-space: nowrap;
+  opacity: 0.85;
 }
 
 .tpl-whatsapp.format-story .wa-headline  { font-size: 84px; }
-.tpl-whatsapp.format-story .wa-caption   { font-size: 36px; padding-top: 36px; }
-.tpl-whatsapp.format-story .wa-sig-text  { font-size: 160px !important; }
+.tpl-whatsapp.format-story .wa-caption   { font-size: 61px; padding-top: 36px; }
+.tpl-whatsapp.format-story .wa-sig-text  { font-size: 36px; }
 .tpl-whatsapp.format-story .wa-image     { max-height: 920px; }
 
 /* =========================================================================
